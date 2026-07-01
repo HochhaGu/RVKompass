@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RVKompass</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+</head>
+<body>
+  <header>
+    <h1>RVKompass</h1>
+    <p>Brücke zwischen Freitext und RVK-Systematik</p>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a>
+  </footer>
+</body>
+</html>

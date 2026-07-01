@@ -1,0 +1,30 @@
+{% if not query %}
+  <p><em>Noch keine Suche durchgeführt.</em></p>
+{% elif not results %}
+  <p>Keine passenden RVK-Systemstellen für „{{ query }}" gefunden.</p>
+{% else %}
+  {% if expanded_terms %}
+    <p class="expanded-terms">Erweitert um: {{ expanded_terms | join(', ') }}</p>
+  {% endif %}
+  <table>
+    <thead>
+      <tr>
+        <th>Notation</th>
+        <th>Kurzbeschreibung</th>
+        <th>Verwandte Begriffe</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td><code>{{ r.notation }}</code></td>
+        <td>
+          <strong>{{ r.label }}</strong>
+          {% if r.hierarchy_path %}<br><small>{{ r.hierarchy_path }}</small>{% endif %}
+        </td>
+        <td>{{ r.related_terms | join(', ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

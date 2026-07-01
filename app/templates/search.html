@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <form hx-post="/search" hx-target="#results" hx-indicator="#spinner">
+    <input type="search" name="q" placeholder="Suchbegriff eingeben..." autofocus>
+    <button type="submit">Suchen</button>
+  </form>
+  <p id="spinner" class="htmx-indicator">Suche läuft ...</p>
+  <div id="results">
+    <p><em>Noch keine Suche durchgeführt.</em></p>
+  </div>
+{% endblock %}

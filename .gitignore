@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/*.sqlite3
+data/*.npy
+data/*_meta.json
+data/models/
+data/raw/
+.DS_Store
+*.log
+logs/
+.claude/settings.local.json
