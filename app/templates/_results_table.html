@@ -12,6 +12,7 @@
         <th>Notation</th>
         <th>Kurzbeschreibung</th>
         <th>Verwandte Begriffe</th>
+        <th>Konfidenz</th>
       </tr>
     </thead>
     <tbody>
@@ -23,6 +24,13 @@
           {% if r.hierarchy_path %}<br><small>{{ r.hierarchy_path }}</small>{% endif %}
         </td>
         <td>{{ r.related_terms | join(', ') }}</td>
+        <td>
+          {% if r.confidence_pct is not none %}
+            <span class="confidence confidence-{{ 'high' if r.confidence_pct >= 70 else ('medium' if r.confidence_pct >= 55 else 'low') }}">{{ r.confidence_pct }}%</span>
+          {% else %}
+            <span class="confidence">–</span>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

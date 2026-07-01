@@ -10,4 +10,4 @@ data/raw/
 .DS_Store
 *.log
 logs/
-.claude/settings.local.json
+.claude/

@@ -29,7 +29,9 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
     embed_text = " ".join([query, *expanded_terms])
     query_vec = embedding_service.embed_query(embed_text)
 
-    vector_hits = [nid for nid, _ in embedding_service.search_notations(query_vec, top_k=50)]
+    vector_hits_raw = embedding_service.search_notations(query_vec, top_k=50)
+    vector_hits = [nid for nid, _ in vector_hits_raw]
+    vector_score_by_id = dict(vector_hits_raw)
 
     term_hits_raw = embedding_service.search_register_terms(query_vec, top_k=30)
     term_notation_ids: list[int] = []
@@ -52,6 +54,9 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
         notation = notations.get(nid)
         if notation is None:
             continue
+        confidence = vector_score_by_id.get(nid)
+        if confidence is None:
+            confidence = embedding_service.score_for_notation(query_vec, nid)
         results.append(
             {
                 "notation": notation.notation,
@@ -59,6 +64,7 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
                 "hierarchy_path": notation.hierarchy_path,
                 "related_terms": rvk_repository.get_register_terms(conn, nid, limit=3),
                 "score": fused[nid],
+                "confidence_pct": round(confidence * 100) if confidence is not None else None,
             }
         )
     return results

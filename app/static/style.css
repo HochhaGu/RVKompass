@@ -58,6 +58,28 @@ th, td {
   font-size: 0.9rem;
 }
 
+.confidence {
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.confidence-high {
+  background: #d4edda;
+  color: #1e5f2e;
+}
+
+.confidence-medium {
+  background: #fff3cd;
+  color: #7a5c00;
+}
+
+.confidence-low {
+  background: #f8d7da;
+  color: #7a1f28;
+}
+
 footer {
   margin-top: 3rem;
   font-size: 0.85rem;
