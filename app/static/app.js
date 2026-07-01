@@ -4,16 +4,9 @@ document.addEventListener("click", function (event) {
   const copyBtn = event.target.closest(".copy-notation");
   if (copyBtn) {
     copyToClipboard(copyBtn.dataset.notation, copyBtn, "📋");
-    return;
   }
-
-  const rvkLink = event.target.closest(".rvk-online-link");
-  if (rvkLink) {
-    // Notation kopieren, damit sie in RVK-Online direkt eingefügt werden kann - kein
-    // verifiziertes Deep-Link-Schema zu einzelnen Notationen dort verfügbar (siehe Plan).
-    navigator.clipboard.writeText(rvkLink.dataset.notation).catch(() => {});
-    // Linkverhalten (target="_blank") läuft normal weiter, kein preventDefault nötig.
-  }
+  // .rvk-online-link braucht keinen Handler mehr - verlinkt direkt per Deep-Link
+  // (#notation/<Notation>) auf die jeweilige Systemstelle in RVK-Online.
 });
 
 function copyToClipboard(text, el, originalLabel) {

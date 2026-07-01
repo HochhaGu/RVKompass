@@ -8,36 +8,70 @@ from app.services import ranking, rvk_repository
 config = get_config()
 
 
-def test_reciprocal_rank_fusion_prefers_items_ranked_high_in_multiple_lists():
-    scores = ranking.reciprocal_rank_fusion([[1, 2, 3], [2, 3, 1], [3, 1, 2]])
-    # Alle drei erscheinen in jeder Liste - Reihenfolge muss durch frühere Ränge entschieden werden
-    assert scores[1] == pytest.approx(scores[2]) == pytest.approx(scores[3])
+def test_build_rvk_online_url_matches_verified_deep_link_scheme():
+    # Verifiziert gegen ein echtes Beispiel: #notation/ZG%209287
+    assert (
+        ranking.build_rvk_online_url("ZG 9287")
+        == "https://rvk.uni-regensburg.de/regensburger-verbundklassifikation-online"
+        "?view=rvkonline#notation/ZG%209287"
+    )
 
 
-def test_reciprocal_rank_fusion_top_rank_wins_when_only_in_one_list():
-    scores = ranking.reciprocal_rank_fusion([[1], []])
-    assert scores[1] > 0
+def test_build_rvk_online_url_encodes_range_notations():
+    # Auch für Notationsbereiche verifiziert (z.B. "AA 10000 - AA 19900")
+    url = ranking.build_rvk_online_url("AA 10000 - AA 19900")
+    assert url.endswith("#notation/AA%2010000%20-%20AA%2019900")
+
+
+@pytest.mark.parametrize(
+    "notation,expected",
+    [
+        ("UT 8970", True),
+        ("AI 2250", True),
+        ("A", False),
+        ("AA", False),
+        ("ZG", False),
+        ("AI 2200 - AI 2300", False),
+        ("AA 10000 - AA 19900", False),
+    ],
+)
+def test_is_assignable_notation(notation, expected):
+    assert ranking.is_assignable_notation(notation) is expected
 
 
 @pytest.mark.skipif(
     not (Path(config.DATABASE_PATH).exists() and Path(config.EMBEDDINGS_PATH).exists()),
     reason="Benötigt lokale RVK-Datenbank und Embeddings (sync_rvk.py + build_embeddings.py).",
 )
-def test_search_returns_ranked_results_for_known_term():
-    from app.services import embedding_service
+class TestSearchIntegration:
+    @pytest.fixture(scope="class")
+    def service(self):
+        from app.services import embedding_service
 
-    service = embedding_service.EmbeddingService(
-        model_name=config.EMBEDDING_MODEL_NAME,
-        embeddings_path=config.EMBEDDINGS_PATH,
-        embeddings_meta_path=config.EMBEDDINGS_META_PATH,
-        register_term_embeddings_path=config.REGISTER_TERM_EMBEDDINGS_PATH,
-        register_term_meta_path=config.REGISTER_TERM_META_PATH,
-    )
-    conn = rvk_repository.get_connection(config.DATABASE_PATH)
-    try:
+        return embedding_service.EmbeddingService(
+            model_name=config.EMBEDDING_MODEL_NAME,
+            embeddings_path=config.EMBEDDINGS_PATH,
+            embeddings_meta_path=config.EMBEDDINGS_META_PATH,
+            register_term_embeddings_path=config.REGISTER_TERM_EMBEDDINGS_PATH,
+            register_term_meta_path=config.REGISTER_TERM_META_PATH,
+        )
+
+    @pytest.fixture
+    def conn(self):
+        connection = rvk_repository.get_connection(config.DATABASE_PATH)
+        yield connection
+        connection.close()
+
+    def test_search_returns_ranked_results_for_known_term(self, service, conn):
         results = ranking.search(conn, service, "Wörterbücher", [])
-    finally:
-        conn.close()
 
-    assert results
-    assert all("notation" in r and "label" in r for r in results)
+        assert results
+        assert all("notation" in r and "label" in r and "rvk_online_url" in r for r in results)
+
+    def test_results_are_sorted_by_displayed_confidence_descending(self, service, conn):
+        # Kernanforderung: die Reihenfolge muss exakt der angezeigten Konfidenz folgen,
+        # damit Nutzer*innen sich auf "oben = passender" verlassen können.
+        results = ranking.search(conn, service, "Photosynthese", [])
+
+        confidences = [r["confidence_pct"] for r in results]
+        assert confidences == sorted(confidences, reverse=True)
