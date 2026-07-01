@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-  <form hx-post="/search" hx-target="#results" hx-indicator="#spinner">
-    <input type="search" name="q" placeholder="Suchbegriff eingeben..." autofocus>
-    <button type="submit">Suchen</button>
-  </form>
-  <p id="spinner" class="htmx-indicator">Suche läuft ...</p>
-  <div id="results">
-    <p><em>Noch keine Suche durchgeführt.</em></p>
-  </div>
+  <section class="search-section">
+    <h2>Schlagwort eingeben</h2>
+    <form hx-post="/search" hx-target="#results" hx-indicator="#spinner">
+      <input type="text" name="q" placeholder="z. B. Klimawandel, Umwelttechnik, Konfliktmanagement ..." autofocus>
+      <button type="submit" class="btn-primary">Vorschläge anzeigen</button>
+    </form>
+    <p id="spinner" class="htmx-indicator">Suche läuft ...</p>
+    <div id="results">
+      <p><em>Noch keine Suche durchgeführt.</em></p>
+    </div>
+  </section>
+
+  <section>
+    <details>
+      <summary><strong>Was ist der RVKompass?</strong></summary>
+      <div class="rvk-einleitung">
+        <p>
+          Der <strong>RVKompass</strong> ist ein digitales Werkzeug zur Unterstützung bei der Klassifikation
+          bibliographischer Ressourcen mit der <abbr title="Regensburger Verbundklassifikation">RVK</abbr>.
+          Gerade bei Themengebieten, die nicht zur eigenen fachlichen Expertise zählen, fällt es
+          Bibliothekar*innen häufig schwer, eine passende Systemstelle zu finden.
+        </p>
+        <p>
+          Die Eingabe erfolgt über einen einfachen Suchschlitz. Das System analysiert den eingegebenen
+          Begriff kontextuell, erweitert ihn gegebenenfalls durch bedeutungsverwandte Termini und
+          durchsucht anschließend den lokal synchronisierten RVK-Bestand per semantischer und
+          Stichwortsuche. Die Treffer werden nach Relevanz sortiert und mit Notation, Kurzbeschreibung,
+          verwandten Begriffen und einer Konfidenzangabe ausgegeben.
+        </p>
+      </div>
+    </details>
+  </section>
 {% endblock %}

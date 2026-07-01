@@ -9,7 +9,8 @@
   <table>
     <thead>
       <tr>
-        <th>Notation</th>
+        <th>#</th>
+        <th>RVK-Notation</th>
         <th>Kurzbeschreibung</th>
         <th>Verwandte Begriffe</th>
         <th>Konfidenz</th>
@@ -18,7 +19,24 @@
     <tbody>
       {% for r in results %}
       <tr>
-        <td><code>{{ r.notation }}</code></td>
+        <td>{{ loop.index }}</td>
+        <td class="notation-cell">
+          <code>{{ r.notation }}</code>
+          <button
+            type="button"
+            class="icon-btn copy-notation"
+            data-notation="{{ r.notation }}"
+            title="Notation in die Zwischenablage kopieren"
+          >📋</button>
+          <a
+            class="icon-btn rvk-online-link"
+            data-notation="{{ r.notation }}"
+            href="https://rvk.uni-regensburg.de/regensburger-verbundklassifikation-online?view=rvkonline"
+            target="_blank"
+            rel="noopener"
+            title="In RVK-Online gegenprüfen (Notation wird beim Klick kopiert)"
+          >↗</a>
+        </td>
         <td>
           <strong>{{ r.label }}</strong>
           {% if r.hierarchy_path %}<br><small>{{ r.hierarchy_path }}</small>{% endif %}
