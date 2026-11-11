@@ -1,7 +1,8 @@
 """Misst die Suchqualität von RVKompass gegen den Goldstandard (eval/goldstandard.csv).
 
-Ruft app.services.ranking.search(...) direkt auf (kein HTTP), standardmäßig zweimal je Anfrage:
-mit Begriffserweiterung (wie in app/routes/search.py) und ohne. Ergebnis:
+Ruft app.services.ranking.search_result(...) direkt auf (kein HTTP), standardmäßig in vier
+Varianten je Anfrage (P4): ohne Erweiterung, nur GND, nur LLM (geprüft), GND+LLM (wie in
+app/routes/search.py). „metrics“ ist der Lauf GND+LLM. Ergebnis:
 reports/eval-<datum>-<git-shorthash>.json und .md. Vorhandene Berichte werden nie
 überschrieben (Zusatz -2, -3 ...).
 
@@ -31,7 +32,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import get_config
 from app.services import evaluation, query_expansion, ranking, rvk_repository
-from app.services.expansion import gnd
+from app.services.expansion import gnd, llm
 
 
 def git_info(cwd: Path = ROOT) -> tuple[str, bool]:
@@ -98,29 +99,62 @@ def gnd_enabled(config) -> bool:
     return bool(getattr(config, "ENABLE_GND_EXPANSION", False))
 
 
-def run_mode(conn, service, entries, expand, config) -> list[dict]:
-    """Wertet alle Anfragen aus; expand=True nutzt Begriffs- und GND-Erweiterung wie die App."""
-    # Eine gemeinsame GND-Quelle für den ganzen Lauf: Nach mehreren Fehlern in Folge (z. B. ohne
-    # Netz) fragt sie nicht mehr an, damit die Evaluation nicht an Timeouts hängt.
-    source = (
-        gnd.build_gnd_source(conn, config) if expand and gnd_enabled(config) else None
-    )
+def llm_enabled(config) -> bool:
+    return bool(getattr(config, "ENABLE_QUERY_EXPANSION", False))
+
+
+# Varianten der Evaluation (P4): Schlüssel -> (GND-Bedeutungen nutzen, LLM-Begriffe nutzen)
+VARIANTS = {
+    "none": (False, False),
+    "gnd": (True, False),
+    "llm": (False, True),
+    "gnd_llm": (True, True),
+}
+
+
+def _suggestion_record(suggestion) -> dict:
+    return {
+        "begriff": suggestion.term,
+        "beziehung": suggestion.llm_relation,
+        "begruendung": suggestion.rationale,
+        "verified": suggestion.verified,
+        "verified_via": suggestion.verified_via,
+        "matched_term": suggestion.matched_term,
+        "gnd_id": suggestion.gnd_id,
+    }
+
+
+def run_mode(
+    conn,
+    service,
+    entries,
+    config,
+    use_gnd: bool = False,
+    use_llm: bool = False,
+    source=None,
+    llm_stats: dict | None = None,
+) -> list[dict]:
+    """Wertet alle Anfragen in einer Variante aus.
+
+    `use_gnd` nutzt GND-Bedeutungen wie die App, `use_llm` die geprüften LLM-Begriffe. Die
+    Prüfung der LLM-Vorschläge nutzt die GND-Quelle `source` auch in der Variante „nur LLM“.
+    Die Vorschläge des Sprachmodells sind je Anfrage gecacht; der zweite LLM-Lauf kostet daher
+    keine weiteren Aufrufe.
+    """
     per_query = []
     for entry in entries:
         start = time.perf_counter()
-        terms: list[str] = []
         senses = []
-        if expand and config.ENABLE_QUERY_EXPANSION:
-            terms = query_expansion.expand_query(
-                conn,
-                config.CLAUDE_API_KEY,
-                entry.query,
-                daily_limit=config.CLAUDE_DAILY_LIMIT,
-            )
-        if source is not None:
+        suggestions = []
+        if use_gnd and source is not None:
             senses = gnd.gnd_senses_for_query(conn, config, entry.query, source=source)
+        if use_llm and llm_enabled(config):
+            suggestions = llm.llm_suggestions_for_query(
+                conn, config, entry.query, source=source, stats=llm_stats
+            )
+        llm_terms = llm.verified_terms(suggestions, entry.query)
         result = ranking.search_result(
-            conn, service, entry.query, terms, gnd_senses=senses
+            conn, service, entry.query, llm_terms, gnd_senses=senses
         )
         seconds = time.perf_counter() - start
         notations = [hit.notation.notation for hit in result.hits]
@@ -132,12 +166,39 @@ def run_mode(conn, service, entries, expand, config) -> list[dict]:
                 entry,
                 notations,
                 seconds,
-                terms,
+                [term.term for term in llm_terms],
                 gnd_terms=gnd_terms,
                 gnd_senses=[sense.display_name for sense in senses],
+                llm_suggestions=[_suggestion_record(s) for s in suggestions],
             )
         )
     return per_query
+
+
+def llm_summary(config, per_query: list[dict], stats: dict) -> dict:
+    """Kennzahlen zum Sprachmodell-Echttest (ohne Schlüsselinhalt)."""
+    suggestions = [s for q in per_query for s in q.get("llm_suggestions", [])]
+    verified = [s for s in suggestions if s["verified"]]
+    return {
+        "enabled": llm_enabled(config),
+        "model": getattr(config, "CLAUDE_MODEL", None),
+        "sdk_version": query_expansion.sdk_version(),
+        "structured_output": query_expansion.sdk_supports_output_config(),
+        "api_key_present": bool(getattr(config, "CLAUDE_API_KEY", "")),
+        "api_calls": stats.get("api_calls", 0),
+        "api_errors": stats.get("api_errors", 0),
+        "cache_hits": stats.get("cache_hits", 0),
+        "limit_reached": stats.get("limit_reached", 0),
+        "queries_with_suggestions": sum(
+            1 for q in per_query if q.get("llm_suggestions")
+        ),
+        "suggestions_total": len(suggestions),
+        "suggestions_verified": len(verified),
+        "verified_via_register": sum(
+            1 for s in verified if s["verified_via"] == "rvk_register"
+        ),
+        "verified_via_gnd": sum(1 for s in verified if s["verified_via"] == "gnd"),
+    }
 
 
 def build_embedding_service(config):
@@ -226,17 +287,37 @@ def main(argv=None) -> int:
         "Aufwärmen"
     )  # Modell-Ladezeit nicht in die erste Messung einrechnen
 
+    llm_stats: dict = {}
+    runs: dict[str, list[dict]] = {}
     conn = rvk_repository.get_connection(config.DATABASE_PATH)
     try:
-        no_exp = run_mode(conn, service, entries, expand=False, config=config)
-        with_exp = None
-        if not args.no_expansion:
-            with_exp = run_mode(conn, service, entries, expand=True, config=config)
+        # Eine gemeinsame GND-Quelle für alle Läufe: Nach mehreren Fehlern in Folge (z. B. ohne
+        # Netz) fragt sie nicht mehr an, damit die Evaluation nicht an Timeouts hängt.
+        source = (
+            gnd.build_gnd_source(conn, config)
+            if gnd_enabled(config) and not args.no_expansion
+            else None
+        )
+        variants = ["none"] if args.no_expansion else list(VARIANTS)
+        for key in variants:
+            use_gnd, use_llm = VARIANTS[key]
+            runs[key] = run_mode(
+                conn,
+                service,
+                entries,
+                config,
+                use_gnd=use_gnd,
+                use_llm=use_llm,
+                source=source,
+                llm_stats=llm_stats,
+            )
         missing_notations = find_missing_notations(conn, entries)
         rvk_version = latest_rvk_version(conn)
     finally:
         conn.close()
 
+    no_exp = runs["none"]
+    with_exp = None if args.no_expansion else runs["gnd_llm"]
     main_run = no_exp if args.no_expansion else with_exp
     commit, dirty = git_info()
     now = datetime.now(UTC)
@@ -250,7 +331,7 @@ def main(argv=None) -> int:
         "gold_file": str(gold_path),
         "gold_count": len(entries),
         "expansion": {
-            "enabled": bool(config.ENABLE_QUERY_EXPANSION) and not args.no_expansion,
+            "enabled": llm_enabled(config) and not args.no_expansion,
             "api_key_present": bool(config.CLAUDE_API_KEY),
             "queries_with_terms": sum(1 for q in main_run if q["expanded_terms"]),
             "gnd_enabled": gnd_enabled(config) and not args.no_expansion,
@@ -266,6 +347,15 @@ def main(argv=None) -> int:
     }
     if with_exp is not None:
         report["per_query_no_expansion"] = no_exp
+        report["metrics_variants"] = {
+            key: evaluation.aggregate(run) for key, run in runs.items()
+        }
+        report["by_typ_variants"] = evaluation.aggregate_variants_by(runs, "typ")
+        report["llm"] = llm_summary(config, with_exp, llm_stats)
+        report["llm_effect"] = {
+            "llm_vs_none": evaluation.rank_changes(runs["none"], runs["llm"]),
+            "gnd_llm_vs_gnd": evaluation.rank_changes(runs["gnd"], runs["gnd_llm"]),
+        }
     if old_report is not None:
         report["compare_file"] = args.compare
         report["compare"] = evaluation.compare_metrics(report["metrics"], old_report)
@@ -287,8 +377,20 @@ def main(argv=None) -> int:
     for key in evaluation.METRIC_KEYS:
         line = f"  {evaluation.METRIC_LABELS[key]}: {report['metrics'][key]}"
         if with_exp is not None:
-            line += f" (ohne Erweiterung: {report['metrics_no_expansion'][key]})"
+            variants = report["metrics_variants"]
+            line += (
+                f" (ohne: {variants['none'][key]}, nur GND: {variants['gnd'][key]},"
+                f" nur LLM: {variants['llm'][key]})"
+            )
         print(line)
+    if with_exp is not None:
+        info = report["llm"]
+        print(
+            f"Sprachmodell: {info['model']} (anthropic {info['sdk_version']}), "
+            f"Schlüssel vorhanden: {info['api_key_present']}, Aufrufe: {info['api_calls']}, "
+            f"Fehler: {info['api_errors']}, Vorschläge: {info['suggestions_total']}, "
+            f"davon geprüft: {info['suggestions_verified']}"
+        )
     if missing_notations:
         print(
             f"Hinweis: {len(missing_notations)} erwartete Notation(en) fehlen im RVK-Bestand."

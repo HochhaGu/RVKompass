@@ -7,7 +7,15 @@ from pathlib import Path
 
 import pytest
 
-from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit, Notation
+from app.models import (
+    SCHEMA_SQL,
+    Evidence,
+    ExpansionTerm,
+    GndSense,
+    Hit,
+    LlmSuggestion,
+    Notation,
+)
 from orchestrator.gates import extract_metrics
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -79,12 +87,24 @@ def setup(tmp_path, monkeypatch):
 
     calls = {"expand": 0}
 
-    def fake_expand(conn, api_key, query, daily_limit):
+    def fake_llm(conn, config, query, source=None, stats=None):
         calls["expand"] += 1
-        return ["Zahnrad"] if query == "Getriebe" else []
+        if stats is not None:
+            stats["api_calls"] = stats.get("api_calls", 0) + 1
+        if query != "Getriebe":
+            return []
+        return [
+            LlmSuggestion(
+                "Zahnrad", "unterbegriff", "Bauteil", True, "rvk_register", "Zahnrad"
+            ),
+            LlmSuggestion("Dings", "verwandt", "unklar"),
+        ]
 
     def fake_search(conn, service, query, expanded_terms, gnd_senses=()):
         calls.setdefault("gnd_senses", []).append(list(gnd_senses))
+        calls.setdefault("llm_terms", []).append(
+            [(t.term, t.relation) for t in expanded_terms]
+        )
         if query == "Getriebe":
             hits = [_fake_hit(1, "ZL 4100", query), _fake_hit(2, "ZL 4140", query)]
         else:
@@ -95,7 +115,7 @@ def setup(tmp_path, monkeypatch):
     monkeypatch.setattr(
         evaluate, "build_embedding_service", lambda config: FakeService()
     )
-    monkeypatch.setattr(evaluate.query_expansion, "expand_query", fake_expand)
+    monkeypatch.setattr(evaluate.llm, "llm_suggestions_for_query", fake_llm)
     monkeypatch.setattr(evaluate.ranking, "search_result", fake_search)
     return gold, tmp_path / "out", calls
 
@@ -127,10 +147,52 @@ def test_report_fulfils_contract(setup):
     assert report["expansion"]["api_key_present"] is False
     assert report["missing_notations"] == [{"notation": "ZL 4300", "query": "Feder"}]
     assert "metrics_no_expansion" in report
-    assert calls["expand"] == 2
+    # zwei LLM-Läufe (nur LLM, GND+LLM) x zwei Anfragen
+    assert calls["expand"] == 4
 
     gate_metrics = extract_metrics(report)
     assert gate_metrics["hit@10"] == report["metrics"]["hit@10"]
+
+
+def test_report_has_four_variants_and_llm_block(setup):
+    gold, out, calls = setup
+    assert evaluate.main(["--gold", str(gold), "--out", str(out)]) == 0
+    (json_path,) = out.glob("eval-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+
+    assert set(report["metrics_variants"]) == {"none", "gnd", "llm", "gnd_llm"}
+    assert report["metrics"] == report["metrics_variants"]["gnd_llm"]
+    assert report["metrics_no_expansion"] == report["metrics_variants"]["none"]
+
+    info = report["llm"]
+    assert info["api_key_present"] is False
+    assert info["api_calls"] == 4
+    assert info["queries_with_suggestions"] == 1
+    assert info["suggestions_total"] == 2
+    assert info["suggestions_verified"] == 1
+    assert info["verified_via_register"] == 1
+    assert info["verified_via_gnd"] == 0
+    assert "sdk_version" in info and "model" in info
+
+    getriebe = next(q for q in report["per_query"] if q["query"] == "Getriebe")
+    assert getriebe["expanded_terms"] == ["Zahnrad"]
+    assert [
+        (s["begriff"], s["verified"], s["begruendung"])
+        for s in getriebe["llm_suggestions"]
+    ] == [("Zahnrad", True, "Bauteil"), ("Dings", False, "unklar")]
+    # nur geprüfte Begriffe gehen in die Suche, und nur in den LLM-Läufen
+    assert [("Zahnrad", "llm_verified")] in calls["llm_terms"]
+    assert all(("Dings", "llm_verified") not in t for t in calls["llm_terms"])
+    assert set(report["llm_effect"]) == {"llm_vs_none", "gnd_llm_vs_gnd"}
+    # Kennzahlen je Anfragetyp für jede Variante (Entscheidungsregel P4)
+    assert set(report["by_typ_variants"]) == {"none", "gnd", "llm", "gnd_llm"}
+    assert report["by_typ_variants"]["gnd_llm"] == report["by_typ"]
+
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "### Hit@10 je Anfragetyp und Variante" in md
+    assert "## Varianten" in md
+    assert "| Kennzahl | ohne Erweiterung | nur GND | nur LLM | GND+LLM |" in md
+    assert "## Sprachmodell-Echttest" in md
 
 
 def test_second_run_does_not_overwrite(setup):
@@ -244,9 +306,9 @@ def test_run_mode_uses_gnd_senses_only_with_expansion(setup, monkeypatch, tmp_pa
     (json_path,) = out.glob("eval-*.json")
     report = json.loads(json_path.read_text(encoding="utf-8"))
 
-    # nur der Lauf mit Erweiterung fragt die GND, und zwar mit einer gemeinsamen Quelle
-    assert len(sources) == 2
-    assert sources[0] is sources[1] is not None
+    # nur die Läufe „nur GND“ und „GND+LLM“ fragen die GND, mit einer gemeinsamen Quelle
+    assert len(sources) == 4
+    assert all(s is sources[0] for s in sources) and sources[0] is not None
     assert report["expansion"]["gnd_enabled"] is True
     assert report["expansion"]["queries_with_gnd_senses"] == 1
     feder = next(q for q in report["per_query"] if q["query"] == "Feder")

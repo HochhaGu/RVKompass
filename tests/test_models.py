@@ -3,9 +3,11 @@ import pytest
 from app.models import (
     EXPANSION_RELATIONS,
     EXPANSION_SOURCES,
+    LLM_RELATIONS,
     Evidence,
     ExpansionTerm,
     Hit,
+    LlmSuggestion,
     Notation,
 )
 
@@ -54,9 +56,52 @@ def test_expansion_term_accepts_relations_from_task(relation):
     assert ExpansionTerm("x", "gnd", relation).relation == relation
 
 
-def test_provisional_llm_unverified_relation_is_allowed():
-    # Vorläufiger Wert bis P4 (siehe Kommentar in app/models.py)
-    assert "llm_unverified" in EXPANSION_RELATIONS
+def test_llm_unverified_relation_is_removed():
+    # P4: Nicht geprüfte LLM-Begriffe werden nie gesucht, also nie ein ExpansionTerm
+    assert "llm_unverified" not in EXPANSION_RELATIONS
+    with pytest.raises(ValueError):
+        ExpansionTerm("x", "llm", "llm_unverified")
+
+
+def test_llm_relations_match_task():
+    assert LLM_RELATIONS == {
+        "synonym",
+        "oberbegriff",
+        "unterbegriff",
+        "verwandt",
+        "fachkontext",
+    }
+
+
+def test_llm_suggestion_verified_needs_via_and_matched_term():
+    ok = LlmSuggestion(
+        "Zahnrad",
+        "verwandt",
+        "Bauteil im Getriebe",
+        True,
+        "gnd",
+        "Zahnrad",
+        "4067467-5",
+    )
+    assert ok.verified and ok.verified_via == "gnd"
+    with pytest.raises(ValueError):
+        LlmSuggestion("Zahnrad", "verwandt", "", True, None, "Zahnrad")
+    with pytest.raises(ValueError):
+        LlmSuggestion("Zahnrad", "verwandt", "", True, "gnd", None)
+
+
+def test_llm_suggestion_unverified_has_no_via():
+    plain = LlmSuggestion("Zahnradkiste", "verwandt")
+    assert plain.verified is False and plain.verified_via is None
+    with pytest.raises(ValueError):
+        LlmSuggestion("Zahnrad", "verwandt", "", False, "gnd", "Zahnrad")
+
+
+def test_llm_suggestion_rejects_unknown_relation_and_via():
+    with pytest.raises(ValueError):
+        LlmSuggestion("Zahnrad", "irgendwas")
+    with pytest.raises(ValueError):
+        LlmSuggestion("Zahnrad", "synonym", "", True, "wikipedia", "Zahnrad")
 
 
 def test_expansion_term_rejects_unknown_source():

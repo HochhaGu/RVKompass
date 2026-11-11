@@ -249,11 +249,16 @@ class LobidGndSource:
 # --- Bedeutungen ----------------------------------------------------------------------------
 
 
-def _matches_query(record: GndRecord, normalized_query: str) -> bool:
+def matches_query(record: GndRecord, normalized_query: str) -> bool:
+    """Vorzugsname (ohne Zusatz) oder eine Namensvariante entspricht genau der Anfrage."""
     names = [record.preferred_name, *record.variant_names]
     return any(
         normalize_query(split_qualifier(n)[0]) == normalized_query for n in names
     )
+
+
+# Alter Name, bleibt für bestehende Aufrufer erhalten
+_matches_query = matches_query
 
 
 def _sense_from_record(record: GndRecord, narrower: list[GndRecord]) -> GndSense:
@@ -310,7 +315,7 @@ def expand_gnd(
         senses: list[GndSense] = []
         seen_ids: set[str] = set()
         for record in records:
-            if record.gnd_id in seen_ids or not _matches_query(record, normalized):
+            if record.gnd_id in seen_ids or not matches_query(record, normalized):
                 continue
             seen_ids.add(record.gnd_id)
             narrower = (

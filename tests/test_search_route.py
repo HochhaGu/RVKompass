@@ -7,7 +7,15 @@ import pytest
 from flask import Flask
 
 from app import limiter
-from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit, Notation
+from app.models import (
+    SCHEMA_SQL,
+    Evidence,
+    ExpansionTerm,
+    GndSense,
+    Hit,
+    LlmSuggestion,
+    Notation,
+)
 from app.routes import search as search_route
 from app.services import ranking
 
@@ -45,8 +53,9 @@ def client(tmp_path, monkeypatch):
 
     seen = {}
 
-    def fake_senses(conn, config, query):
+    def fake_senses(conn, config, query, source=None):
         seen["config_enabled"] = config["ENABLE_GND_EXPANSION"]
+        seen["gnd_source"] = source
         return (
             [FAMILIE, TECHNIK]
             if query == "Mutter"
@@ -59,6 +68,7 @@ def client(tmp_path, monkeypatch):
         conn, service, query, expanded_terms, gnd_senses=(), subject_filter=None
     ):
         seen["subject_filter"] = subject_filter
+        seen["llm_terms"] = list(expanded_terms)
         notation = Notation(1, "ZL 4620", "Muttern", None, None, None)
         hit = Hit(
             notation,
@@ -77,7 +87,33 @@ def client(tmp_path, monkeypatch):
         ]
         return ranking.SearchResult(hits=[hit], senses=senses)
 
+    def fake_llm(conn, config, query, source=None):
+        seen["llm_source"] = source
+        if query != "Getriebe":
+            return []
+        return [
+            LlmSuggestion(
+                "Zahnrad",
+                "unterbegriff",
+                "Bauteil, das Drehmoment überträgt",
+                True,
+                "rvk_register",
+                "Zahnrad",
+            ),
+            LlmSuggestion(
+                "Antriebswelle",
+                "verwandt",
+                "überträgt Drehbewegung",
+                True,
+                "gnd",
+                "Welle <Technik>",
+                "4189530-9",
+            ),
+            LlmSuggestion("Kraftschlussdings", "fachkontext", "erfundener Begriff"),
+        ]
+
     monkeypatch.setattr(search_route.gnd, "gnd_senses_for_query", fake_senses)
+    monkeypatch.setattr(search_route.llm, "llm_suggestions_for_query", fake_llm)
     monkeypatch.setattr(search_route.ranking, "search_result", fake_search_result)
     monkeypatch.setattr(search_route.embedding_service, "get_service", lambda: object())
 
@@ -125,3 +161,49 @@ def test_without_senses_no_gnd_block(client):
     assert "Mehrere Bedeutungen" not in html
     assert "ZL 4620" in html
     assert seen["subject_filter"] == []
+
+
+def test_llm_block_shows_verified_and_grey_unverified(client):
+    test_client, seen = client
+    html = test_client.post("/search", data={"q": "Getriebe"}).get_data(as_text=True)
+
+    assert "Vorschläge des Sprachmodells" in html
+    assert "Bauteil, das Drehmoment überträgt" in html
+    assert "gefunden im RVK-Register" in html
+    assert "gefunden in GND" in html
+    assert "Welle &lt;Technik&gt;" in html
+    assert 'class="llm-unverified"' in html
+    assert "nicht im Normvokabular gefunden" in html
+    unverified = html.split('class="llm-unverified"', 1)[1].split("</li>", 1)[0]
+    assert "Kraftschlussdings" in unverified and "erfundener Begriff" in unverified
+    # Keine Prozentwerte oder Wahrscheinlichkeiten im LLM-Block
+    block = html.split('class="llm-suggestions"', 1)[1].split("</section>", 1)[0]
+    assert "%" not in block and "Konfidenz" not in block
+
+    # gesucht werden nur die geprüften Begriffe, unter ihrer Schreibweise im Normvokabular
+    assert [(t.term, t.relation) for t in seen["llm_terms"]] == [
+        ("Zahnrad", "llm_verified"),
+        ("Welle <Technik>", "llm_verified"),
+    ]
+    # eine gemeinsame GND-Quelle für GND-Erweiterung und LLM-Prüfung
+    assert seen["llm_source"] is seen["gnd_source"] is not None
+
+
+def test_llm_block_without_hits(client, monkeypatch):
+    test_client, _ = client
+
+    def no_hits(
+        conn, service, query, expanded_terms, gnd_senses=(), subject_filter=None
+    ):
+        return ranking.SearchResult(hits=[])
+
+    monkeypatch.setattr(search_route.ranking, "search_result", no_hits)
+    html = test_client.post("/search", data={"q": "Getriebe"}).get_data(as_text=True)
+    assert "Keine passenden RVK-Systemstellen" in html
+    assert "Vorschläge des Sprachmodells" in html
+
+
+def test_no_llm_block_without_suggestions(client):
+    test_client, _ = client
+    html = test_client.post("/search", data={"q": "Mutter"}).get_data(as_text=True)
+    assert "Vorschläge des Sprachmodells" not in html

@@ -32,18 +32,24 @@ BATCH_SIZE = 256
 
 
 def load_notation_texts(conn: sqlite3.Connection) -> tuple[list[int], list[str]]:
-    rows = conn.execute("SELECT notation_id, text FROM search_index ORDER BY notation_id").fetchall()
+    rows = conn.execute(
+        "SELECT notation_id, text FROM search_index ORDER BY notation_id"
+    ).fetchall()
     ids = [r[0] for r in rows]
     texts = [r[1] or "" for r in rows]
     return ids, texts
 
 
 def load_distinct_register_terms(conn: sqlite3.Connection) -> list[str]:
-    rows = conn.execute("SELECT DISTINCT term FROM register_entry ORDER BY term").fetchall()
+    rows = conn.execute(
+        "SELECT DISTINCT term FROM register_entry ORDER BY term"
+    ).fetchall()
     return [r[0] for r in rows]
 
 
-def encode_and_save(model: SentenceTransformer, texts: list[str], label: str) -> np.ndarray:
+def encode_and_save(
+    model: SentenceTransformer, texts: list[str], label: str
+) -> np.ndarray:
     print(f"Encoding {len(texts)} Texte ({label}) ...")
     start = time.time()
     embeddings = model.encode(
@@ -94,7 +100,9 @@ def main():
             }
         )
     )
-    print(f"Gespeichert: {config.REGISTER_TERM_EMBEDDINGS_PATH} ({term_embeddings.shape})")
+    print(
+        f"Gespeichert: {config.REGISTER_TERM_EMBEDDINGS_PATH} ({term_embeddings.shape})"
+    )
 
     conn.close()
 

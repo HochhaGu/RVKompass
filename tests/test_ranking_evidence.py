@@ -87,6 +87,13 @@ def _by_notation(hits):
     return {hit.notation.notation: hit for hit in hits}
 
 
+def _llm(*terms, gnd_id=None):
+    """Geprüfte LLM-Begriffe, wie sie llm.verified_terms liefert (P4)."""
+    return [
+        ExpansionTerm(term, "llm", "llm_verified", gnd_id, "Getriebe") for term in terms
+    ]
+
+
 def test_without_expansion_scores_follow_previous_formula(conn, service):
     # Cosine zur Anfrage + 0,03 Volltext + 0,015 Register, gedeckelt auf 1.0 (von Hand gerechnet)
     hits = ranking.search(conn, service, "Getriebe", [])
@@ -97,7 +104,7 @@ def test_without_expansion_scores_follow_previous_formula(conn, service):
 
 
 def test_every_hit_has_traceable_evidence(conn, service):
-    hits = ranking.search(conn, service, "Getriebe", ["Zahnrad", "Kupplung"])
+    hits = ranking.search(conn, service, "Getriebe", _llm("Zahnrad", "Kupplung"))
     search_terms = {"Getriebe", "Zahnrad", "Kupplung"}
 
     assert hits
@@ -115,20 +122,21 @@ def test_every_hit_has_traceable_evidence(conn, service):
 
 
 def test_multi_query_embeds_each_term_separately(conn, service):
-    ranking.search(conn, service, "Getriebe", ["Zahnrad", "Kupplung"])
+    ranking.search(conn, service, "Getriebe", _llm("Zahnrad", "Kupplung"))
 
     assert service.calls == ["Getriebe", "Zahnrad", "Kupplung"]
     assert "Getriebe Zahnrad Kupplung" not in service.calls
 
 
 def test_hit_only_from_expansion_term_carries_that_term(conn, service):
-    hits = _by_notation(ranking.search(conn, service, "Getriebe", ["Zahnrad"]))
+    hits = _by_notation(ranking.search(conn, service, "Getriebe", _llm("Zahnrad")))
 
     hit = hits["ZL 4140"]
     assert [
         (e.via_term.term, e.via_term.source, e.match_type) for e in hit.evidences
     ] == [("Zahnrad", "llm", "vector")]
-    assert hit.evidences[0].via_term.relation == "llm_unverified"
+    assert hit.evidences[0].via_term.relation == "llm_verified"
+    assert hit.evidences[0].via_term.parent_term == "Getriebe"
     assert hit.evidences[0].raw_score == pytest.approx(1.0)
     # Basis bleibt die Ähnlichkeit zur Eingabeanfrage, nicht zum Erweiterungsbegriff
     assert hit.score_components["cosine"] == pytest.approx(0.0)
@@ -136,7 +144,7 @@ def test_hit_only_from_expansion_term_carries_that_term(conn, service):
 
 def test_expansion_does_not_change_scores_of_input_hits(conn, service):
     plain = _by_notation(ranking.search(conn, service, "Getriebe", []))
-    expanded = _by_notation(ranking.search(conn, service, "Getriebe", ["Zahnrad"]))
+    expanded = _by_notation(ranking.search(conn, service, "Getriebe", _llm("Zahnrad")))
 
     for notation, hit in plain.items():
         assert expanded[notation].score == hit.score
@@ -170,7 +178,7 @@ def test_register_path_keeps_register_term_and_gnd_id(conn, service):
 
 
 def test_score_is_capped_sum_of_components_and_sorted(conn, service):
-    hits = ranking.search(conn, service, "Getriebe", ["Zahnrad", "Kupplung"])
+    hits = ranking.search(conn, service, "Getriebe", _llm("Zahnrad", "Kupplung"))
 
     for hit in hits:
         assert hit.score == pytest.approx(min(sum(hit.score_components.values()), 1.0))
@@ -185,12 +193,12 @@ def test_non_assignable_notations_are_excluded(conn, service):
 
 def test_result_count_is_limited(conn, service, monkeypatch):
     monkeypatch.setattr(ranking, "MAX_RESULTS", 2)
-    assert len(ranking.search(conn, service, "Getriebe", ["Zahnrad"])) == 2
+    assert len(ranking.search(conn, service, "Getriebe", _llm("Zahnrad"))) == 2
 
 
 def test_duplicate_and_empty_expansion_terms_are_skipped(conn, service):
     ranking.search(
-        conn, service, "Getriebe", ["Zahnrad", " zahnrad ", "", "  ", "getriebe"]
+        conn, service, "Getriebe", _llm("Zahnrad", " zahnrad ", "", "  ", "getriebe")
     )
     assert service.calls == ["Getriebe", "Zahnrad"]
 
@@ -200,11 +208,72 @@ def test_no_candidates_returns_empty_list(conn, service):
 
 
 def test_build_expansion_terms_marks_input_and_llm_terms():
-    terms = ranking.build_expansion_terms("Getriebe", ["Zahnrad"])
+    terms = ranking.build_expansion_terms("Getriebe", _llm("Zahnrad"))
     assert [(t.term, t.source, t.relation) for t in terms] == [
         ("Getriebe", "input", "direct"),
-        ("Zahnrad", "llm", "llm_unverified"),
+        ("Zahnrad", "llm", "llm_verified"),
     ]
+
+
+def test_build_expansion_terms_drops_unverified_and_foreign_terms():
+    terms = ranking.build_expansion_terms(
+        "Getriebe",
+        [
+            "Zahnrad",  # bloßer Text, wie vor P4 – wird nicht gesucht
+            ExpansionTerm("Kupplung", "gnd", "synonym"),
+            ExpansionTerm("Welle", "vector", "embedding"),
+            ExpansionTerm("Kupplung", "llm", "llm_verified"),
+        ],
+    )
+    assert [(t.term, t.source) for t in terms] == [
+        ("Getriebe", "input"),
+        ("Kupplung", "llm"),
+    ]
+
+
+def test_unverified_terms_are_not_searched(conn, service):
+    ranking.search(conn, service, "Getriebe", ["Zahnrad"])
+    assert service.calls == ["Getriebe"]
+
+
+def test_llm_term_finds_register_exact_and_gnd_id(conn, service):
+    # „Kupplung“ steht exakt im Register; die GND-ID führt zur selben Notation
+    terms = _llm("Kupplung", gnd_id="gnd-test-1")
+    result = ranking.search_result(conn, service, "Unbekannt", terms)
+    hit = _by_notation(result.hits)["ZL 4300"]
+
+    llm_evidence = sorted(
+        (e.match_type, e.raw_score)
+        for e in hit.evidences
+        if e.via_term.source == "llm"
+        and e.match_type in ("register_exact", "register_gnd_id")
+    )
+    assert llm_evidence == [("register_exact", 1.0), ("register_gnd_id", 1.0)]
+    assert hit.score_components["llm_bonus"] == 0.0
+    assert ranking.LLM_VERIFIED_BONUS == 0.0
+
+
+def test_llm_exact_only_hit_enters_candidates(conn, service):
+    # Eingabe ohne Treffer; der geprüfte LLM-Begriff bringt ZL 4300 über den exakten Registerweg
+    terms = [ExpansionTerm("Kupplung", "llm", "llm_verified", None, "Unbekannt")]
+    assert ranking.search(conn, service, "Unbekannt", []) == []
+    service.term_vecs = {}  # Registersuche über Vektoren abschalten
+    hits = ranking.search(conn, service, "Unbekannt", terms)
+    assert "ZL 4300" in {h.notation.notation for h in hits}
+    hit = _by_notation(hits)["ZL 4300"]
+    assert any(
+        e.match_type == "register_exact" and e.via_term.source == "llm"
+        for e in hit.evidences
+    )
+
+
+def test_without_llm_terms_result_is_unchanged_and_has_zero_llm_bonus(conn, service):
+    plain = ranking.search_result(conn, service, "Getriebe", [], gnd_senses=[KUPPLUNG])
+    again = ranking.search_result(conn, service, "Getriebe", [], gnd_senses=[KUPPLUNG])
+    assert [(h.notation.id, h.score) for h in plain.hits] == [
+        (h.notation.id, h.score) for h in again.hits
+    ]
+    assert all(h.score_components["llm_bonus"] == 0.0 for h in plain.hits)
 
 
 def test_hits_to_rows_keeps_previous_display_keys(conn, service):
@@ -314,7 +383,7 @@ def test_gnd_only_hit_enters_candidates(conn, service):
 
 
 def test_search_result_without_senses_matches_search(conn, service):
-    for query, terms in (("Getriebe", []), ("Getriebe", ["Zahnrad", "Kupplung"])):
+    for query, terms in (("Getriebe", []), ("Getriebe", _llm("Zahnrad", "Kupplung"))):
         old = ranking.search(conn, service, query, terms)
         new = ranking.search_result(conn, service, query, terms)
         assert new.senses == []

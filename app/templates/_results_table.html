@@ -1,11 +1,28 @@
+{% if query and llm_suggestions %}
+  <section class="llm-suggestions">
+    <p><strong>Vorschläge des Sprachmodells</strong> – gesucht wird nur, was im Normvokabular (RVK-Register oder GND) steht:</p>
+    <ul>
+      {% for s in llm_suggestions %}
+      {% if s.verified %}
+      <li class="llm-verified">
+        <strong>{{ s.term }}</strong>{% if s.matched_term and s.matched_term != s.term %} (als „{{ s.matched_term }}“){% endif %}
+        <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.verified_label }}</small>
+      </li>
+      {% else %}
+      <li class="llm-unverified">
+        {{ s.term }}
+        <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – nicht im Normvokabular gefunden – nicht gesucht</small>
+      </li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}
 {% if not query %}
   <p><em>Noch keine Suche durchgeführt.</em></p>
 {% elif not results %}
   <p>Keine passenden RVK-Systemstellen für „{{ query }}" gefunden.</p>
 {% else %}
-  {% if expanded_terms %}
-    <p class="expanded-terms">Erweitert um: {{ expanded_terms | join(', ') }}</p>
-  {% endif %}
   {% if senses and senses | length > 1 %}
     <section class="gnd-senses">
       <p><strong>Mehrere Bedeutungen gefunden</strong> (laut GND – bitte die passende wählen):</p>

@@ -28,10 +28,25 @@ class Config:
     )
     CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY", "")
     SYNC_TOKEN = os.environ.get("SYNC_TOKEN", "")
+    # Standard aus seit P4: Der Echttest (reports/eval-2026-11-11-c784d47-2.json) hat Hit@10 beim
+    # Typ „Fachfremd umschrieben“ gegenüber „nur GND“ nicht verbessert (0.3333 -> 0.3333; Günthers
+    # Regel verlangt mindestens +0.05). Begründung: docs/phasen/phase-4.md. Einschalten nur per
+    # .env (ENABLE_QUERY_EXPANSION=true), z. B. für die erneute Messung in P5.
     ENABLE_QUERY_EXPANSION = (
-        os.environ.get("ENABLE_QUERY_EXPANSION", "true").lower() == "true"
+        os.environ.get("ENABLE_QUERY_EXPANSION", "false").lower() == "true"
     )
     CLAUDE_DAILY_LIMIT = int(os.environ.get("CLAUDE_DAILY_LIMIT", "500"))
+
+    # LLM-Erweiterung (P4): Das Sprachmodell schlägt nur vor; gesucht wird ein Begriff nur, wenn er
+    # im RVK-Register oder in der GND steht.
+    # Modell-ID laut Anthropic-Modellübersicht (geprüft am 11.11.2026): Claude Haiku 5.5,
+    # „Active (latest)“.
+    CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-haiku-5-5")
+    CLAUDE_TIMEOUT_SECONDS = 10
+    CLAUDE_MAX_RETRIES = 1
+    CLAUDE_EFFORT = "low"
+    CLAUDE_MAX_SUGGESTIONS = 8
+    LLM_VERIFY_GND_SIZE = 5
 
     # GND-Erweiterung (P3): lobid-gnd live mit 30-Tage-Cache, ab P8 lokaler Abzug.
     ENABLE_GND_EXPANSION = (

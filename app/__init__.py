@@ -17,8 +17,12 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["60 per hour"])
 def _configure_logging(app: Flask) -> None:
     log_dir = Path(app.root_path).parent / "logs"
     log_dir.mkdir(exist_ok=True)
-    handler = RotatingFileHandler(log_dir / "rvkompass.log", maxBytes=1_000_000, backupCount=3)
-    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    handler = RotatingFileHandler(
+        log_dir / "rvkompass.log", maxBytes=1_000_000, backupCount=3
+    )
+    handler.setFormatter(
+        logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+    )
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.DEBUG if app.config["DEBUG"] else logging.INFO)
 
