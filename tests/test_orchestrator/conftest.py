@@ -109,13 +109,16 @@ class FakeGit:
 
 
 class FakeMailer:
-    def __init__(self, fail: bool = False):
+    def __init__(self, fail: bool = False, exc: Exception | None = None):
         self.sent = []
         self.fail = fail
+        self.exc = exc or RuntimeError("SMTP-Fehler: timed out")
+        self.attempts = 0
 
     def send(self, mail):
+        self.attempts += 1
         if self.fail:
-            raise RuntimeError("SMTP nicht erreichbar")
+            raise self.exc
         self.sent.append(mail)
 
     def subjects(self):
@@ -168,6 +171,7 @@ def make_engine(settings, prompts_md):
     def factory(runner=None, gates=None, git=None, mailer=None, store=None, clock=None):
         ids = [p.id for p in settings.phases]
         clock = clock or Clock()
+        logged: list[str] = []
         eng = Engine(
             settings,
             store or MemoryStore(ids[0], ids),
@@ -180,8 +184,9 @@ def make_engine(settings, prompts_md):
             prompts_md=prompts_md,
             sleep=clock.sleep,
             now=clock.now,
-            log=lambda m: None,
+            log=logged.append,
         )
+        eng.logged = logged
         eng.clock = clock
         return eng
 

@@ -16,6 +16,9 @@ WorkingDirectory=/home/guenther/dev/rvkompass
 Environment=HOME=/home/guenther
 Environment=PATH=/home/guenther/.local/bin:/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONUNBUFFERED=1
+# Langlebige Claude-Anmeldung (claude setup-token), Zeile CLAUDE_CODE_OAUTH_TOKEN=...
+# Datei liegt außerhalb des Repos (chmod 600). Das Minus: Dienst startet auch ohne sie.
+EnvironmentFile=-/home/guenther/.config/rvkompass/claude.env
 ExecStart=/home/guenther/dev/rvkompass/.venv/bin/python -m orchestrator
 Restart=on-failure
 RestartSec=60

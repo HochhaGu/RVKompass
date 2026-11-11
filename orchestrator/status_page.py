@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import os
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import Settings
 from .notify import jinja_env
+from .outbox import RETRY_S, Outbox
 
 TZ = ZoneInfo("Europe/Berlin")
 
@@ -35,7 +36,16 @@ def local_time(iso: str | None) -> str:
         return iso
 
 
-def render_status(state: dict, settings: Settings) -> str:
+def _plus(iso: str | None, seconds: int) -> str | None:
+    try:
+        return (datetime.fromisoformat(iso) + timedelta(seconds=seconds)).isoformat()
+    except (TypeError, ValueError):
+        return None
+
+
+def render_status(
+    state: dict, settings: Settings, mail_queue: list[dict] | None = None
+) -> str:
     phases = []
     for p in settings.phases:
         info = state["phases"].get(p.id, {})
@@ -72,7 +82,14 @@ def render_status(state: dict, settings: Settings) -> str:
             wait_until=local_time(state.get("wait_until")),
             auth_expires=local_time(state.get("auth_expires_at")),
             updated=local_time(state.get("updated_at")),
-            outbox=len(state.get("outbox", [])),
+            mail_queue=[
+                {
+                    **m,
+                    "queued_at": local_time(m.get("queued_at")),
+                    "next_try": local_time(_plus(m.get("last_try"), RETRY_S)),
+                }
+                for m in (mail_queue or [])
+            ],
         )
     )
 
@@ -84,7 +101,8 @@ class StatusWriter:
         self.last_path: Path | None = None
 
     def write(self, state: dict) -> Path:
-        markup = render_status(state, self.settings)
+        queue = Outbox(self.settings.outbox_dir, log=self.log).summary()
+        markup = render_status(state, self.settings, queue)
         for target in (self.settings.status_dir, self.settings.fallback_status_dir):
             try:
                 target.mkdir(parents=True, exist_ok=True)

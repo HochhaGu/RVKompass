@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from string import Template
@@ -18,6 +19,7 @@ from .config import ORCH_DIR, Phase, Settings, extract_phase_prompt
 from .envfile import Secrets
 from .git_ops import CO_AUTHOR, SafetyError
 from .notify import Mail, render_mail
+from .outbox import Outbox, mail_from
 from .state import (
     BEREIT,
     FERTIG,
@@ -42,7 +44,6 @@ REVIEW_SCHEMA = {
 }
 READ_TOOLS = ["Read", "Glob", "Grep"]
 MIN_PLAN_CHARS = 200
-OUTBOX_RETRY_S = 600
 
 
 class Pause(Exception):
@@ -99,6 +100,7 @@ class Engine:
         now=lambda: datetime.now(UTC),
         log=print,
         dry_run: bool = False,
+        outbox: Outbox | None = None,
     ):
         self.s = settings
         self.store = store
@@ -113,6 +115,7 @@ class Engine:
         self.now = now
         self.log = log
         self.dry_run = dry_run
+        self.outbox = outbox or Outbox(settings.outbox_dir, log=log)
 
     # ------------------------------------------------------------------ Hauptschleife
 
@@ -478,7 +481,7 @@ class Engine:
         if nxt is None:
             state["status"] = FERTIG
             state["step"] = "done"
-            self._notify(state, self._mail_all_done(state, phase))
+            self._notify(state, lambda: self._mail_all_done(state, phase))
             add_message(state, "Alle Phasen fertig")
             return
         state["phase"], state["step"] = nxt.id, "branch"
@@ -609,7 +612,7 @@ class Engine:
         add_message(state, f"{state['phase']}: angehalten – {p.reason}")
         self.log(f"PAUSE: {p.reason}")
         if p.notify:
-            self._notify(state, self._mail_pause(state, p))
+            self._notify(state, lambda: self._mail_pause(state, p))
         self._save(state)
 
     def _wait(self, state: dict, w: Wait) -> None:
@@ -626,38 +629,67 @@ class Engine:
             return 0
         return (datetime.fromisoformat(iso) - self.now()).total_seconds()
 
-    def _notify(self, state: dict, mail: Mail) -> None:
+    def _notify(self, state: dict, build: Callable[[], Mail]) -> None:
+        """Mail bauen und senden. Darf den Ablauf NIE anhalten: jeder Fehler wird protokolliert,
+        die Mail kommt in die Warteschlange und wird später erneut versucht."""
+        try:
+            mail = build()
+        except Exception as exc:  # noqa: BLE001
+            err = self.secrets.redact(f"{type(exc).__name__}: {exc}")
+            self.log(f"Mail konnte nicht erstellt werden: {err}")
+            add_message(state, f"Mail konnte nicht erstellt werden: {err}")
+            return
         try:
             self.mailer.send(mail)
-            add_message(state, f"Mail gesendet: {mail.subject}")
         except Exception as exc:  # noqa: BLE001
-            state["outbox"].append(mail.as_dict())
-            state["outbox_last_try"] = now_iso()
-            add_message(
-                state,
-                f"Mail nicht gesendet, wird wiederholt: {self.secrets.redact(str(exc))}",
+            err = self.secrets.redact(f"{type(exc).__name__}: {exc}")
+            self.log(
+                f"Mail nicht gesendet ({mail.subject}): {err} – kommt in die Warteschlange"
             )
+            add_message(
+                state, f"Mail nicht gesendet, wird wiederholt: {mail.subject} ({err})"
+            )
+            self.outbox.add(mail, err, now=self.now())
+            return
+        self.log(f"Mail gesendet: {mail.subject}")
+        add_message(state, f"Mail gesendet: {mail.subject}")
 
     def _flush_outbox(self, state: dict) -> None:
-        if not state.get("outbox"):
+        """Fällige Mails aus der Warteschlange erneut senden. Bricht nach dem ersten Fehlschlag ab
+        (der Server ist dann vermutlich insgesamt nicht erreichbar). Hält den Ablauf nie an."""
+        if self.dry_run:
             return
-        last = state.get("outbox_last_try")
-        if last and self._seconds_until(last) > -OUTBOX_RETRY_S:
-            return
-        remaining = []
-        for item in state["outbox"]:
-            try:
-                self.mailer.send(Mail(**item))
-            except Exception:  # noqa: BLE001
-                remaining.append(item)
-        if len(remaining) != len(state["outbox"]):
-            add_message(
-                state,
-                f"{len(state['outbox']) - len(remaining)} wartende Mail(s) gesendet",
+        changed = False
+        try:
+            for legacy in (
+                state.pop("outbox", []) or []
+            ):  # alte Ablage in state.json übernehmen
+                self.outbox.add(
+                    mail_from(legacy), "aus state.json übernommen", now=self.now()
+                )
+                changed = True
+            state.pop("outbox_last_try", None)
+            for path, data in self.outbox.due(now=self.now()):
+                try:
+                    self.mailer.send(mail_from(data))
+                except Exception as exc:  # noqa: BLE001
+                    err = self.secrets.redact(f"{type(exc).__name__}: {exc}")
+                    self.outbox.mark_failed(path, data, err, now=self.now())
+                    self.log(
+                        f"Wartende Mail erneut nicht gesendet ({data.get('subject')}): {err}"
+                    )
+                    changed = True
+                    break
+                self.outbox.remove(path)
+                self.log(f"Wartende Mail gesendet: {data.get('subject')}")
+                add_message(state, f"Wartende Mail gesendet: {data.get('subject')}")
+                changed = True
+        except Exception as exc:  # noqa: BLE001
+            self.log(
+                f"Fehler in der Mail-Warteschlange: {self.secrets.redact(str(exc))}"
             )
-        state["outbox"] = remaining
-        state["outbox_last_try"] = now_iso()
-        self._save(state)
+        if changed:
+            self._save(state)
 
     def _check_auth_expiry(self, state: dict, expires: str | None) -> None:
         if not expires:
@@ -674,7 +706,7 @@ class Engine:
             state["auth_warned_for"] = expires
             self._notify(
                 state,
-                render_mail(
+                lambda: render_mail(
                     "Claude-Anmeldung läuft bald ab",
                     f"Die Anmeldung von Claude Code auf dem Server läuft in {max(left.days, 0)} Tag(en) "
                     "ab. Danach hält das Steuerprogramm an.",

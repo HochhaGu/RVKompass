@@ -78,6 +78,10 @@ class Settings:
         return self.orch_dir / "logs"
 
     @property
+    def outbox_dir(self) -> Path:
+        return self.orch_dir / "logs" / "mail_warteschlange"
+
+    @property
     def run_lock_path(self) -> Path:
         return self.orch_dir / "logs" / "run.lock"
 
