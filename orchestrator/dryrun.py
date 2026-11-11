@@ -15,12 +15,15 @@ FAKE_PLAN = (
 
 
 class DryRunner:
-    def __init__(self, out=print):
+    def __init__(self, real_runner, out=print):
+        self.real = real_runner
         self.out = out
 
     def run(self, inv: Invocation) -> ClaudeResult:
         first = inv.prompt.strip().splitlines()[0][:90] if inv.prompt.strip() else ""
+        path = self.real.env()["PATH"].split(":", 1)[0]
         self.out(f"    würde ausführen: {inv.shell_preview()}")
+        self.out(f"    Arbeitsverzeichnis: {inv.cwd} · PATH beginnt mit {path}")
         self.out(f"    Prompt: {len(inv.prompt)} Zeichen, beginnt mit „{first}“")
         return ClaudeResult(
             kind=OK, text=FAKE_PLAN, structured={"freigabe": True, "gruende": []}
@@ -38,6 +41,9 @@ class DryGates:
         results = []
         for name, cmd in self.real.commands(evaluation):
             self.out(f"    würde prüfen: {name}: {' '.join(cmd)}")
+            self.out(
+                f"      in {worktree} · PATH beginnt mit {self.real.env()['PATH'].split(':', 1)[0]}"
+            )
             results.append(GateResult(name, True, "(Probelauf, nicht ausgeführt)"))
         if evaluation:
             old = (baseline or {}).get("metrics", {}).get("hit@10")

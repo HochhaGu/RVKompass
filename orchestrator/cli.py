@@ -81,6 +81,10 @@ def build_engine(settings, *, dry_run: bool, log=print) -> Engine:
         secrets.app_env(),
         redact=secrets.redact,
     )
+    claude_bin = shutil.which("claude") or "claude"
+    runner = ClaudeRunner(
+        claude_bin, settings.venv_bin, settings.claude_timeout_s, redact=secrets.redact
+    )
     if dry_run:
 
         def out(msg: str) -> None:
@@ -89,7 +93,7 @@ def build_engine(settings, *, dry_run: bool, log=print) -> Engine:
         return Engine(
             settings,
             MemoryStore(ids[0], ids, store.load()),
-            DryRunner(out),
+            DryRunner(runner, out),
             DryGates(gates, out),
             DryGit(settings.worktree, settings.base_branch, out),
             DryMailer(out),
@@ -99,10 +103,6 @@ def build_engine(settings, *, dry_run: bool, log=print) -> Engine:
             log=lambda m: out(f"→ {m}"),
             dry_run=True,
         )
-    claude_bin = shutil.which("claude") or "claude"
-    runner = ClaudeRunner(
-        claude_bin, settings.venv_bin, settings.claude_timeout_s, redact=secrets.redact
-    )
     git = Git(settings.repo_root, settings.worktree, settings.base_branch)
     return Engine(
         settings,

@@ -419,7 +419,7 @@ class Engine:
         rel = f"docs/phasen/phase-{phase.number}.md"
         args = build_args(
             mode="dontAsk",
-            model=self.s.model,
+            model=self.s.report_model,
             allow=[*READ_TOOLS, f"Write(./{rel})", f"Edit(./{rel})"],
             deny=list(self.s.deny),
             settings_file=None,
@@ -638,6 +638,10 @@ class Engine:
             err = self.secrets.redact(f"{type(exc).__name__}: {exc}")
             self.log(f"Mail konnte nicht erstellt werden: {err}")
             add_message(state, f"Mail konnte nicht erstellt werden: {err}")
+            return
+        if self.dry_run:  # Probelauf: nie senden, nichts in die Warteschlange
+            self.log(f"würde senden: {mail.subject}")
+            add_message(state, f"würde senden: {mail.subject}")
             return
         try:
             self.mailer.send(mail)

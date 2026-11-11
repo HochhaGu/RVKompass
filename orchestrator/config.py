@@ -40,6 +40,7 @@ class Settings:
     status_url: str
     model: str
     review_model: str
+    report_model: str
     hit10_tolerance: float
     limit_wait_s: int
     transient_wait_s: int
@@ -130,6 +131,7 @@ def load_settings(path: Path | None = None, repo_root: Path | None = None) -> Se
         status_url=e["statusseite_url"],
         model=e["modell"],
         review_model=e["pruef_modell"],
+        report_model=e["bericht_modell"],
         hit10_tolerance=float(e["hit10_toleranz"]),
         limit_wait_s=int(e["limit_wartezeit_s"]),
         transient_wait_s=int(e["stoerung_wartezeit_s"]),
