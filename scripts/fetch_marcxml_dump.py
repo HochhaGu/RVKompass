@@ -23,9 +23,13 @@ UPDATE_SUFFIX = ".update.xml.gz"
 def find_full_dump_url() -> str:
     resp = requests.get(DOWNLOAD_PAGE, timeout=30)
     resp.raise_for_status()
-    candidates = [m for m in FULL_DUMP_PATTERN.findall(resp.text) if not m.endswith(UPDATE_SUFFIX)]
+    candidates = [
+        m for m in FULL_DUMP_PATTERN.findall(resp.text) if not m.endswith(UPDATE_SUFFIX)
+    ]
     if not candidates:
-        raise RuntimeError("Kein MarcXML-Gesamtabzug-Link auf der Download-Seite gefunden.")
+        raise RuntimeError(
+            "Kein MarcXML-Gesamtabzug-Link auf der Download-Seite gefunden."
+        )
     return BASE_URL + candidates[0]
 
 

@@ -34,6 +34,9 @@ TERM_MATCH_BONUS = 0.015
 GND_SYNONYM_BONUS = 0.08
 GND_RELATION_BONUS = 0.02
 GND_REGISTER_LIMIT = 10
+# P4: Zuschlag für Treffer über geprüfte LLM-Begriffe. Bewusst 0: Ein Zuschlag darf nur mit
+# Vorher/Nachher-Messung eingeführt werden. Sichtbar als `llm_bonus` in den Score-Bestandteilen.
+LLM_VERIFIED_BONUS = 0.0
 
 # Parameter je Suchbegriff (unverändert gegenüber der Suche vor P2)
 KEYWORD_LIMIT = 50
@@ -60,22 +63,33 @@ def is_assignable_notation(notation: str) -> bool:
     return " - " not in notation and any(char.isdigit() for char in notation)
 
 
-def build_expansion_terms(query: str, expanded_terms: list[str]) -> list[ExpansionTerm]:
-    """Suchbegriffe: zuerst die Eingabe, dann jeder Erweiterungsbegriff einzeln.
+def is_verified_llm_term(term) -> bool:
+    return (
+        isinstance(term, ExpansionTerm)
+        and term.source == "llm"
+        and term.relation == "llm_verified"
+    )
 
-    Leere und (nach Normalisierung) doppelte Begriffe werden übersprungen. Die Normalisierung
-    dient nur der Dublettenerkennung; gesucht wird mit dem Begriff, wie er geliefert wurde.
+
+def build_expansion_terms(
+    query: str, llm_terms: Iterable[ExpansionTerm]
+) -> list[ExpansionTerm]:
+    """Suchbegriffe: zuerst die Eingabe, dann jeder geprüfte LLM-Begriff einzeln (P4).
+
+    Gesucht werden nur `ExpansionTerm(source="llm", relation="llm_verified")`; alles andere
+    (nicht geprüfte Vorschläge, bloße Texte) wird zur Sicherheit verworfen. Leere und (nach
+    Normalisierung) doppelte Begriffe werden übersprungen.
     """
     terms = [ExpansionTerm(query, "input", "direct")]
     seen = {normalize_query(query)}
-    for raw in expanded_terms:
-        normalized = normalize_query(raw or "")
+    for term in llm_terms or ():
+        if not is_verified_llm_term(term):
+            continue
+        normalized = normalize_query(term.term or "")
         if not normalized or normalized in seen:
             continue
         seen.add(normalized)
-        # VORLÄUFIG: Die heutigen Claude-Begriffe sind ungeprüft, daher "llm_unverified"
-        # statt "llm_verified" (siehe app/models.py). P4 stellt auf geprüfte Begriffe um.
-        terms.append(ExpansionTerm(raw.strip(), "llm", "llm_unverified"))
+        terms.append(term)
     return terms
 
 
@@ -93,6 +107,8 @@ class Retrieval:
     evidence_by_id: dict[int, list[Evidence]] = field(default_factory=dict)
     # P3: Notation -> Beziehungen der GND-Begriffe, über die sie gefunden wurde
     gnd_relation_by_id: dict[int, set[str]] = field(default_factory=dict)
+    # P4: Notationen, die über einen geprüften LLM-Begriff exakt im Register gefunden wurden
+    llm_ids: set[int] = field(default_factory=set)
 
     def add(self, evidence: Evidence) -> None:
         bucket = self.evidence_by_id.setdefault(evidence.notation_id, [])
@@ -198,6 +214,39 @@ def collect_gnd_evidence(
             note(nid, term, "register_gnd_id")
 
 
+def collect_llm_evidence(
+    conn, retrieval: Retrieval, terms: Iterable[ExpansionTerm]
+) -> None:
+    """Ergänzt die Evidenzen um die exakten Wege der geprüften LLM-Begriffe (P4).
+
+    1. LLM-Begriff -> exakt gleicher Registerbegriff -> Notation (`register_exact`, 1.0)
+    2. LLM-Begriff -> GND-ID -> Registereintrag mit dieser GND-ID (`register_gnd_id`, 1.0)
+    Kein Zuschlag in P4 (LLM_VERIFIED_BONUS = 0); die Funde erweitern nur die Kandidatenmenge.
+    """
+    llm_terms = [t for t in terms if is_verified_llm_term(t)]
+    if not llm_terms:
+        return
+
+    def note(nid: int, term: ExpansionTerm, match_type: str) -> None:
+        retrieval.add(Evidence(nid, term, match_type, 1.0))
+        retrieval.llm_ids.add(nid)
+
+    for term in llm_terms:
+        for nid, _entry_type, _gnd_id in rvk_repository.get_notation_ids_for_term(
+            conn, term.term, limit=GND_REGISTER_LIMIT
+        ):
+            note(nid, term, "register_exact")
+
+    ids_by_gnd = rvk_repository.get_notations_by_gnd_ids(
+        conn,
+        [t.gnd_id for t in llm_terms if t.gnd_id],
+        limit_per_id=GND_REGISTER_LIMIT,
+    )
+    for term in llm_terms:
+        for nid in ids_by_gnd.get(term.gnd_id or "", []):
+            note(nid, term, "register_gnd_id")
+
+
 def gnd_bonus_for(relations: set[str] | None) -> float:
     """Höchster zutreffender GND-Zuschlag; ohne GND-Evidenz 0."""
     if not relations:
@@ -281,8 +330,13 @@ def rank_senses(
     return [result for _, result in indexed]
 
 
-def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> list[Hit]:
-    """Trefferliste ohne GND-Bedeutungen (Verhalten wie vor P3)."""
+def search(
+    conn, embedding_service, query: str, expanded_terms: list[ExpansionTerm]
+) -> list[Hit]:
+    """Trefferliste ohne GND-Bedeutungen (Verhalten wie vor P3).
+
+    `expanded_terms` sind geprüfte LLM-Begriffe (siehe `build_expansion_terms`).
+    """
     return search_result(conn, embedding_service, query, expanded_terms).hits
 
 
@@ -296,18 +350,22 @@ def search_result(
     conn,
     embedding_service,
     query: str,
-    expanded_terms: list[str],
+    expanded_terms: list[ExpansionTerm],
     gnd_senses: Iterable[GndSense] = (),
     subject_filter: Iterable[str] | None = None,
     mapping: Mapping[str, Iterable[str]] | None = None,
 ) -> SearchResult:
-    """Trefferliste samt GND-Bedeutungen (P3). Ohne Bedeutungen identisch mit `search`."""
+    """Trefferliste samt GND-Bedeutungen (P3) und geprüften LLM-Begriffen (P4).
+
+    Ohne Bedeutungen identisch mit `search`; ohne LLM-Begriffe identisch mit dem Stand von P3.
+    """
     gnd_senses = list(gnd_senses)
     if mapping is None:
         mapping = Config.GND_SUBJECT_CATEGORY_TO_RVK
     terms = build_expansion_terms(query, expanded_terms)
     retrieval = collect_evidence(conn, embedding_service, terms)
     collect_gnd_evidence(conn, retrieval, gnd_senses)
+    collect_llm_evidence(conn, retrieval, terms[1:])
 
     keyword_ids = retrieval.keyword_ids
     vector_score_by_id = retrieval.input_vector_scores
@@ -321,6 +379,8 @@ def search_result(
         all_candidate_ids |= retrieval.expansion_vector_ids
     if retrieval.gnd_relation_by_id:
         all_candidate_ids |= set(retrieval.gnd_relation_by_id)
+    if retrieval.llm_ids:
+        all_candidate_ids |= retrieval.llm_ids
     if not all_candidate_ids:
         return _empty_result(gnd_senses, subject_filter, mapping)
 
@@ -356,12 +416,16 @@ def search_result(
             score += TERM_MATCH_BONUS
         gnd_bonus = gnd_bonus_for(retrieval.gnd_relation_by_id.get(nid))
         score += gnd_bonus
+        llm_bonus = LLM_VERIFIED_BONUS if nid in retrieval.llm_ids else 0.0
+        if llm_bonus:
+            score += llm_bonus
         score_by_id[nid] = min(score, 1.0)
         components_by_id[nid] = {
             "cosine": cosine,
             "keyword_bonus": keyword_bonus,
             "register_bonus": register_bonus,
             "gnd_bonus": gnd_bonus,
+            "llm_bonus": llm_bonus,
         }
 
     ranked_ids = sorted(candidate_ids, key=lambda nid: score_by_id[nid], reverse=True)[

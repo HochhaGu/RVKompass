@@ -175,9 +175,19 @@ th {
   opacity: 1;
 }
 
-.expanded-terms {
-  color: #555;
+.llm-suggestions {
   font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.llm-suggestions ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+/* P4: Vorschläge, die weder im RVK-Register noch in der GND stehen – angezeigt, nicht gesucht */
+.llm-unverified {
+  color: #888;
 }
 
 .confidence {

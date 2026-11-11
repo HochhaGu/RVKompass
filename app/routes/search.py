@@ -1,8 +1,8 @@
 from flask import Blueprint, current_app, render_template, request
 
 from app import limiter
-from app.services import embedding_service, query_expansion, ranking, rvk_repository
-from app.services.expansion import gnd
+from app.services import embedding_service, ranking, rvk_repository
+from app.services.expansion import gnd, llm
 
 bp = Blueprint("search", __name__)
 
@@ -21,16 +21,18 @@ def search():
 
     conn = rvk_repository.get_connection(current_app.config["DATABASE_PATH"])
     try:
-        expanded_terms = []
-        if current_app.config["ENABLE_QUERY_EXPANSION"]:
-            expanded_terms = query_expansion.expand_query(
-                conn,
-                current_app.config["CLAUDE_API_KEY"],
-                query,
-                daily_limit=current_app.config["CLAUDE_DAILY_LIMIT"],
-            )
+        config = current_app.config
+        # Eine GND-Quelle für GND-Erweiterung und Prüfung der LLM-Vorschläge zusammen
+        source = gnd.build_gnd_source(conn, config)
+        gnd_senses = gnd.gnd_senses_for_query(conn, config, query, source=source)
 
-        gnd_senses = gnd.gnd_senses_for_query(conn, current_app.config, query)
+        # P4: Das Sprachmodell schlägt vor; gesucht wird nur, was im Register oder in der GND steht
+        llm_source = source if config.get("ENABLE_GND_EXPANSION") else None
+        suggestions = llm.llm_suggestions_for_query(
+            conn, config, query, source=llm_source
+        )
+        llm_terms = llm.verified_terms(suggestions, query)
+
         # Fachfilter als RVK-Hauptgruppen, kommagetrennt (z. B. "ZL,ZM"); Auswahlfeld folgt in P5.
         subject_filter = [
             part.strip().upper()
@@ -43,7 +45,7 @@ def search():
             conn,
             service,
             query,
-            expanded_terms,
+            llm_terms,
             gnd_senses=gnd_senses,
             subject_filter=subject_filter,
         )
@@ -56,6 +58,6 @@ def search():
         "_results_table.html",
         results=results,
         query=query,
-        expanded_terms=expanded_terms,
+        llm_suggestions=llm.suggestions_to_rows(suggestions),
         senses=senses,
     )

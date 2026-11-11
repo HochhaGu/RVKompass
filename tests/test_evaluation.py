@@ -94,6 +94,118 @@ def test_markdown_lists_ambiguous_queries_with_senses():
     assert "| Mutter | ZL 4620 | 1 | Mutter <Technik> |" in md
 
 
+def test_evaluate_query_records_llm_suggestions():
+    entry = ev.GoldEntry(query="Getriebe", expected=["ZL 4100"])
+    suggestion = {"begriff": "Zahnrad", "verified": True}
+    q = ev.evaluate_query(entry, [], 0.01, ["Zahnrad"], llm_suggestions=[suggestion])
+    assert q["llm_suggestions"] == [suggestion]
+    assert _q("x", [], ["X 1"])["llm_suggestions"] == []
+
+
+def test_rank_changes_direction():
+    before = [
+        _q("a", ["X 2", "X 1"], ["X 1"]),  # Rang 2
+        _q("b", ["X 1"], ["X 1"]),  # Rang 1
+        _q("c", [], ["X 1"]),  # nicht gefunden
+        _q("d", ["X 1"], ["X 1"]),
+    ]
+    after = [
+        _q("a", ["X 1"], ["X 1"]),  # 2 -> 1 besser
+        _q("b", ["X 2", "X 1"], ["X 1"]),  # 1 -> 2 schlechter
+        _q("c", ["X 1"], ["X 1"]),  # neu gefunden: besser
+        _q("d", ["X 1"], ["X 1"]),  # unverändert
+    ]
+    changes = ev.rank_changes(before, after)
+    assert [(c["query"], c["direction"]) for c in changes] == [
+        ("a", "better"),
+        ("b", "worse"),
+        ("c", "better"),
+    ]
+    lost = ev.rank_changes(after[:1], [_q("a", [], ["X 1"])])
+    assert lost[0]["direction"] == "worse" and lost[0]["new_rank"] is None
+
+
+def test_markdown_variants_and_llm_section_without_percent():
+    q = _q("a", ["X 1"], ["X 1"])
+    metrics = ev.aggregate([q])
+    report = {
+        "metrics": metrics,
+        "metrics_no_expansion": metrics,
+        "metrics_variants": {k: metrics for k in ("none", "gnd", "llm", "gnd_llm")},
+        "per_query": [q],
+        "llm": {
+            "model": "claude-haiku-5-5",
+            "sdk_version": "2.8.0",
+            "structured_output": True,
+            "api_key_present": True,
+            "api_calls": 3,
+            "api_errors": 0,
+            "cache_hits": 3,
+            "queries_with_suggestions": 1,
+            "suggestions_total": 4,
+            "suggestions_verified": 2,
+            "verified_via_register": 1,
+            "verified_via_gnd": 1,
+        },
+        "llm_effect": {
+            "llm_vs_none": [
+                {
+                    "query": "a",
+                    "old_rank": None,
+                    "new_rank": 3,
+                    "direction": "better",
+                    "expanded_terms": ["Zahnrad"],
+                }
+            ],
+            "gnd_llm_vs_gnd": [],
+        },
+    }
+    md = ev.render_markdown(report)
+    assert "| Kennzahl | ohne Erweiterung | nur GND | nur LLM | GND+LLM |" in md
+    assert "## Sprachmodell-Echttest" in md
+    assert "claude-haiku-5-5" in md and "2.8.0" in md
+    assert "Vorschläge: 4, davon im Normvokabular gefunden: 2" in md
+    assert "| a | – | 3 | besser | Zahnrad |" in md
+    assert "Besser: 0, schlechter: 0" in md
+    section = md.split("## Sprachmodell-Echttest", 1)[1]
+    assert "%" not in section
+
+
+def test_aggregate_variants_by_typ_and_markdown_table():
+    hit = _q("a", ["X 1"], ["X 1"])
+    hit["typ"] = "Fachfremd umschrieben"
+    miss = _q("a", ["Y 1"], ["X 1"])
+    miss["typ"] = "Fachfremd umschrieben"
+    runs = {"gnd": [miss], "gnd_llm": [hit]}
+    by_typ = ev.aggregate_variants_by(runs, "typ")
+    assert by_typ["gnd"]["Fachfremd umschrieben"]["hit@10"] == 0.0
+    assert by_typ["gnd_llm"]["Fachfremd umschrieben"]["hit@10"] == 1.0
+
+    report = {
+        "metrics": ev.aggregate([hit]),
+        "metrics_variants": {k: ev.aggregate(r) for k, r in runs.items()},
+        "by_typ_variants": by_typ,
+        "per_query": [hit],
+    }
+    md = ev.render_markdown(report)
+    assert "### Hit@10 je Anfragetyp und Variante" in md
+    assert "| Typ | nur GND | GND+LLM |" in md
+    assert "| Fachfremd umschrieben | 0 | 1 |" in md
+
+
+def test_markdown_notes_when_llm_is_switched_off():
+    q = _q("a", ["X 1"], ["X 1"])
+    metrics = ev.aggregate([q])
+    report = {
+        "metrics": metrics,
+        "metrics_variants": {k: metrics for k in ("none", "gnd", "llm", "gnd_llm")},
+        "per_query": [q],
+        "llm": {"enabled": False},
+    }
+    md = ev.render_markdown(report)
+    assert "Sprachmodell ausgeschaltet (ENABLE_QUERY_EXPANSION=false)" in md
+
+
 def test_aggregate_hand_calculated():
     per_query = [
         _q("a", ["X 1", "X 2"], ["X 1"], ms=10),  # Rang 1

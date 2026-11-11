@@ -156,8 +156,10 @@ def evaluate_query(
     expanded_terms: list[str],
     gnd_terms: list[str] | None = None,
     gnd_senses: list[str] | None = None,
+    llm_suggestions: list[dict] | None = None,
 ) -> dict:
-    """Kennzahlen einer Anfrage. `gnd_terms` als „Beziehung: Begriff“, `gnd_senses` als Namen."""
+    """Kennzahlen einer Anfrage. `gnd_terms` als „Beziehung: Begriff“, `gnd_senses` als Namen,
+    `llm_suggestions` als Vorschläge des Sprachmodells samt Prüfergebnis (P4)."""
     rank = first_hit_rank(results, entry.expected)
     return {
         "query": entry.query,
@@ -176,7 +178,33 @@ def evaluate_query(
         "expanded_terms": list(expanded_terms),
         "gnd_senses": list(gnd_senses or []),
         "gnd_terms": list(gnd_terms or []),
+        "llm_suggestions": list(llm_suggestions or []),
     }
+
+
+def rank_changes(before: list[dict], after: list[dict]) -> list[dict]:
+    """Anfragen, deren Rang sich zwischen zwei Läufen geändert hat, mit Richtung.
+
+    „better“ heißt: erwartete Notation weiter vorn oder neu in der Trefferliste.
+    """
+    before_by_query = {q["query"]: q for q in before}
+    changes = []
+    for new in after:
+        old = before_by_query.get(new["query"])
+        if old is None or old.get("rank") == new.get("rank"):
+            continue
+        old_rank, new_rank = old.get("rank"), new.get("rank")
+        better = new_rank is not None and (old_rank is None or new_rank < old_rank)
+        changes.append(
+            {
+                "query": new["query"],
+                "old_rank": old_rank,
+                "new_rank": new_rank,
+                "direction": "better" if better else "worse",
+                "expanded_terms": list(new.get("expanded_terms", [])),
+            }
+        )
+    return changes
 
 
 def aggregate(per_query: list[dict]) -> dict:
@@ -206,6 +234,13 @@ def aggregate_by(per_query: list[dict], field_name: str) -> dict[str, dict]:
     for q in per_query:
         groups.setdefault(q.get(field_name) or "(ohne Angabe)", []).append(q)
     return {key: aggregate(items) for key, items in sorted(groups.items())}
+
+
+def aggregate_variants_by(
+    runs: dict[str, list[dict]], field_name: str
+) -> dict[str, dict[str, dict]]:
+    """Kennzahlen je Gruppe (z. B. Anfragetyp) für jede Variante: {variante: {gruppe: kennzahlen}}."""
+    return {key: aggregate_by(run, field_name) for key, run in runs.items()}
 
 
 def worst_queries(per_query: list[dict], n: int = 10) -> list[dict]:
@@ -293,6 +328,136 @@ def _metrics_table(groups: dict[str, dict], first_col: str) -> list[str]:
     return lines
 
 
+VARIANT_LABELS = {
+    "none": "ohne Erweiterung",
+    "gnd": "nur GND",
+    "llm": "nur LLM",
+    "gnd_llm": "GND+LLM",
+}
+
+
+def _variants_section(report: dict) -> list[str]:
+    variants = report.get("metrics_variants")
+    if not variants:
+        return []
+    keys = [k for k in VARIANT_LABELS if k in variants]
+    lines = [
+        "",
+        "## Varianten",
+        "",
+        (
+            "„nur LLM“ und „GND+LLM“ nutzen nur Vorschläge des Sprachmodells, die im "
+            "RVK-Register oder in der GND gefunden wurden. „Kennzahlen“ oben zeigt den "
+            "Lauf GND+LLM."
+        ),
+        "",
+        "| Kennzahl | " + " | ".join(VARIANT_LABELS[k] for k in keys) + " |",
+        "|---" * (len(keys) + 1) + "|",
+    ]
+    for metric in METRIC_KEYS:
+        lines.append(
+            f"| {METRIC_LABELS[metric]} | "
+            + " | ".join(_fmt(variants[k].get(metric)) for k in keys)
+            + " |"
+        )
+    llm_info = report.get("llm") or {}
+    if llm_info and not llm_info.get("enabled"):
+        lines += [
+            "",
+            (
+                "> Sprachmodell ausgeschaltet (ENABLE_QUERY_EXPANSION=false): „nur LLM“ "
+                "entspricht „ohne Erweiterung“, „GND+LLM“ entspricht „nur GND“."
+            ),
+        ]
+    by_typ = report.get("by_typ_variants")
+    if by_typ:
+        typ_keys = [k for k in keys if k in by_typ]
+        types = sorted({t for k in typ_keys for t in by_typ[k]})
+        lines += [
+            "",
+            "### Hit@10 je Anfragetyp und Variante",
+            "",
+            "| Typ | " + " | ".join(VARIANT_LABELS[k] for k in typ_keys) + " |",
+            "|---" * (len(typ_keys) + 1) + "|",
+        ]
+        for typ in types:
+            lines.append(
+                f"| {_cell(typ)} | "
+                + " | ".join(
+                    _fmt((by_typ[k].get(typ) or {}).get("hit@10")) for k in typ_keys
+                )
+                + " |"
+            )
+    return lines
+
+
+def _rank_text(rank) -> str:
+    return str(rank) if rank else "–"
+
+
+def _llm_section(report: dict) -> list[str]:
+    info = report.get("llm")
+    if not info:
+        return []
+    total = info.get("suggestions_total") or 0
+    verified = info.get("suggestions_verified") or 0
+    lines = [
+        "",
+        "## Sprachmodell-Echttest",
+        "",
+        (
+            f"- Modell: {info.get('model') or '–'}, "
+            f"Bibliothek anthropic {info.get('sdk_version') or '–'}, "
+            f"strukturierte Ausgabe: {_fmt(info.get('structured_output'))}"
+        ),
+        f"- API-Schlüssel vorhanden: {_fmt(info.get('api_key_present'))}",
+        (
+            f"- Aufrufe: {_fmt(info.get('api_calls'))}, "
+            f"Fehler: {_fmt(info.get('api_errors'))}, "
+            f"aus dem Zwischenspeicher: {_fmt(info.get('cache_hits'))}, "
+            f"Tageslimit erreicht: {_fmt(info.get('limit_reached'))}"
+        ),
+        f"- Anfragen mit Vorschlägen: {_fmt(info.get('queries_with_suggestions'))}",
+        (
+            f"- Vorschläge: {total}, davon im Normvokabular gefunden: {verified} "
+            f"(RVK-Register: {_fmt(info.get('verified_via_register'))}, "
+            f"GND: {_fmt(info.get('verified_via_gnd'))})"
+        ),
+    ]
+    effect = report.get("llm_effect") or {}
+    for key, title in (
+        ("llm_vs_none", "Anfragen, die mit „nur LLM“ gegenüber „ohne“ anders stehen"),
+        (
+            "gnd_llm_vs_gnd",
+            "Anfragen, die mit „GND+LLM“ gegenüber „nur GND“ anders stehen",
+        ),
+    ):
+        changes = effect.get(key)
+        if changes is None:
+            continue
+        better = sum(1 for c in changes if c["direction"] == "better")
+        lines += [
+            "",
+            f"### {title}",
+            "",
+            f"Besser: {better}, schlechter: {len(changes) - better}",
+        ]
+        if changes:
+            lines += [
+                "",
+                "| Anfrage | Rang vorher | Rang nachher | Richtung | geprüfte LLM-Begriffe |",
+                "|---|---|---|---|---|",
+            ]
+            for c in changes:
+                lines.append(
+                    f"| {_cell(c['query'])} | {_rank_text(c['old_rank'])} | "
+                    f"{_rank_text(c['new_rank'])} | "
+                    f"{'besser' if c['direction'] == 'better' else 'schlechter'} | "
+                    f"{_cell(', '.join(c.get('expanded_terms') or []) or '–')} |"
+                )
+    return lines
+
+
 def render_markdown(report: dict) -> str:
     metrics = report["metrics"]
     no_exp = report.get("metrics_no_expansion")
@@ -339,6 +504,9 @@ def render_markdown(report: dict) -> str:
         lines += ["| Kennzahl | Wert |", "|---|---|"]
         for key in METRIC_KEYS:
             lines.append(f"| {METRIC_LABELS[key]} | {_fmt(metrics.get(key))} |")
+
+    lines += _variants_section(report)
+    lines += _llm_section(report)
 
     if report.get("compare"):
         lines += [

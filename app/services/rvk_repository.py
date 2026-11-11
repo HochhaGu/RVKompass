@@ -75,6 +75,27 @@ def get_notation_ids_for_term(
     return [(row["notation_id"], row["entry_type"], row["gnd_id"]) for row in rows]
 
 
+def find_register_terms(
+    conn: sqlite3.Connection, variants
+) -> list[tuple[str, str | None]]:
+    """Registerbegriffe, die genau einer der Schreibweisen in `variants` entsprechen (P4).
+
+    Liefert (Begriff, GND-ID) je unterschiedlichem Paar. `term IN (...)` nutzt den Index
+    idx_register_term; eine Suche mit COLLATE NOCASE würde ihn nicht nutzen und Umlaute nicht
+    gleichsetzen. Deshalb übergibt der Aufrufer die Schreibweisen selbst.
+    """
+    unique = list(dict.fromkeys(v for v in variants if v))
+    if not unique:
+        return []
+    placeholders = ",".join("?" for _ in unique)
+    rows = conn.execute(
+        "SELECT DISTINCT term, gnd_id FROM register_entry "
+        f"WHERE term IN ({placeholders}) LIMIT 50",
+        unique,
+    ).fetchall()
+    return [(row["term"], row["gnd_id"] or None) for row in rows]
+
+
 GND_ID_BATCH_SIZE = 500
 
 

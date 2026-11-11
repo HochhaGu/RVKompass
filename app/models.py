@@ -97,11 +97,8 @@ class RegisterEntry:
 # Herkunft eines Suchbegriffs (P2, Evidence-Datenmodell).
 EXPANSION_SOURCES = frozenset({"input", "gnd", "llm", "vector"})
 
-# Beziehung des Suchbegriffs zur Eingabe.
-# VORLÄUFIG: "llm_unverified" steht nicht in der Wertemenge des Phasen-Auftrags P2. Die heutigen
-# Claude-Begriffe sind noch nicht gegen GND oder RVK-Register geprüft (das kommt in P4). Sie als
-# "llm_verified" zu kennzeichnen, wäre falsch (Leitprinzip Transparenz). P4 entfernt den Wert,
-# sobald die Prüfung steht.
+# Beziehung des Suchbegriffs zur Eingabe. LLM-Begriffe gibt es nur geprüft ("llm_verified", P4);
+# nicht geprüfte Vorschläge werden angezeigt, aber nie gesucht und daher nie ein ExpansionTerm.
 EXPANSION_RELATIONS = frozenset(
     {
         "direct",
@@ -111,9 +108,16 @@ EXPANSION_RELATIONS = frozenset(
         "related",
         "llm_verified",
         "embedding",
-        "llm_unverified",
     }
 )
+
+# Beziehung eines LLM-Vorschlags zur Eingabe, wie das Sprachmodell sie angibt (P4).
+LLM_RELATIONS = frozenset(
+    {"synonym", "oberbegriff", "unterbegriff", "verwandt", "fachkontext"}
+)
+
+# Wo ein LLM-Vorschlag im Normvokabular gefunden wurde.
+LLM_VERIFIED_VIA = frozenset({"rvk_register", "gnd"})
 
 # Art der Übereinstimmung zwischen Suchbegriff und Notation.
 MATCH_TYPES = frozenset({"register_exact", "register_gnd_id", "label_fts", "vector"})
@@ -134,6 +138,35 @@ class ExpansionTerm:
             raise ValueError(f"Unbekannte Begriffsquelle: {self.source!r}")
         if self.relation not in EXPANSION_RELATIONS:
             raise ValueError(f"Unbekannte Begriffsbeziehung: {self.relation!r}")
+
+
+@dataclass(frozen=True)
+class LlmSuggestion:
+    """Ein Vorschlag des Sprachmodells samt Prüfergebnis gegen RVK-Register und GND (P4).
+
+    Nur geprüfte Vorschläge (`verified=True`) werden gesucht, und zwar unter `matched_term`, der
+    Schreibweise im Normvokabular. Nicht geprüfte werden nur angezeigt.
+    """
+
+    term: str
+    llm_relation: str
+    rationale: str = ""
+    verified: bool = False
+    verified_via: str | None = None
+    matched_term: str | None = None
+    gnd_id: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.llm_relation not in LLM_RELATIONS:
+            raise ValueError(f"Unbekannte LLM-Beziehung: {self.llm_relation!r}")
+        if self.verified_via is not None and self.verified_via not in LLM_VERIFIED_VIA:
+            raise ValueError(f"Unbekannter Prüfweg: {self.verified_via!r}")
+        if self.verified and (self.verified_via is None or not self.matched_term):
+            raise ValueError(
+                "Geprüfter LLM-Vorschlag braucht Prüfweg und Begriff im Normvokabular"
+            )
+        if not self.verified and self.verified_via is not None:
+            raise ValueError("Nicht geprüfter LLM-Vorschlag darf keinen Prüfweg tragen")
 
 
 @dataclass(frozen=True)
