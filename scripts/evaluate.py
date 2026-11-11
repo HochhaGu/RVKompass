@@ -11,7 +11,8 @@ Aufruf:
     python scripts/evaluate.py --gold eval/goldstandard.csv --compare reports/eval-....json
 
 Die Datenbank wird nur über App-Code berührt: Mit API-Schlüssel schreibt die
-Begriffserweiterung wie im Betrieb in expansion_cache und daily_usage.
+Begriffserweiterung wie im Betrieb in expansion_cache und daily_usage; die GND-Erweiterung (P3)
+schreibt erfolgreiche lobid-Antworten in die Laufzeit-Tabelle gnd_cache.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.config import get_config
 from app.services import evaluation, query_expansion, ranking, rvk_repository
+from app.services.expansion import gnd
 
 
 def git_info(cwd: Path = ROOT) -> tuple[str, bool]:
@@ -92,12 +94,22 @@ def latest_rvk_version(conn) -> str | None:
     return " ".join(str(v) for v in tuple(row) if v)
 
 
+def gnd_enabled(config) -> bool:
+    return bool(getattr(config, "ENABLE_GND_EXPANSION", False))
+
+
 def run_mode(conn, service, entries, expand, config) -> list[dict]:
-    """Wertet alle Anfragen aus; expand=True nutzt die Begriffserweiterung wie die App."""
+    """Wertet alle Anfragen aus; expand=True nutzt Begriffs- und GND-Erweiterung wie die App."""
+    # Eine gemeinsame GND-Quelle für den ganzen Lauf: Nach mehreren Fehlern in Folge (z. B. ohne
+    # Netz) fragt sie nicht mehr an, damit die Evaluation nicht an Timeouts hängt.
+    source = (
+        gnd.build_gnd_source(conn, config) if expand and gnd_enabled(config) else None
+    )
     per_query = []
     for entry in entries:
         start = time.perf_counter()
         terms: list[str] = []
+        senses = []
         if expand and config.ENABLE_QUERY_EXPANSION:
             terms = query_expansion.expand_query(
                 conn,
@@ -105,10 +117,26 @@ def run_mode(conn, service, entries, expand, config) -> list[dict]:
                 entry.query,
                 daily_limit=config.CLAUDE_DAILY_LIMIT,
             )
-        hits = ranking.search(conn, service, entry.query, terms)
+        if source is not None:
+            senses = gnd.gnd_senses_for_query(conn, config, entry.query, source=source)
+        result = ranking.search_result(
+            conn, service, entry.query, terms, gnd_senses=senses
+        )
         seconds = time.perf_counter() - start
-        notations = [hit.notation.notation for hit in hits]
-        per_query.append(evaluation.evaluate_query(entry, notations, seconds, terms))
+        notations = [hit.notation.notation for hit in result.hits]
+        gnd_terms = [
+            f"{term.relation}: {term.term}" for sense in senses for term in sense.terms
+        ]
+        per_query.append(
+            evaluation.evaluate_query(
+                entry,
+                notations,
+                seconds,
+                terms,
+                gnd_terms=gnd_terms,
+                gnd_senses=[sense.display_name for sense in senses],
+            )
+        )
     return per_query
 
 
@@ -225,6 +253,8 @@ def main(argv=None) -> int:
             "enabled": bool(config.ENABLE_QUERY_EXPANSION) and not args.no_expansion,
             "api_key_present": bool(config.CLAUDE_API_KEY),
             "queries_with_terms": sum(1 for q in main_run if q["expanded_terms"]),
+            "gnd_enabled": gnd_enabled(config) and not args.no_expansion,
+            "queries_with_gnd_senses": sum(1 for q in main_run if q["gnd_senses"]),
         },
         "rvk_version": rvk_version,
         "embedding_model": config.EMBEDDING_MODEL_NAME,

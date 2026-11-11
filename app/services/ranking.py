@@ -16,16 +16,24 @@ genau dieses Problem).
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from urllib.parse import quote
 
-from app.models import Evidence, ExpansionTerm, Hit
+from app.config import Config
+from app.models import Evidence, ExpansionTerm, GndSense, Hit
 from app.services import rvk_repository
 from app.services.query_expansion import normalize_query
 
 MAX_RESULTS = 20
 KEYWORD_BONUS = 0.03
 TERM_MATCH_BONUS = 0.015
+# P3: Zuschlag für Treffer über die GND-Bedeutung selbst bzw. ein Synonym (über GND-ID oder
+# exakten Registerbegriff) und für Treffer über Ober-, Unter- oder verwandte Begriffe.
+# Es zählt nur der höchste zutreffende Zuschlag.
+GND_SYNONYM_BONUS = 0.08
+GND_RELATION_BONUS = 0.02
+GND_REGISTER_LIMIT = 10
 
 # Parameter je Suchbegriff (unverändert gegenüber der Suche vor P2)
 KEYWORD_LIMIT = 50
@@ -83,6 +91,8 @@ class Retrieval:
     # Notationen, die nur die Vektorsuche eines Erweiterungsbegriffs geliefert hat
     expansion_vector_ids: set[int]
     evidence_by_id: dict[int, list[Evidence]] = field(default_factory=dict)
+    # P3: Notation -> Beziehungen der GND-Begriffe, über die sie gefunden wurde
+    gnd_relation_by_id: dict[int, set[str]] = field(default_factory=dict)
 
     def add(self, evidence: Evidence) -> None:
         bucket = self.evidence_by_id.setdefault(evidence.notation_id, [])
@@ -156,9 +166,148 @@ def collect_evidence(conn, embedding_service, terms: list[ExpansionTerm]) -> Ret
     return retrieval
 
 
+def collect_gnd_evidence(
+    conn, retrieval: Retrieval, senses: Iterable[GndSense]
+) -> None:
+    """Ergänzt die Evidenzen um die GND-Pfade (P3), ohne Vektorsuche.
+
+    1. GND-Begriff -> exakt gleicher Registerbegriff -> Notation (`register_exact`, 1.0)
+    2. GND-Begriff -> GND-ID -> Registereintrag mit dieser GND-ID (`register_gnd_id`, 1.0)
+    """
+    gnd_terms = [term for sense in senses for term in sense.terms]
+    if not gnd_terms:
+        return
+
+    def note(nid: int, term: ExpansionTerm, match_type: str) -> None:
+        retrieval.add(Evidence(nid, term, match_type, 1.0))
+        retrieval.gnd_relation_by_id.setdefault(nid, set()).add(term.relation)
+
+    for term in gnd_terms:
+        for nid, _entry_type, _gnd_id in rvk_repository.get_notation_ids_for_term(
+            conn, term.term, limit=GND_REGISTER_LIMIT
+        ):
+            note(nid, term, "register_exact")
+
+    ids_by_gnd = rvk_repository.get_notations_by_gnd_ids(
+        conn,
+        [t.gnd_id for t in gnd_terms if t.gnd_id],
+        limit_per_id=GND_REGISTER_LIMIT,
+    )
+    for term in gnd_terms:
+        for nid in ids_by_gnd.get(term.gnd_id or "", []):
+            note(nid, term, "register_gnd_id")
+
+
+def gnd_bonus_for(relations: set[str] | None) -> float:
+    """Höchster zutreffender GND-Zuschlag; ohne GND-Evidenz 0."""
+    if not relations:
+        return 0.0
+    if "synonym" in relations:
+        return GND_SYNONYM_BONUS
+    return GND_RELATION_BONUS
+
+
+@dataclass
+class SenseResult:
+    """Eine GND-Bedeutung mit den Notationen, die über ihre Begriffe gefunden wurden."""
+
+    sense: GndSense
+    notation_ids: list[int]
+    hit_count: int
+    matches_filter: bool
+    rvk_groups: tuple[str, ...] = ()
+
+
+@dataclass
+class SearchResult:
+    hits: list[Hit]
+    senses: list[SenseResult] = field(default_factory=list)
+
+
+def rvk_groups_for_sense(
+    sense: GndSense, mapping: Mapping[str, Iterable[str]]
+) -> tuple[str, ...]:
+    """RVK-Hauptgruppen zu den GND-Sachgruppen einer Bedeutung laut Zuordnungstabelle.
+
+    Ein Tabellenschlüssel mit "*" am Ende gilt für alle Codes, die so beginnen.
+    """
+    groups: list[str] = []
+    for code, _label in sense.subject_categories:
+        for key, rvk_groups in mapping.items():
+            matches = code.startswith(key[:-1]) if key.endswith("*") else code == key
+            if matches:
+                groups.extend(g for g in rvk_groups if g not in groups)
+    return tuple(groups)
+
+
+def rank_senses(
+    senses: Iterable[GndSense],
+    evidence_by_id: Mapping[int, list[Evidence]],
+    subject_filter: Iterable[str] | None,
+    mapping: Mapping[str, Iterable[str]],
+    score_by_id: Mapping[int, float] | None = None,
+) -> list[SenseResult]:
+    """Rangfolge der Bedeutungen: erst Übereinstimmung mit dem Fachfilter, dann Trefferzahl,
+    dann die Reihenfolge der GND-Quelle. Kein LLM.
+
+    `notation_ids` sind die Notationen mit Evidenz über einen Begriff dieser Bedeutung, nach
+    `score_by_id` absteigend (sonst in der Reihenfolge von `evidence_by_id`).
+    """
+    wanted = {g.strip().upper() for g in (subject_filter or []) if g and g.strip()}
+    results = []
+    for sense in senses:
+        sense_terms = set(sense.terms)
+        nids = [
+            nid
+            for nid, evidences in evidence_by_id.items()
+            if any(e.via_term in sense_terms for e in evidences)
+        ]
+        if score_by_id is not None:
+            nids.sort(key=lambda nid: score_by_id.get(nid, 0.0), reverse=True)
+        groups = rvk_groups_for_sense(sense, mapping)
+        results.append(
+            SenseResult(
+                sense=sense,
+                notation_ids=nids,
+                hit_count=len(nids),
+                matches_filter=bool(wanted & set(groups)),
+                rvk_groups=groups,
+            )
+        )
+    indexed = list(enumerate(results))
+    indexed.sort(
+        key=lambda item: (not item[1].matches_filter, -item[1].hit_count, item[0])
+    )
+    return [result for _, result in indexed]
+
+
 def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> list[Hit]:
+    """Trefferliste ohne GND-Bedeutungen (Verhalten wie vor P3)."""
+    return search_result(conn, embedding_service, query, expanded_terms).hits
+
+
+def _empty_result(gnd_senses, subject_filter, mapping) -> SearchResult:
+    return SearchResult(
+        hits=[], senses=rank_senses(gnd_senses, {}, subject_filter, mapping)
+    )
+
+
+def search_result(
+    conn,
+    embedding_service,
+    query: str,
+    expanded_terms: list[str],
+    gnd_senses: Iterable[GndSense] = (),
+    subject_filter: Iterable[str] | None = None,
+    mapping: Mapping[str, Iterable[str]] | None = None,
+) -> SearchResult:
+    """Trefferliste samt GND-Bedeutungen (P3). Ohne Bedeutungen identisch mit `search`."""
+    gnd_senses = list(gnd_senses)
+    if mapping is None:
+        mapping = Config.GND_SUBJECT_CATEGORY_TO_RVK
     terms = build_expansion_terms(query, expanded_terms)
     retrieval = collect_evidence(conn, embedding_service, terms)
+    collect_gnd_evidence(conn, retrieval, gnd_senses)
 
     keyword_ids = retrieval.keyword_ids
     vector_score_by_id = retrieval.input_vector_scores
@@ -170,8 +319,10 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
     all_candidate_ids = keyword_ids | set(vector_score_by_id) | term_notation_ids
     if retrieval.expansion_vector_ids:
         all_candidate_ids |= retrieval.expansion_vector_ids
+    if retrieval.gnd_relation_by_id:
+        all_candidate_ids |= set(retrieval.gnd_relation_by_id)
     if not all_candidate_ids:
-        return []
+        return _empty_result(gnd_senses, subject_filter, mapping)
 
     notations = rvk_repository.get_notations_by_ids(conn, list(all_candidate_ids))
     candidate_ids = {
@@ -180,7 +331,7 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
         if nid in notations and is_assignable_notation(notations[nid].notation)
     }
     if not candidate_ids:
-        return []
+        return _empty_result(gnd_senses, subject_filter, mapping)
 
     # Der Score ist zugleich der angezeigte Wert - beide müssen identisch sein, sonst kann die
     # Reihenfolge wieder von der Anzeige abweichen (genau das Problem der früheren RRF-Lösung).
@@ -203,18 +354,21 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
         if nid in term_notation_ids:
             register_bonus = TERM_MATCH_BONUS
             score += TERM_MATCH_BONUS
+        gnd_bonus = gnd_bonus_for(retrieval.gnd_relation_by_id.get(nid))
+        score += gnd_bonus
         score_by_id[nid] = min(score, 1.0)
         components_by_id[nid] = {
             "cosine": cosine,
             "keyword_bonus": keyword_bonus,
             "register_bonus": register_bonus,
+            "gnd_bonus": gnd_bonus,
         }
 
     ranked_ids = sorted(candidate_ids, key=lambda nid: score_by_id[nid], reverse=True)[
         :MAX_RESULTS
     ]
 
-    return [
+    hits = [
         Hit(
             notation=notations[nid],
             evidences=list(retrieval.evidence_by_id[nid]),
@@ -223,6 +377,46 @@ def search(conn, embedding_service, query: str, expanded_terms: list[str]) -> li
         )
         for nid in ranked_ids
     ]
+    senses = rank_senses(
+        gnd_senses,
+        {nid: retrieval.evidence_by_id[nid] for nid in candidate_ids},
+        subject_filter,
+        mapping,
+        score_by_id=score_by_id,
+    )
+    return SearchResult(hits=hits, senses=senses)
+
+
+def senses_to_rows(
+    conn, senses: list[SenseResult], notations_per_sense: int = 5
+) -> list[dict]:
+    """Zeilen für den Block „Mehrere Bedeutungen gefunden“ bzw. „GND-Begriff“."""
+    wanted = [nid for r in senses for nid in r.notation_ids[:notations_per_sense]]
+    notations = rvk_repository.get_notations_by_ids(conn, list(dict.fromkeys(wanted)))
+    rows = []
+    for result in senses:
+        sense = result.sense
+        rows.append(
+            {
+                "name": sense.display_name,
+                "gnd_id": sense.gnd_id,
+                "subject_categories": [
+                    label or code for code, label in sense.subject_categories
+                ],
+                "matches_filter": result.matches_filter,
+                "hit_count": result.hit_count,
+                "notations": [
+                    {
+                        "notation": notations[nid].notation,
+                        "label": notations[nid].label,
+                        "rvk_online_url": build_rvk_online_url(notations[nid].notation),
+                    }
+                    for nid in result.notation_ids[:notations_per_sense]
+                    if nid in notations
+                ],
+            }
+        )
+    return rows
 
 
 def hits_to_rows(conn, hits: list[Hit]) -> list[dict]:

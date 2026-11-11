@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS register_entry (
 
 CREATE INDEX IF NOT EXISTS idx_register_notation_id ON register_entry(notation_id);
 CREATE INDEX IF NOT EXISTS idx_register_term ON register_entry(term);
+CREATE INDEX IF NOT EXISTS idx_register_gnd_id ON register_entry(gnd_id);
 
 CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
     notation_id UNINDEXED,
@@ -46,6 +47,12 @@ CREATE TABLE IF NOT EXISTS sync_log (
 CREATE TABLE IF NOT EXISTS expansion_cache (
     query_normalized TEXT PRIMARY KEY,
     expansion_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS gnd_cache (
+    request_key TEXT PRIMARY KEY,
+    response_json TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
 
@@ -127,6 +134,28 @@ class ExpansionTerm:
             raise ValueError(f"Unbekannte Begriffsquelle: {self.source!r}")
         if self.relation not in EXPANSION_RELATIONS:
             raise ValueError(f"Unbekannte Begriffsbeziehung: {self.relation!r}")
+
+
+@dataclass(frozen=True)
+class GndSense:
+    """Eine Bedeutung eines Suchbegriffs laut GND (ein Sachschlagwort-Datensatz).
+
+    Mehrdeutige Begriffe („Mutter“, „Feder“, „Bank“) ergeben mehrere Senses. Sie werden nicht
+    still aufgelöst, sondern getrennt angezeigt und nach Fachfilter und Trefferzahl geordnet.
+    """
+
+    gnd_id: str
+    preferred_name: str
+    qualifier: str | None = None
+    # (Sachgruppen-Code, Bezeichnung), z. B. ("31.6", "Maschinenbau")
+    subject_categories: tuple[tuple[str, str], ...] = ()
+    terms: tuple[ExpansionTerm, ...] = ()
+
+    @property
+    def display_name(self) -> str:
+        if self.qualifier:
+            return f"{self.preferred_name} <{self.qualifier}>"
+        return self.preferred_name
 
 
 @dataclass(frozen=True)

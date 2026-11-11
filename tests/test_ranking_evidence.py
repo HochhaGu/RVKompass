@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from app.models import SCHEMA_SQL, Hit
+from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit
 from app.services import ranking, rvk_repository
 
 MIN_SCORE = 0.1
@@ -227,3 +227,175 @@ def test_hits_to_rows_keeps_previous_display_keys(conn, service):
         )
     assert _by_notation(hits)["ZL 4300"].notation.id == 5
     assert rows[1]["related_terms"] == ["Kupplung"]
+
+
+# --- P3: GND-Bedeutungen ----------------------------------------------------------------------
+
+
+def _sense(gnd_id, name, terms, categories=()):
+    return GndSense(
+        gnd_id=gnd_id,
+        preferred_name=name,
+        subject_categories=tuple(categories),
+        terms=tuple(
+            ExpansionTerm(term, "gnd", relation, term_gnd_id, name)
+            for term, relation, term_gnd_id in terms
+        ),
+    )
+
+
+KUPPLUNG = _sense(
+    "gnd-test-1",
+    "Kupplung <Technik>",
+    [("Kupplung <Technik>", "synonym", "gnd-test-1")],
+)
+
+
+def test_gnd_sense_gives_register_gnd_id_evidence_and_bonus(conn, service):
+    plain = _by_notation(ranking.search(conn, service, "Getriebe", []))["ZL 4300"]
+    result = ranking.search_result(conn, service, "Getriebe", [], gnd_senses=[KUPPLUNG])
+    hit = _by_notation(result.hits)["ZL 4300"]
+
+    gnd_evidence = [e for e in hit.evidences if e.match_type == "register_gnd_id"]
+    assert len(gnd_evidence) == 1
+    via = gnd_evidence[0].via_term
+    assert (via.source, via.relation, via.gnd_id, via.parent_term) == (
+        "gnd",
+        "synonym",
+        "gnd-test-1",
+        "Kupplung <Technik>",
+    )
+    assert gnd_evidence[0].raw_score == 1.0
+    assert hit.score_components["gnd_bonus"] == ranking.GND_SYNONYM_BONUS
+    assert hit.score == pytest.approx(plain.score + ranking.GND_SYNONYM_BONUS)
+    # Die GND-Begriffe laufen nicht durch die Vektorsuche
+    assert service.calls == ["Getriebe", "Getriebe"]
+
+
+def test_exact_register_term_from_gnd_gives_register_exact(conn, service):
+    sense = _sense("gnd-x", "Antrieb", [("Kupplung", "related", None)])
+    result = ranking.search_result(conn, service, "Getriebe", [], gnd_senses=[sense])
+    hit = _by_notation(result.hits)["ZL 4300"]
+
+    exact = [
+        e
+        for e in hit.evidences
+        if e.match_type == "register_exact" and e.via_term.source == "gnd"
+    ]
+    assert [(e.via_term.term, e.raw_score) for e in exact] == [("Kupplung", 1.0)]
+    assert hit.score_components["gnd_bonus"] == ranking.GND_RELATION_BONUS
+
+
+def test_highest_gnd_bonus_counts_once(conn, service):
+    sense = _sense(
+        "gnd-test-1",
+        "Kupplung <Technik>",
+        [
+            ("Kupplung <Technik>", "synonym", "gnd-test-1"),
+            ("Kupplung", "broader", None),
+        ],
+    )
+    result = ranking.search_result(conn, service, "Getriebe", [], gnd_senses=[sense])
+    hit = _by_notation(result.hits)["ZL 4300"]
+    assert hit.score_components["gnd_bonus"] == ranking.GND_SYNONYM_BONUS
+
+
+def test_gnd_only_hit_enters_candidates(conn, service):
+    assert ranking.search(conn, service, "Unbekannt", []) == []
+    result = ranking.search_result(
+        conn, service, "Unbekannt", [], gnd_senses=[KUPPLUNG]
+    )
+
+    assert [h.notation.notation for h in result.hits] == ["ZL 4300"]
+    hit = result.hits[0]
+    assert {e.via_term.source for e in hit.evidences} == {"gnd"}
+    assert hit.score == pytest.approx(ranking.GND_SYNONYM_BONUS)
+    assert [s.notation_ids for s in result.senses] == [[5]]
+
+
+def test_search_result_without_senses_matches_search(conn, service):
+    for query, terms in (("Getriebe", []), ("Getriebe", ["Zahnrad", "Kupplung"])):
+        old = ranking.search(conn, service, query, terms)
+        new = ranking.search_result(conn, service, query, terms)
+        assert new.senses == []
+        assert [(h.notation.id, h.score, h.evidences) for h in new.hits] == [
+            (h.notation.id, h.score, h.evidences) for h in old
+        ]
+        assert all(h.score_components["gnd_bonus"] == 0.0 for h in new.hits)
+
+
+def test_senses_are_ranked_and_carry_their_notations(conn, service):
+    other = _sense(
+        "gnd-y", "Kupplung <Familie>", [("Ehe", "synonym", None)], [("99.9", "Familie")]
+    )
+    technik = _sense(
+        "gnd-test-1",
+        "Kupplung <Technik>",
+        [("Kupplung <Technik>", "synonym", "gnd-test-1")],
+        [("31.6", "Maschinenbau")],
+    )
+    result = ranking.search_result(
+        conn, service, "Getriebe", [], gnd_senses=[other, technik]
+    )
+    # mehr Treffer -> nach vorn, obwohl lobid sie als zweite geliefert hat
+    assert [s.sense.gnd_id for s in result.senses] == ["gnd-test-1", "gnd-y"]
+    assert result.senses[0].notation_ids == [5]
+    assert result.senses[1].hit_count == 0
+
+    rows = ranking.senses_to_rows(conn, result.senses)
+    assert rows[0]["name"] == "Kupplung <Technik>"
+    assert rows[0]["subject_categories"] == ["Maschinenbau"]
+    assert [n["notation"] for n in rows[0]["notations"]] == ["ZL 4300"]
+    assert rows[1]["notations"] == []
+
+
+def _evidence(nid, sense):
+    return Evidence(nid, sense.terms[0], "register_gnd_id", 1.0)
+
+
+MAPPING = {"31.6": ("ZL",), "10.11*": ("QP",)}
+
+
+def test_rank_senses_filter_before_hit_count():
+    many = _sense("a", "Bank <Möbel>", [("Sitzbank", "synonym", "a")], [("99", "X")])
+    few = _sense("b", "Bank", [("Kreditinstitut", "synonym", "b")], [("10.11a", "BWL")])
+    evidence = {
+        1: [_evidence(1, many)],
+        2: [_evidence(2, many)],
+        3: [_evidence(3, few)],
+    }
+    ranked = ranking.rank_senses([many, few], evidence, None, MAPPING)
+    assert [r.sense.gnd_id for r in ranked] == ["a", "b"]
+
+    ranked = ranking.rank_senses([many, few], evidence, ["qp"], MAPPING)
+    assert [r.sense.gnd_id for r in ranked] == ["b", "a"]
+    assert ranked[0].matches_filter is True
+    assert ranked[0].rvk_groups == ("QP",)
+    assert ranked[1].matches_filter is False
+
+
+def test_rank_senses_tie_keeps_source_order():
+    first = _sense("a", "Feder <Technik>", [("Feder1", "synonym", "a")])
+    second = _sense("b", "Feder <Vogel>", [("Feder2", "synonym", "b")])
+    evidence = {1: [_evidence(1, first)], 2: [_evidence(2, second)]}
+    assert [
+        r.sense.gnd_id
+        for r in ranking.rank_senses([first, second], evidence, [], MAPPING)
+    ] == [
+        "a",
+        "b",
+    ]
+    assert [
+        r.sense.gnd_id
+        for r in ranking.rank_senses([second, first], evidence, [], MAPPING)
+    ] == [
+        "b",
+        "a",
+    ]
+
+
+def test_rvk_groups_for_sense_exact_and_prefix():
+    sense = _sense(
+        "a", "X", [], [("31.6", "Maschinenbau"), ("10.11b", "BWL"), ("31.60", "?")]
+    )
+    assert ranking.rvk_groups_for_sense(sense, MAPPING) == ("ZL", "QP")
