@@ -441,7 +441,7 @@ class Engine:
         title = f"Phase {phase.number}: {phase.title}"
         gates = "\n".join(f"- {g}" for g in info.get("gates", []))
         msg = f"{title}\n\nVom Steuerprogramm umgesetzt und geprüft.\n\nGates:\n{gates}\n\n{CO_AUTHOR}"
-        self.git.commit_all(msg, self.secrets.secret_values())
+        self.git.commit_all(msg, self.secrets.secret_items())
         if self.git.commits_ahead() == 0:
             raise Pause(
                 "Die Phase hat keine Änderungen erzeugt", resume_step="implement"

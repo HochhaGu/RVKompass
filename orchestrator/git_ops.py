@@ -10,10 +10,17 @@ from pathlib import Path
 
 PROTECTED_BRANCHES = ("main", "master")
 
-_SECRET_PATTERNS = re.compile(
-    r"sk-ant-[A-Za-z0-9_-]{10,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}"
-    r"|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[abp]-[A-Za-z0-9-]{10,}"
-)
+# Bekannte Schlüsselformate – unabhängig von .env. Gemeldet wird nur die Art, nie der Wert.
+_SECRET_PATTERNS = [
+    ("Anthropic-Schlüssel", re.compile(r"sk-ant-[A-Za-z0-9_-]{10,}")),
+    (
+        "GitHub-Token",
+        re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}"),
+    ),
+    ("AWS-Schlüssel", re.compile(r"AKIA[0-9A-Z]{16}")),
+    ("privater Schlüssel", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    ("Slack-Token", re.compile(r"xox[abp]-[A-Za-z0-9-]{10,}")),
+]
 
 CO_AUTHOR = "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 PR_FOOTER = "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
@@ -57,14 +64,29 @@ def forbidden_paths(paths: list[str]) -> list[str]:
     return bad
 
 
-def scan_for_secrets(diff: str, secret_values: list[str]) -> list[str]:
-    """Liefert Beschreibungen gefundener Schlüssel (nie die Werte selbst)."""
-    added = "\n".join(line for line in diff.splitlines() if line.startswith("+"))
-    hits = [
-        f"Schlüsselmuster {m.group(0)[:6]}…" for m in _SECRET_PATTERNS.finditer(added)
-    ]
-    hits += ["Wert aus .env" for v in secret_values if v and v in added]
-    return hits
+def scan_for_secrets(diff: str, secret_items: list[tuple[str, str]]) -> list[str]:
+    """Sucht in den hinzugefügten Zeilen eines Diffs nach Geheimnissen.
+
+    secret_items: (Name, Wert). Liefert Meldungen wie "SMTP_PASSWORD in app/config.py" –
+    nie den Wert, auch keinen Teil davon."""
+    added: dict[str, list[str]] = {}
+    current = "?"
+    for line in diff.splitlines():
+        if line.startswith("+++ "):
+            path = line[4:].strip()
+            current = path.removeprefix("b/")
+        elif line.startswith("+"):
+            added.setdefault(current, []).append(line[1:])
+    hits: list[str] = []
+    for path, lines in added.items():
+        text = "\n".join(lines)
+        for name, value in secret_items:
+            if value and value in text:
+                hits.append(f"{name} in {path}")
+        for label, pattern in _SECRET_PATTERNS:
+            if pattern.search(text):
+                hits.append(f"{label} (Muster) in {path}")
+    return sorted(set(hits))
 
 
 # ---------- Ausführung ----------
@@ -141,7 +163,7 @@ class Git:
 
     # --- Ausliefern ---
 
-    def commit_all(self, message: str, secret_values: list[str]) -> bool:
+    def commit_all(self, message: str, secret_items: list[tuple[str, str]]) -> bool:
         """Alles stagen, Schutzprüfungen, committen. False, wenn nichts zu committen war."""
         self._git("add", "-A")
         staged = [
@@ -153,12 +175,10 @@ class Git:
         if bad:
             self._git("reset", "-q")
             raise SafetyError(f"Verbotene Dateien im Commit: {', '.join(bad[:10])}")
-        hits = scan_for_secrets(self._git("diff", "--cached"), secret_values)
+        hits = scan_for_secrets(self._git("diff", "--cached"), secret_items)
         if hits:
             self._git("reset", "-q")
-            raise SafetyError(
-                f"Möglicher Schlüssel im Commit: {'; '.join(sorted(set(hits)))}"
-            )
+            raise SafetyError(f"Möglicher Schlüssel im Commit: {'; '.join(hits)}")
         self._git("commit", "-q", "-m", message)
         return True
 

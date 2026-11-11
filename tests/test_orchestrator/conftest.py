@@ -86,7 +86,8 @@ class FakeGit:
     def diffstat(self):
         return " app/x.py | 2 +-"
 
-    def commit_all(self, message, secret_values):
+    def commit_all(self, message, secret_items):
+        self.secret_items = secret_items
         self._rec("commit_all", message)
         return True
 

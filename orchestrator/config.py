@@ -79,6 +79,11 @@ class Settings:
         return self.orch_dir / "logs"
 
     @property
+    def claude_env_path(self) -> Path:
+        """Langlebige Claude-Anmeldung (claude setup-token), außerhalb des Repos."""
+        return Path.home() / ".config" / "rvkompass" / "claude.env"
+
+    @property
     def outbox_dir(self) -> Path:
         return self.orch_dir / "logs" / "mail_warteschlange"
 

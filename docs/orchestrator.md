@@ -135,7 +135,12 @@ Schritt neu geschrieben und lädt sich im Browser jede Minute neu. Kann das Prog
   und Webzugriffe nur auf die Domains, die in `orchestrator/phases.yaml` je Phase stehen.
 - **Modus `dontAsk`:** Alles, was nicht ausdrücklich erlaubt ist, wird automatisch abgelehnt.
 - **Vor jedem Commit** prüft das Steuerprogramm: keine Dateien aus `data/`, keine `.env`, keine
-  Schlüsselmuster und keine Werte aus `.env` im Diff. Schlägt das an → Pause statt Push.
+  bekannten Schlüsselformate (z. B. `sk-ant-…`) und keine geheimen Werte im Diff. Als geheim gelten
+  Schlüssel aus `.env`, deren Name `KEY`, `TOKEN`, `SECRET` oder `PASSWORD` enthält, dazu
+  `SMTP_HOST`, `MAIL_TO` und die Werte aus `~/.config/rvkompass/claude.env`. Werte unter 12 Zeichen
+  werden ignoriert; harmlose Einstellungen wie `FLASK_ENV` oder Pfade lösen keinen Alarm aus.
+  Bei einem Treffer → Pause statt Push. Die Meldung nennt Schlüsselname und Datei
+  (z. B. „SMTP_PASSWORD in app/config.py“), nie den Wert.
 - **Nie main:** Push und Merge mit `main` als Ziel verweigert das Programm hart.
 - Ehrliche Grenze: `python scripts/…` kann theoretisch beliebigen Code ausführen. Deshalb liegen
   die harten Schutzschichten außerhalb des Roboters (keine `.env` in der Arbeitskopie, Push nur

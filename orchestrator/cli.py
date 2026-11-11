@@ -68,7 +68,7 @@ def _run_lock(settings):
 
 
 def build_engine(settings, *, dry_run: bool, log=print) -> Engine:
-    secrets = Secrets.from_file(settings.repo_root / ".env")
+    secrets = Secrets.from_file(settings.repo_root / ".env", settings.claude_env_path)
     prompts_md = (settings.repo_root / "prompts" / "PROMPTS.md").read_text(
         encoding="utf-8"
     )
@@ -155,7 +155,7 @@ def cmd_status(settings) -> int:
 
 
 def cmd_test_mail(settings) -> int:
-    secrets = Secrets.from_file(settings.repo_root / ".env")
+    secrets = Secrets.from_file(settings.repo_root / ".env", settings.claude_env_path)
     mailer = Mailer(secrets)
     missing = mailer.configured()
     if missing:
