@@ -1,0 +1,164 @@
+# Konfiguration des Steuerprogramms (Orchestrator).
+# Geheimnisse stehen NIE hier, sondern nur in .env.
+
+einstellungen:
+  basis_branch: develop
+  # Eigene Arbeitskopie (git worktree) des Roboters; ohne .env, data/ nur verlinkt.
+  arbeitskopie: ~/dev/rvkompass-phasen
+  # Hierhin schreibt das Programm die Statusseite (Caddy liefert sie aus).
+  statusordner: /srv/rvkompass-status
+  statusseite_url: https://rvkompass.ghochhauser.at/status/
+  modell: opus
+  pruef_modell: opus
+  # Gate: Hit@10 darf gegenüber dem letzten Bericht höchstens so viel sinken.
+  hit10_toleranz: 0.02
+  # Nutzungslimit erreicht: so lange warten, dann erneut versuchen (Sekunden).
+  limit_wartezeit_s: 3600
+  # Kurzzeitige Störung der API (Überlast): Wartezeit und maximale Versuche.
+  stoerung_wartezeit_s: 600
+  stoerung_max_versuche: 6
+  # Im Pausenzustand so oft in state.json nachsehen (Sekunden).
+  leerlauf_s: 60
+  # Höchstdauer eines einzelnen Claude-Laufs (Sekunden).
+  zeitlimit_claude_s: 10800
+  # Warnung, wenn die Claude-Anmeldung in weniger Tagen abläuft.
+  anmeldung_warnung_tage: 5
+  evaluation_befehl: "python scripts/evaluate.py --gold eval/goldstandard.csv --out reports/"
+
+# Erlaubnisliste für den Arbeits-Claude (Umsetzung und Reparatur).
+# Modus dontAsk: alles, was hier nicht erlaubt ist, wird automatisch abgelehnt.
+erlaubnis:
+  erlaubt:
+    - Read
+    - Glob
+    - Grep
+    - Edit
+    - Write
+    - WebSearch
+    - "Bash(pytest *)"
+    - "Bash(python -m pytest *)"
+    - "Bash(ruff *)"
+    - "Bash(python -m ruff *)"
+    - "Bash(python scripts/*)"
+    - "Bash(git status *)"
+    - "Bash(git status)"
+    - "Bash(git diff *)"
+    - "Bash(git diff)"
+    - "Bash(git log *)"
+    - "Bash(git show *)"
+    - "Bash(ls *)"
+    - "Bash(wc *)"
+    - "Bash(sqlite3 -readonly *)"
+    - "WebFetch(domain:rvk.uni-regensburg.de)"
+    - "WebFetch(domain:rvk.ur.de)"
+    - "WebFetch(domain:lobid.org)"
+  verboten:
+    - "Read(**/.env)"
+    - "Read(**/.env.*)"
+    - "Read(~/dev/rvkompass/**)"
+    - "Edit(**/.env*)"
+    - "Write(**/.env*)"
+    - "Edit(./data/**)"
+    - "Write(./data/**)"
+    - "Edit(./orchestrator/**)"
+    - "Write(./orchestrator/**)"
+    - "Edit(./.claude/**)"
+    - "Write(./.claude/**)"
+    - "Bash(git push *)"
+    - "Bash(git push)"
+    - "Bash(git checkout *)"
+    - "Bash(git switch *)"
+    - "Bash(git reset *)"
+    - "Bash(git rm *)"
+    - "Bash(git commit *)"
+    - "Bash(git merge *)"
+    - "Bash(rm *)"
+    - "Bash(sudo *)"
+    - "Bash(curl *)"
+    - "Bash(wget *)"
+    - "Bash(pip *)"
+    - "Bash(python -m pip *)"
+    - "Bash(gh *)"
+
+# Die Phasen. Der eigentliche Auftrag steht in prompts/PROMPTS.md (Abschnitt "## <id> – ...").
+# evaluation: ab wann scripts/evaluate.py als Gate läuft.
+# haltepunkt: nach erfolgreicher Phase immer anhalten und diesen Text mailen.
+# web: zusätzliche Domains, die der Arbeits-Claude in dieser Phase lesen darf.
+# bash: zusätzliche Befehle für diese Phase.
+phasen:
+  - id: P0
+    stichwort: audit
+    titel: Onboarding und Audit
+    evaluation: false
+    haltepunkt: >-
+      P0 ist fertig. Bitte prüfe den Audit-Bericht (docs/audit-2026-11.md), besonders den Abschnitt
+      zur Git-Historie, und schalte das Repo danach auf GitHub öffentlich. Anschließend mit
+      --resume weitermachen.
+    web:
+      - interoperable-europe.ec.europa.eu
+      - joinup.ec.europa.eu
+      - eur-lex.europa.eu
+  - id: P1
+    stichwort: evaluation
+    titel: Evaluationsbasis
+    evaluation: true
+    web:
+      - www.k10plus.de
+      - wiki.k10plus.de
+      - sru.k10plus.de
+      - lobid.org
+      - www.dnb.de
+      - services.dnb.de
+  - id: P2
+    stichwort: evidence
+    titel: Evidence-Datenmodell
+    evaluation: true
+  - id: P3
+    stichwort: gnd
+    titel: GND-Erweiterung
+    evaluation: true
+  - id: P4
+    stichwort: llm
+    titel: LLM-Erweiterung, verifiziert
+    evaluation: true
+    web:
+      - docs.claude.com
+      - platform.claude.com
+      - docs.anthropic.com
+      - pypi.org
+  - id: P5
+    stichwort: scoring
+    titel: Scoring neu
+    evaluation: true
+  - id: P6
+    stichwort: oberflaeche
+    titel: Oberfläche und Transparenz
+    evaluation: true
+    web:
+      - htmx.org
+      - www.w3.org
+  - id: P7
+    stichwort: embeddings
+    titel: Embedding-Modellvergleich
+    evaluation: true
+    web:
+      - huggingface.co
+      - www.sbert.net
+  - id: P8
+    stichwort: betrieb
+    titel: Betrieb
+    evaluation: true
+    web:
+      - docs.docker.com
+      - caddyserver.com
+      - docs.gunicorn.org
+      - www.dnb.de
+      - data.dnb.de
+    bash:
+      - "Bash(docker build *)"
+      - "Bash(docker compose config *)"
+      - "Bash(docker compose config)"
+    haltepunkt: >-
+      Alle Phasen P0 bis P8 sind fertig und nach develop gemergt. Die Live-Schaltung wartet auf
+      deine Freigabe: bitte docs/deployment.md lesen, develop prüfen und die Schritte zur
+      Live-Schaltung selbst ausführen.

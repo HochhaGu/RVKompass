@@ -1,0 +1,29 @@
+# /etc/systemd/system/rvkompass-orchestrator.service
+# Steuerprogramm für die RVKompass-Phasen P0–P8. Läuft dauerhaft als Benutzer guenther,
+# startet nach einem Absturz nach 60 s neu und nach jedem Reboot automatisch.
+# Pausen und Fortsetzen ohne sudo: orchestrator/PAUSE bzw. "python -m orchestrator --resume".
+
+[Unit]
+Description=RVKompass-Steuerprogramm (Phasen P0–P8)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=guenther
+Group=guenther
+WorkingDirectory=/home/guenther/dev/rvkompass
+Environment=HOME=/home/guenther
+Environment=PATH=/home/guenther/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/guenther/dev/rvkompass/.venv/bin/python -m orchestrator
+Restart=on-failure
+RestartSec=60
+# Ein laufender Claude-Schritt wird beim Stoppen abgebrochen und nach dem Start wiederholt.
+KillMode=control-group
+TimeoutStopSec=30
+# Das Programm und seine Kindprozesse können keine Rechte erlangen (kein sudo).
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

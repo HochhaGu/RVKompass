@@ -1,0 +1,12 @@
+# /etc/systemd/system/rvkompass-orchestrator-digest.timer
+# Montags um 08:00 Ortszeit; war der Server aus, wird der Brief nachgeholt.
+
+[Unit]
+Description=RVKompass-Steuerprogramm: Wochenbrief montags 08:00
+
+[Timer]
+OnCalendar=Mon *-*-* 08:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
