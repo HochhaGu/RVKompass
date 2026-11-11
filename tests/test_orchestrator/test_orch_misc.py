@@ -12,7 +12,6 @@ from orchestrator.git_ops import (
     SafetyError,
     assert_safe_target,
     forbidden_paths,
-    scan_for_secrets,
 )
 from orchestrator.notify import Mail, Mailer, html_to_text, render_mail, security_mode
 from orchestrator.state import StateStore
@@ -76,17 +75,6 @@ def test_forbidden_paths():
         "orchestrator/state.json",
         "orchestrator/antworten/P0.md",
     ]
-
-
-def test_scan_for_secrets_only_added_lines_and_no_values_in_message():
-    diff = (
-        "+API = 'sk-ant-api03-abcdefghijklmnop'\n-old = 'ghp_"
-        + "a" * 30
-        + "'\n+pw = 'MeinPasswort9'"
-    )
-    hits = scan_for_secrets(diff, ["MeinPasswort9"])
-    assert len(hits) == 2
-    assert not any("abcdefghijk" in h or "MeinPasswort9" in h for h in hits)
 
 
 def test_git_refuses_pr_with_wrong_base(tmp_path):

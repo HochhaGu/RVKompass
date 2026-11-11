@@ -71,7 +71,7 @@ class DryGit:
     def diffstat(self) -> str:
         return "(Probelauf)"
 
-    def commit_all(self, message: str, secret_values: list[str]) -> bool:
+    def commit_all(self, message: str, secret_items: list[tuple[str, str]]) -> bool:
         self.out(
             f"    würde committen: „{message.splitlines()[0]}“ (nach Schutzprüfungen)"
         )
