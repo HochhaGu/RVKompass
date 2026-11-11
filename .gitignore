@@ -10,4 +10,14 @@ data/raw/
 .DS_Store
 *.log
 logs/
-.claude/
+.claude/settings.local.json
+
+# Steuerprogramm (Laufzeitdaten, nie versionieren)
+orchestrator/state.json
+orchestrator/state.json.lock
+orchestrator/PAUSE
+orchestrator/runs/
+orchestrator/logs/
+orchestrator/antworten/
+orchestrator/status_out/
+.venv/

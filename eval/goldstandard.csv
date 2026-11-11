@@ -1,0 +1,98 @@
+query;erwartete_notationen;quelle;fachgebiet;typ;anmerkung
+Getriebe;ZL 4100;RVK-Online;Maschinenbau;Fachbegriff;
+Wälzlager;ZL 4140;Verbundkatalog;Maschinenbau;Fachbegriff;
+Gleitlagerschmierung;ZL 4140;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;Kompositum: Gleitlager + Schmierung
+Wie Kräfte in Maschinen übertragen werden;ZL 4200;RVK-Online;Maschinenbau;Fachfremd umschrieben;gemeint: Antriebstechnik / Maschinenelemente
+Feder;ZL 4300;RVK-Online;Maschinenbau;Mehrdeutig;technische Bedeutung: Maschinenelement (nicht Vogel, nicht Schreibgerät)
+Mutter;ZL 4620;RVK-Online;Maschinenbau;Mehrdeutig;technische Bedeutung: Schraubenmutter (nicht Familie)
+CAD;ZG 9147;RVK-Online;Maschinenbau;Englisch/Jargon;Computer-Aided Design – rechnergestütztes Konstruieren
+Transformator;ZN 8330;RVK-Online;Elektrotechnik;Fachbegriff;
+Halbleiter;ZN 4800;RVK-Online;Elektrotechnik;Fachbegriff;
+Leistungselektronik für Elektroautos;ZN 8340;RVK-Online;Elektrotechnik;Spezifisch/Kompositum;Leistungselektronik + Elektrofahrzeug
+Spannung;ZQ 3400;RVK-Online;Elektrotechnik;Mehrdeutig;elektrische Spannung – Abgrenzung zur mechanischen Spannung (Werkstoffe)
+Smart Grid;ZP 4450;RVK-Online;Elektrotechnik;Englisch/Jargon;intelligentes Stromnetz
+Photovoltaik;ZP 3730;RVK-Online;Energietechnik;Fachbegriff;
+Wärmepumpe;ZI 8694;RVK-Online;Energietechnik;Fachbegriff;
+Wärmepumpenregelung;ZI 8694;RVK-Online;Energietechnik;Spezifisch/Kompositum;Kompositum: Wärmepumpe + Regelung (Schnittstelle zu Regelungstechnik)
+Rotorblätter von Windkraftanlagen;ZP 3712;RVK-Online;Energietechnik;Spezifisch/Kompositum;Windenergieanlage + Bauteil
+Strom aus Sonnenlicht;ZP 3730;RVK-Online;Energietechnik;Fachfremd umschrieben;gemeint: Photovoltaik – Gegenprobe zum Fachbegriff
+Energie speichern für später;ZP 4100;RVK-Online;Energietechnik;Fachfremd umschrieben;gemeint: Energiespeicher / Batteriespeicher
+Power-to-X;ZP 3700;Verbundkatalog;Energietechnik;Englisch/Jargon;Umwandlung von Strom in Gase/Kraftstoffe
+Stahl;ZM 4530;RVK-Online;Werkstoffe;Fachbegriff;
+Faserverbundwerkstoffe;ZM 5000|ZI 4200|ZI 4700;RVK-Online;Werkstoffe;Fachbegriff;
+Korrosionsschutz von Aluminium;ZM 7530;RVK-Online;Werkstoffe;Spezifisch/Kompositum;Korrosionsschutz + Werkstoff
+Warum Metall rostet;ZM 7510;RVK-Online;Werkstoffe;Fachfremd umschrieben;gemeint: Korrosion
+Kunststoff, der sich selbst repariert;ZM 3000;Verbundkatalog;Werkstoffe;Fachfremd umschrieben;gemeint: selbstheilende Polymere
+Ermüdung;ZM 3200;Verbundkatalog;Werkstoffe;Mehrdeutig;Werkstoffermüdung (nicht menschliche Müdigkeit)
+Datenbank;ST 270;RVK-Online;Informatik;Fachbegriff;
+Algorithmus;ST 134;RVK-Online;Informatik;Fachbegriff;
+Neuronale Netze zur Bilderkennung;ST 301;RVK-Online;Informatik;Spezifisch/Kompositum;Neuronales Netz + Bildverarbeitung
+Datensicherheit in Unternehmensnetzwerken;ST 276;Verbundkatalog;Informatik;Spezifisch/Kompositum;IT-Sicherheit + Rechnernetz
+Computer lernt aus Beispielen;ST 301;Verbundkatalog;Informatik;Fachfremd umschrieben;gemeint: maschinelles Lernen
+Machine Learning;ST 301;RVK-Online;Informatik;Englisch/Jargon;maschinelles Lernen – Gegenprobe zur fachfremden Umschreibung
+Stahlbeton;ZI 4502;RVK-Online;Bauwesen;Fachbegriff;
+Brückenbau;ZI 6600;RVK-Online;Bauwesen;Fachbegriff;
+Mehrgeschossiger Holzbau;ZI 7400;RVK-Online;Bauwesen;Spezifisch/Kompositum;Holzbau + Geschossbau
+Häuser, die kaum Energie verbrauchen;ZH 3061;RVK-Online;Bauwesen;Fachfremd umschrieben;gemeint: Passivhaus / energieeffizientes Bauen
+Wie man Gebäude erdbebensicher macht;ZI 3480;RVK-Online;Bauwesen;Fachfremd umschrieben;gemeint: Erdbebeningenieurwesen / Baudynamik
+BIM;ZI 3100;RVK-Online;Bauwesen;Englisch/Jargon;Building Information Modeling
+Regelungstechnik;UX 9000;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Sensor;VG 6820;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+PID-Regler Auslegung;ZQ 5000;Verbundkatalog;Mess- und Regelungstechnik;Spezifisch/Kompositum;Regler + Entwurf
+Messunsicherheit bestimmen;ZQ 3115;Verbundkatalog;Mess- und Regelungstechnik;Spezifisch/Kompositum;Messtechnik + Fehlerrechnung
+Maschine erkennt selbst, wenn sie bald kaputt geht;ZL 3300|ZL 3600;Verbundkatalog;Mess- und Regelungstechnik;Fachfremd umschrieben;gemeint: Zustandsüberwachung / vorausschauende Instandhaltung
+Industrie 4.0;ZG 9225;RVK-Online;Mess- und Regelungstechnik;Englisch/Jargon;Jargon für vernetzte Produktion
+Projektmanagement;SR 8700;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Qualitätsmanagement;QP 321;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Lean Production in der Automobilindustrie;QP 500;RVK-Online;Wirtschaft und Management;Spezifisch/Kompositum;Lean Management + Branche
+Wie Firmen ihre Abläufe verbessern;QP 340;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;gemeint: Prozessoptimierung / Geschäftsprozessmanagement
+Bank;QK 000;RVK-Online;Wirtschaft und Management;Mehrdeutig;Kreditinstitut (nicht Sitzbank, nicht Datenbank)
+Supply Chain;QP 530;Verbundkatalog;Wirtschaft und Management;Englisch/Jargon;Lieferkette / Supply-Chain-Management
+Hydraulik;UF 4550;RVK-Online;Maschinenbau;Fachbegriff;
+Schweißtechnik;ZM 8420;RVK-Online;Maschinenbau;Fachbegriff;
+Zahnrad;ZL 4175;RVK-Online;Maschinenbau;Fachbegriff;
+Strömungsmaschinen;ZL 5400;RVK-Online;Maschinenbau;Fachbegriff;
+Verschleiß an Zahnradgetrieben;ZL 4175;RVK-Online;Maschinenbau;Spezifisch/Kompositum;Tribologie + Getriebe
+Additive Fertigung von Metallbauteilen;ZM 9045;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;3D-Druck + Metall
+Schwingungsdämpfung in Werkzeugmaschinen;ZL 4300;RVK-Online;Maschinenbau;Spezifisch/Kompositum;Maschinendynamik + Werkzeugmaschine
+Kühlung von Verbrennungsmotoren;ZL 5500;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;Verbrennungsmotor + Kühlung
+Wie ein Motor im Auto funktioniert;ZL 5500;Verbundkatalog;Maschinenbau;Fachfremd umschrieben;gemeint: Verbrennungsmotor / Kraftfahrzeugtechnik
+Teile mit dem 3D-Drucker herstellen;ZM 9045;RVK-Online;Maschinenbau;Fachfremd umschrieben;gemeint: additive Fertigung
+Warum Maschinen vibrieren;ZL 6130;RVK-Online;Maschinenbau;Fachfremd umschrieben;gemeint: Maschinendynamik / Schwingungen
+Metallteile dauerhaft verbinden;ZM 8420;RVK-Online;Maschinenbau;Fachfremd umschrieben;gemeint: Fügetechnik / Schweißen
+Elektromotor;ZN 8200;RVK-Online;Elektrotechnik;Fachbegriff;
+Schaltungstechnik;ZN 5240;RVK-Online;Elektrotechnik;Fachbegriff;
+Akkumulator;ZP 4140;RVK-Online;Elektrotechnik;Fachbegriff;
+Hochspannungstechnik;ZN 8400;RVK-Online;Elektrotechnik;Fachbegriff;
+Wechselrichter für Photovoltaikanlagen;ZP 3730;RVK-Online;Elektrotechnik;Spezifisch/Kompositum;Leistungselektronik + Photovoltaik
+Elektromagnetische Verträglichkeit von Leiterplatten;ZN 4120;RVK-Online;Elektrotechnik;Spezifisch/Kompositum;EMV + Leiterplatte
+Steuerung von Drehstrommotoren;ZN 8280;RVK-Online;Elektrotechnik;Spezifisch/Kompositum;Antriebstechnik + Drehstrommaschine
+Lithium-Ionen-Batterien als Heimspeicher;ZP 4140;RVK-Online;Energietechnik;Spezifisch/Kompositum;Batteriespeicher + Wohngebäude
+Fernwärmenetze in Städten;ZP 3285;RVK-Online;Energietechnik;Spezifisch/Kompositum;Fernwärme + Stadt
+Wirkungsgrad von Gasturbinenkraftwerken;ZL 5475;RVK-Online;Energietechnik;Spezifisch/Kompositum;Kraftwerkstechnik + Gasturbine
+Keramik;ZM 6100;RVK-Online;Werkstoffe;Fachbegriff;
+Polymere;ZM 5000;RVK-Online;Werkstoffe;Fachbegriff;
+Legierung;ZM 4300;RVK-Online;Werkstoffe;Fachbegriff;
+Zugversuch an Stahlproben;ZM 3600;RVK-Online;Werkstoffe;Spezifisch/Kompositum;Werkstoffprüfung + Stahl
+Leichte Materialien für Flugzeuge;ZL 3230;RVK-Online;Werkstoffe;Fachfremd umschrieben;gemeint: Leichtbau / Luftfahrtwerkstoffe
+Warum Glas bricht;ZM 6620;Verbundkatalog;Werkstoffe;Fachfremd umschrieben;gemeint: Bruchmechanik / Glas
+Smart Materials;ZM 7000;Verbundkatalog;Werkstoffe;Englisch/Jargon;intelligente / adaptive Werkstoffe
+Programmiersprache;ST 240;RVK-Online;Informatik;Fachbegriff;
+Echtzeitbetriebssysteme für eingebettete Systeme;ST 153;Verbundkatalog;Informatik;Spezifisch/Kompositum;Echtzeitsystem + Embedded
+Virus;ST 276;RVK-Online;Informatik;Mehrdeutig;Computervirus (nicht biologisch)
+Baustatik;ZI 3300;RVK-Online;Bauwesen;Fachbegriff;
+Baustoffe;ZI 4200;RVK-Online;Bauwesen;Fachbegriff;
+Tunnelbau;ZI 6500;RVK-Online;Bauwesen;Fachbegriff;
+Brandschutz im Hochbau;ZH 3920;RVK-Online;Bauwesen;Spezifisch/Kompositum;Brandschutz + Hochbau
+Warum Häuser nicht einstürzen;ZI 3300;RVK-Online;Bauwesen;Fachfremd umschrieben;gemeint: Baustatik – Gegenprobe zum Fachbegriff
+Feuchte Wände im Keller;ZI 6150;RVK-Online;Bauwesen;Fachfremd umschrieben;gemeint: Bauwerksabdichtung / Feuchteschutz
+Decke;ZH 7300;RVK-Online;Bauwesen;Mehrdeutig;Geschossdecke (nicht Bettdecke)
+Automatisierungstechnik;ZQ 6000;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Robotik;ST 308;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Temperaturmessung in Industrieöfen;ZP 3279;RVK-Online;Mess- und Regelungstechnik;Spezifisch/Kompositum;Temperaturmessung + Ofenbau
+Roboter, die mit Menschen zusammenarbeiten;ST 308;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;gemeint: kollaborative Robotik
+Wie eine Fabrik von selbst läuft;ZQ 6000;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;gemeint: Automatisierung / Fabrikautomation
+Kostenrechnung;QP 830;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Logistik;QH 463;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Innovationsmanagement in Technologieunternehmen;QP 210;RVK-Online;Wirtschaft und Management;Spezifisch/Kompositum;Innovationsmanagement + Technologie
+Mitarbeitende gut führen;QV 584;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;gemeint: Personalführung
