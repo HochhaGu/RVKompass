@@ -194,3 +194,34 @@ def test_render_markdown_sections_and_no_confidence():
     assert "keine Wahrscheinlichkeiten" in md
     assert "Konfidenz" not in md
     assert "%" not in md
+
+
+def _pq(query, rank, top3):
+    return {"query": query, "rank": rank, "top3": top3}
+
+
+def test_compare_per_query_same_data_reports_nothing():
+    per_query = [_pq("a", 1, ["X 1", "X 2"]), _pq("b", None, [])]
+    assert ev.compare_per_query(per_query, {"per_query": per_query}) == []
+
+
+def test_compare_per_query_reports_changed_rank_or_top3():
+    old = {
+        "per_query": [
+            _pq("a", 1, ["X 1", "X 2"]),
+            _pq("b", 2, ["Y 1", "Y 2"]),
+            _pq("c", 3, ["Z 1"]),
+        ]
+    }
+    new = [
+        _pq("a", 1, ["X 1", "X 2"]),
+        _pq("b", 2, ["Y 2", "Y 1"]),
+        _pq("c", 1, ["Z 1"]),
+    ]
+    changed = ev.compare_per_query(new, old)
+    assert [q["query"] for q in changed] == ["b", "c"]
+    assert changed[1]["old_rank"] == 3 and changed[1]["new_rank"] == 1
+
+
+def test_compare_per_query_without_old_per_query_is_empty():
+    assert ev.compare_per_query([_pq("a", 1, [])], {"metrics": {}}) == []

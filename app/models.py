@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS notation (
@@ -87,8 +87,83 @@ class RegisterEntry:
     gnd_id: str | None = None
 
 
+# Herkunft eines Suchbegriffs (P2, Evidence-Datenmodell).
+EXPANSION_SOURCES = frozenset({"input", "gnd", "llm", "vector"})
+
+# Beziehung des Suchbegriffs zur Eingabe.
+# VORLÄUFIG: "llm_unverified" steht nicht in der Wertemenge des Phasen-Auftrags P2. Die heutigen
+# Claude-Begriffe sind noch nicht gegen GND oder RVK-Register geprüft (das kommt in P4). Sie als
+# "llm_verified" zu kennzeichnen, wäre falsch (Leitprinzip Transparenz). P4 entfernt den Wert,
+# sobald die Prüfung steht.
+EXPANSION_RELATIONS = frozenset(
+    {
+        "direct",
+        "synonym",
+        "broader",
+        "narrower",
+        "related",
+        "llm_verified",
+        "embedding",
+        "llm_unverified",
+    }
+)
+
+# Art der Übereinstimmung zwischen Suchbegriff und Notation.
+MATCH_TYPES = frozenset({"register_exact", "register_gnd_id", "label_fts", "vector"})
+
+
+@dataclass(frozen=True)
+class ExpansionTerm:
+    """Ein Suchbegriff samt Herkunft: Eingabe, GND, LLM oder Vektorsuche."""
+
+    term: str
+    source: str
+    relation: str
+    gnd_id: str | None = None
+    parent_term: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.source not in EXPANSION_SOURCES:
+            raise ValueError(f"Unbekannte Begriffsquelle: {self.source!r}")
+        if self.relation not in EXPANSION_RELATIONS:
+            raise ValueError(f"Unbekannte Begriffsbeziehung: {self.relation!r}")
+
+
+@dataclass(frozen=True)
+class Evidence:
+    """Begründung für einen Treffer: über welchen Begriff und welchen Weg er gefunden wurde."""
+
+    notation_id: int
+    via_term: ExpansionTerm
+    match_type: str
+    raw_score: float
+
+    def __post_init__(self) -> None:
+        if self.match_type not in MATCH_TYPES:
+            raise ValueError(f"Unbekannter Treffertyp: {self.match_type!r}")
+
+
 @dataclass
-class SearchHit:
+class Hit:
+    """Ein Suchtreffer. Der Score ist Relevanz, keine Wahrscheinlichkeit.
+
+    Ein Treffer ohne Evidence darf nicht existieren (Leitprinzip Transparenz). Die Prüfung steht
+    bewusst als raise statt assert, weil `python -O` Asserts abschalten würde.
+    """
+
     notation: Notation
+    evidences: list[Evidence]
     score: float
-    matched_terms: list[str] = field(default_factory=list)
+    score_components: dict[str, float]
+
+    def __post_init__(self) -> None:
+        if not self.evidences:
+            raise ValueError(
+                f"Treffer ohne Evidence ist nicht erlaubt: {self.notation.notation}"
+            )
+        for evidence in self.evidences:
+            if evidence.notation_id != self.notation.id:
+                raise ValueError(
+                    f"Evidence für Notation-ID {evidence.notation_id} passt nicht zu "
+                    f"Treffer {self.notation.notation} (ID {self.notation.id})"
+                )

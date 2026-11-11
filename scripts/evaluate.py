@@ -105,9 +105,9 @@ def run_mode(conn, service, entries, expand, config) -> list[dict]:
                 entry.query,
                 daily_limit=config.CLAUDE_DAILY_LIMIT,
             )
-        results = ranking.search(conn, service, entry.query, terms)
+        hits = ranking.search(conn, service, entry.query, terms)
         seconds = time.perf_counter() - start
-        notations = [r["notation"] for r in results]
+        notations = [hit.notation.notation for hit in hits]
         per_query.append(evaluation.evaluate_query(entry, notations, seconds, terms))
     return per_query
 
@@ -239,6 +239,7 @@ def main(argv=None) -> int:
     if old_report is not None:
         report["compare_file"] = args.compare
         report["compare"] = evaluation.compare_metrics(report["metrics"], old_report)
+        report["compare_per_query"] = evaluation.compare_per_query(main_run, old_report)
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)

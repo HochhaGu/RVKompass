@@ -30,10 +30,14 @@ def search():
             )
 
         service = embedding_service.get_service()
-        results = ranking.search(conn, service, query, expanded_terms)
+        hits = ranking.search(conn, service, query, expanded_terms)
+        results = ranking.hits_to_rows(conn, hits)
     finally:
         conn.close()
 
     return render_template(
-        "_results_table.html", results=results, query=query, expanded_terms=expanded_terms
+        "_results_table.html",
+        results=results,
+        query=query,
+        expanded_terms=expanded_terms,
     )

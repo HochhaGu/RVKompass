@@ -63,15 +63,21 @@ class TestSearchIntegration:
         connection.close()
 
     def test_search_returns_ranked_results_for_known_term(self, service, conn):
-        results = ranking.search(conn, service, "Wörterbücher", [])
+        hits = ranking.search(conn, service, "Wörterbücher", [])
 
-        assert results
-        assert all("notation" in r and "label" in r and "rvk_online_url" in r for r in results)
+        assert hits
+        assert all(hit.evidences for hit in hits)
+        rows = ranking.hits_to_rows(conn, hits)
+        assert all(
+            "notation" in r and "label" in r and "rvk_online_url" in r for r in rows
+        )
 
-    def test_results_are_sorted_by_displayed_confidence_descending(self, service, conn):
-        # Kernanforderung: die Reihenfolge muss exakt der angezeigten Konfidenz folgen,
+    def test_results_are_sorted_by_displayed_value_descending(self, service, conn):
+        # Kernanforderung: die Reihenfolge muss exakt dem angezeigten Wert folgen,
         # damit Nutzer*innen sich auf "oben = passender" verlassen können.
-        results = ranking.search(conn, service, "Photosynthese", [])
+        hits = ranking.search(conn, service, "Photosynthese", [])
 
-        confidences = [r["confidence_pct"] for r in results]
-        assert confidences == sorted(confidences, reverse=True)
+        scores = [hit.score for hit in hits]
+        assert scores == sorted(scores, reverse=True)
+        displayed = [r["confidence_pct"] for r in ranking.hits_to_rows(conn, hits)]
+        assert displayed == sorted(displayed, reverse=True)
