@@ -34,9 +34,9 @@ def create_app():
 
     embedding_service.init_app(app)
 
-    from app.routes.search import bp as search_bp
     from app.routes.internal import bp as internal_bp
     from app.routes.legal import bp as legal_bp
+    from app.routes.search import bp as search_bp
 
     app.register_blueprint(search_bp)
     app.register_blueprint(internal_bp)

@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from app.config import get_config
+from app.models import SCHEMA_SQL
 from app.services import rvk_repository
 
 DB_PATH = get_config().DATABASE_PATH
@@ -18,7 +19,9 @@ DB_PATH = get_config().DATABASE_PATH
 @pytest.fixture
 def conn():
     if not Path(DB_PATH).exists():
-        pytest.skip("Keine lokale RVK-Datenbank vorhanden - erst scripts/sync_rvk.py ausführen.")
+        pytest.skip(
+            "Keine lokale RVK-Datenbank vorhanden - erst scripts/sync_rvk.py ausführen."
+        )
     connection = rvk_repository.get_connection(DB_PATH)
     yield connection
     connection.close()
@@ -45,6 +48,18 @@ def test_get_notation_ids_for_term(conn):
     assert results
 
 
-def test_expansion_cache_roundtrip(conn):
-    rvk_repository.set_expansion_cache(conn, "testbegriff", '["a", "b"]')
-    assert rvk_repository.get_expansion_cache(conn, "testbegriff") == '["a", "b"]'
+@pytest.fixture
+def memory_conn():
+    """Leere In-Memory-Datenbank mit dem App-Schema, damit schreibende Tests nie data/ ändern."""
+    connection = sqlite3.connect(":memory:")
+    connection.row_factory = sqlite3.Row
+    connection.executescript(SCHEMA_SQL)
+    yield connection
+    connection.close()
+
+
+def test_expansion_cache_roundtrip(memory_conn):
+    rvk_repository.set_expansion_cache(memory_conn, "testbegriff", '["a", "b"]')
+    assert (
+        rvk_repository.get_expansion_cache(memory_conn, "testbegriff") == '["a", "b"]'
+    )

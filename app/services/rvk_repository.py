@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from app.models import Notation, RegisterEntry
+from app.models import Notation
 
 
 def get_connection(db_path: str) -> sqlite3.Connection:
@@ -92,14 +92,14 @@ def set_expansion_cache(conn: sqlite3.Connection, query_normalized: str, expansi
         "INSERT INTO expansion_cache (query_normalized, expansion_json, created_at) VALUES (?, ?, ?) "
         "ON CONFLICT(query_normalized) DO UPDATE SET expansion_json = excluded.expansion_json, "
         "created_at = excluded.created_at",
-        (query_normalized, expansion_json, datetime.now(timezone.utc).isoformat()),
+        (query_normalized, expansion_json, datetime.now(UTC).isoformat()),
     )
     conn.commit()
 
 
 def get_and_increment_daily_claude_calls(conn: sqlite3.Connection) -> int:
     """Erhöht den heutigen Claude-API-Call-Zähler und gibt den neuen Stand zurück."""
-    today = datetime.now(timezone.utc).date().isoformat()
+    today = datetime.now(UTC).date().isoformat()
     conn.execute(
         "INSERT INTO daily_usage (day, claude_calls) VALUES (?, 1) "
         "ON CONFLICT(day) DO UPDATE SET claude_calls = claude_calls + 1",

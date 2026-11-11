@@ -32,21 +32,26 @@ class EmbeddingService:
         self.model = SentenceTransformer(model_name)
 
         self.notation_embeddings = np.load(embeddings_path)
-        notation_meta = json.loads(open(embeddings_meta_path).read())
+        with open(embeddings_meta_path) as f:
+            notation_meta = json.loads(f.read())
         self.notation_ids = notation_meta["notation_ids"]
         self._notation_index_by_id = {nid: i for i, nid in enumerate(self.notation_ids)}
 
         self.term_embeddings = np.load(register_term_embeddings_path)
-        term_meta = json.loads(open(register_term_meta_path).read())
+        with open(register_term_meta_path) as f:
+            term_meta = json.loads(f.read())
         self.terms = term_meta["terms"]
 
     def embed_query(self, text: str) -> np.ndarray:
-        return self.model.encode(text, convert_to_numpy=True, normalize_embeddings=True).astype(
-            np.float32
-        )
+        return self.model.encode(
+            text, convert_to_numpy=True, normalize_embeddings=True
+        ).astype(np.float32)
 
     def search_notations(
-        self, query_vec: np.ndarray, top_k: int = 50, min_score: float = MIN_COSINE_SCORE
+        self,
+        query_vec: np.ndarray,
+        top_k: int = 50,
+        min_score: float = MIN_COSINE_SCORE,
     ) -> list[tuple[int, float]]:
         # np.errstate: Apples Accelerate-BLAS wirft bei großen float32-Matmuls auf macOS
         # bekannte Spurious-Warnings (divide by zero/overflow/invalid value), obwohl die
@@ -56,19 +61,30 @@ class EmbeddingService:
         top_indices = np.argpartition(-scores, min(top_k, len(scores) - 1))[:top_k]
         top_indices = top_indices[np.argsort(-scores[top_indices])]
         return [
-            (self.notation_ids[i], float(scores[i])) for i in top_indices if scores[i] >= min_score
+            (self.notation_ids[i], float(scores[i]))
+            for i in top_indices
+            if scores[i] >= min_score
         ]
 
     def search_register_terms(
-        self, query_vec: np.ndarray, top_k: int = 20, min_score: float = MIN_COSINE_SCORE
+        self,
+        query_vec: np.ndarray,
+        top_k: int = 20,
+        min_score: float = MIN_COSINE_SCORE,
     ) -> list[tuple[str, float]]:
         with np.errstate(all="ignore"):
             scores = self.term_embeddings @ query_vec
         top_indices = np.argpartition(-scores, min(top_k, len(scores) - 1))[:top_k]
         top_indices = top_indices[np.argsort(-scores[top_indices])]
-        return [(self.terms[i], float(scores[i])) for i in top_indices if scores[i] >= min_score]
+        return [
+            (self.terms[i], float(scores[i]))
+            for i in top_indices
+            if scores[i] >= min_score
+        ]
 
-    def score_for_notation(self, query_vec: np.ndarray, notation_id: int) -> float | None:
+    def score_for_notation(
+        self, query_vec: np.ndarray, notation_id: int
+    ) -> float | None:
         """Cosine-Similarity für eine einzelne Notation, unabhängig von Top-K-Cutoffs.
 
         Wird für Treffer benötigt, die nur über die Keyword-Suche gefunden wurden und daher
@@ -98,5 +114,7 @@ def init_app(app) -> None:
 
 def get_service() -> EmbeddingService:
     if _instance is None:
-        raise RuntimeError("EmbeddingService wurde nicht initialisiert - init_app(app) aufrufen.")
+        raise RuntimeError(
+            "EmbeddingService wurde nicht initialisiert - init_app(app) aufrufen."
+        )
     return _instance
