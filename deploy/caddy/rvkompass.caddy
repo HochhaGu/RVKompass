@@ -1,0 +1,28 @@
+# /etc/caddy/sites/rvkompass.caddy – RVKompass unter rvkompass.ghochhauser.at
+# Caddy holt das HTTPS-Zertifikat selbst (Port 80 und 443 müssen offen sein).
+# Geschrieben für Caddy 2.6 (Passwortschutz heißt hier noch "basicauth").
+
+rvkompass.ghochhauser.at {
+	encode gzip
+
+	# Statusseite des Steuerprogramms – passwortgeschützt
+	redir /status /status/
+	handle_path /status/* {
+		# Enthält "basicauth { <nutzer> <bcrypt-hash> }", erzeugt mit make_status_auth.sh
+		import /etc/caddy/rvkompass-status.auth
+		header Cache-Control "no-store"
+		header X-Robots-Tag "noindex, nofollow"
+		root * /srv/rvkompass-status
+		file_server
+	}
+
+	# P8: Diesen Block durch die App ersetzen, z. B.
+	#   handle {
+	#       reverse_proxy 127.0.0.1:8000
+	#   }
+	# Die Statusseite oben bleibt dabei unverändert.
+	handle {
+		header Content-Type "text/plain; charset=utf-8"
+		respond "RVKompass ist in Vorbereitung." 503
+	}
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="utf-8"><title>{{ title }}</title></head>
+<body style="margin:0;padding:0;background:#f4f4f2;font-family:Georgia,'Times New Roman',serif;color:#1d1d1b;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f2;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border:1px solid #dcdcd6;">
+  <tr><td style="padding:20px 28px;border-bottom:3px solid #1d1d1b;">
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#5c5c57;">RVKompass · Steuerprogramm</div>
+    <h1 style="margin:6px 0 0;font-size:22px;line-height:1.3;font-weight:normal;">{{ title }}</h1>
+  </td></tr>
+  <tr><td style="padding:20px 28px 4px;font-size:16px;line-height:1.55;">
+    <p style="margin:0 0 12px;">{{ intro }}</p>
+  </td></tr>
+  {% for s in sections %}
+  <tr><td style="padding:8px 28px 12px;">
+    <h2 style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1d1d1b;border-bottom:1px solid #dcdcd6;padding-bottom:4px;">{{ s.heading }}</h2>
+    {% for p in s.paragraphs or [] %}<p style="margin:0 0 10px;font-size:15px;line-height:1.55;">{{ p }}</p>{% endfor %}
+    {% if s.rows %}
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:14px;">
+      {% for k, v in s.rows %}
+      <tr>
+        <td style="padding:5px 10px 5px 0;border-bottom:1px solid #eeeeea;color:#5c5c57;vertical-align:top;white-space:nowrap;">{{ k }}</td>
+        <td style="padding:5px 0;border-bottom:1px solid #eeeeea;vertical-align:top;">{{ v }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if s.pre %}<pre style="margin:6px 0 0;padding:10px;background:#f4f4f2;border:1px solid #dcdcd6;font-size:12px;line-height:1.45;white-space:pre-wrap;word-break:break-word;">{{ s.pre }}</pre>{% endif %}
+  </td></tr>
+  {% endfor %}
+  <tr><td style="padding:16px 28px 22px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5c5c57;border-top:1px solid #dcdcd6;">
+    Statusseite: {{ status_url }} (passwortgeschützt) · Diese Mail wurde automatisch vom Steuerprogramm auf dem VPS erzeugt.
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

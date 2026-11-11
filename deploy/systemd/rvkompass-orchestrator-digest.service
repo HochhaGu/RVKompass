@@ -1,0 +1,16 @@
+# /etc/systemd/system/rvkompass-orchestrator-digest.service
+# Sendet den Wochenbrief (fertige Phasen seit dem letzten Brief). Gestartet vom Timer.
+
+[Unit]
+Description=RVKompass-Steuerprogramm: Wochenbrief senden
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=guenther
+Group=guenther
+WorkingDirectory=/home/guenther/dev/rvkompass
+Environment=HOME=/home/guenther
+ExecStart=/home/guenther/dev/rvkompass/.venv/bin/python -m orchestrator --send-digest
+NoNewPrivileges=true
