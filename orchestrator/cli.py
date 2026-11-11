@@ -27,6 +27,7 @@ from .envfile import Secrets
 from .gates import Gates
 from .git_ops import Git
 from .notify import Mailer, render_mail
+from .outbox import Outbox
 from .state import MemoryStore, StateStore, now_iso
 from .status_page import STEP_LABELS, StatusWriter, local_time
 
@@ -37,9 +38,12 @@ def _logger(settings):
 
     def log(msg: str) -> None:
         line = f"{datetime.now():%Y-%m-%d %H:%M:%S} {msg}"
-        print(line, flush=True)
-        with open(logfile, "a", encoding="utf-8") as fh:
-            fh.write(line + "\n")
+        try:
+            print(line, flush=True)
+            with open(logfile, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+        except OSError:  # Protokollieren darf den Ablauf nie anhalten
+            pass
 
     return log
 
@@ -135,8 +139,13 @@ def cmd_status(settings) -> int:
             f"{pid}:{state['phases'][pid].get('status', 'offen')}" for pid in ids
         )
     )
-    if state.get("outbox"):
-        print(f"Wartende Mails: {len(state['outbox'])}")
+    queue = Outbox(settings.outbox_dir).summary()
+    if queue:
+        print(f"Wartende Mails: {len(queue)} (neuer Versuch alle 10 Minuten)")
+        for m in queue:
+            print(
+                f"  {m['subject']} – {m['attempts']} Versuch(e), zuletzt: {m['last_error']}"
+            )
     print("Letzte Meldungen:")
     for m in state.get("messages", [])[-8:]:
         print(f"  {local_time(m['ts'])}  {m['text']}")
@@ -205,15 +214,20 @@ def cmd_send_digest(settings, log) -> int:
     if not entries:
         log("Wochenbrief: keine neuen fertigen Phasen – keine Mail.")
         return 0
+    mail = engine.digest_mail(entries)
     try:
-        engine.mailer.send(engine.digest_mail(entries))
-    except RuntimeError as exc:
-        log(f"Wochenbrief nicht gesendet: {exc}")
-        return 1
+        engine.mailer.send(mail)
+        log(f"Wochenbrief gesendet ({len(entries)} Phase(n)).")
+    except Exception as exc:  # noqa: BLE001 – Dienst holt den Versand nach
+        err = engine.secrets.redact(f"{type(exc).__name__}: {exc}")
+        engine.outbox.add(mail, err)
+        log(
+            f"Wochenbrief nicht gesendet ({err}) – liegt in der Warteschlange, der Dienst "
+            "versucht es alle 10 Minuten erneut."
+        )
     sent.update(digest_key(e) for e in entries)
     sent_path.parent.mkdir(parents=True, exist_ok=True)
     sent_path.write_text(json.dumps(sorted(sent), ensure_ascii=False), encoding="utf-8")
-    log(f"Wochenbrief gesendet ({len(entries)} Phase(n)).")
     return 0
 
 

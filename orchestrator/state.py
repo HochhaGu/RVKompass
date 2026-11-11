@@ -37,7 +37,6 @@ def new_state(first_phase: str, phase_ids: list[str]) -> dict:
         "wait_until": None,
         "phases": {pid: {"status": "offen"} for pid in phase_ids},
         "digest": [],
-        "outbox": [],
         "messages": [],
         "auth_expires_at": None,
         "auth_warned_for": None,

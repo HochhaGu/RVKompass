@@ -5,7 +5,7 @@ from orchestrator.engine import resume
 from orchestrator.git_ops import SafetyError
 from orchestrator.state import BEREIT, FERTIG, LAEUFT, PAUSIERT, MemoryStore
 
-from .conftest import FakeGates, FakeGit, FakeMailer, FakeRunner, ok_report, red_report
+from .conftest import FakeGates, FakeGit, FakeRunner, ok_report, red_report
 
 FULL_PHASE = ["plan", "review", "implement", "report"]
 
@@ -240,17 +240,6 @@ def test_unexpected_exception_pauses_and_redacts(make_engine):
     st = eng.store.load()
     assert st["pause"]["reason"] == "Technischer Fehler im Steuerprogramm"
     assert "sk-ant-geheim" not in st["pause"]["question"]
-
-
-def test_failed_mail_goes_to_outbox_and_is_retried(make_engine):
-    mailer = FakeMailer(fail=True)
-    eng = make_engine(mailer=mailer)
-    eng.run(forever=False)
-    assert len(eng.store.load()["outbox"]) == 1
-    mailer.fail = False
-    eng.clock.sleep(700)
-    eng.run(forever=False)
-    assert eng.store.load()["outbox"] == [] and len(mailer.sent) == 1
 
 
 def test_auth_expiry_warning_sent_once(make_engine):

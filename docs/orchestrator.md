@@ -48,8 +48,19 @@ Live-Schaltung frei).
 | Claude-Anmeldung läuft bald ab | einmalig, 5 Tage vor Ablauf |
 
 **Keine** Mail gibt es, wenn das Claude-Nutzungslimit erreicht ist: Das Programm wartet dann
-und versucht es stündlich erneut. Kann eine Mail nicht gesendet werden, kommt sie in eine
-Warteschlange und wird alle 10 Minuten erneut versucht.
+und versucht es stündlich erneut.
+
+**Mailversand fehlgeschlagen?** Das hält das Steuerprogramm **nie** an – die Phasen laufen normal
+weiter. Stattdessen:
+- Der Fehler steht im Protokoll (`journalctl -u rvkompass-orchestrator`,
+  `orchestrator/logs/orchestrator.log`) und in den Meldungen.
+- Die Mail kommt in die Warteschlange `orchestrator/logs/mail_warteschlange/` (eine Datei je Mail).
+- Die Statusseite zeigt oben den Kasten „Mails warten auf Versand“ mit Betreff, Anzahl Versuche,
+  letztem Fehler und nächstem Versuch; `--status` zeigt dasselbe im Terminal.
+- Alle 10 Minuten (und sofort nach einem Neustart) wird der Versand erneut versucht. Ist der
+  Mailserver nicht erreichbar, bricht der Versuch nach der ersten Mail ab, statt jede Mail einzeln
+  auf eine Zeitüberschreitung warten zu lassen.
+- Das gilt auch für den Wochenbrief: Schlägt er fehl, holt der Dienst ihn nach.
 
 ## 4. Befehle
 Alle Befehle im Ordner `~/dev/rvkompass`:
@@ -158,7 +169,7 @@ langlebige Anmeldung: `claude setup-token`.
 | `orchestrator/state.json` | aktueller Zustand (nicht versioniert); Neustart macht hier weiter |
 | `orchestrator/antworten/` | deine Antworten auf Rückfragen (nicht versioniert) |
 | `orchestrator/runs/` | Prompts und Antworten aller Claude-Läufe (nicht versioniert) |
-| `orchestrator/logs/` | Protokoll, Wochenbrief-Merkliste (nicht versioniert) |
+| `orchestrator/logs/` | Protokoll, Mail-Warteschlange, Wochenbrief-Merkliste (nicht versioniert) |
 | `deploy/caddy/`, `deploy/systemd/` | Server-Konfiguration |
 | `tests/test_orchestrator/` | Tests für Gate-, Pause- und Schutzlogik |
 
@@ -170,4 +181,5 @@ langlebige Anmeldung: `claude setup-token`.
 | „Claude-Anmeldung ungültig oder abgelaufen“ | `claude setup-token` oder `claude` → `/login`, dann `--resume`. |
 | „Schutzprüfung hat angeschlagen“ | Im Commit wären verbotene Dateien oder ein Schlüssel gelandet. Arbeitskopie prüfen (`git -C ~/dev/rvkompass-phasen status`), bereinigen, `--resume`. |
 | „Gates auch nach dem Reparaturversuch rot“ | Details in der Mail und in `orchestrator/runs/PN/gates-*.md`. Selbst beheben oder per Antwortdatei Hinweise geben, dann `--resume` (ein neuer Reparaturversuch ist dann wieder frei). |
+| „Mails warten auf Versand“ | Mailversand klappt nicht, Ablauf läuft weiter. `--test-mail` zeigt den Fehler; häufig sind die Mail-Ports beim Anbieter gesperrt oder SMTP-Angaben in `.env` falsch. Nach der Behebung gehen die wartenden Mails innerhalb von 10 Minuten raus. |
 | „läuft bereits“ bei `--only` | Der Dienst arbeitet; zuerst `sudo systemctl stop rvkompass-orchestrator`. |
