@@ -79,6 +79,27 @@ Alle Befehle im Ordner `~/dev/rvkompass`:
 
 Ohne Schalter läuft das Programm im Dauerbetrieb – so startet es der Dienst.
 
+### ⚠ Dienst steuern: `restart` startet auch einen gestoppten Dienst
+
+> **`sudo systemctl restart rvkompass-orchestrator` startet den Dienst immer – auch wenn er
+> vorher gestoppt war.** Damit beginnt bzw. setzt das Steuerprogramm sofort die Phasenarbeit fort.
+> Nur verwenden, wenn der Dienst laufen **soll**.
+
+| Du willst … | Befehl | Startet den Dienst? |
+|---|---|---|
+| eine geänderte Unit-Datei übernehmen | `sudo cp deploy/systemd/rvkompass-orchestrator.service /etc/systemd/system/` und danach **nur** `sudo systemctl daemon-reload` | **nein** |
+| nachsehen, ob er läuft | `systemctl is-active rvkompass-orchestrator` | nein |
+| neuen Code oder neue Unit in einem **laufenden** Dienst wirksam machen | erst `systemctl is-active rvkompass-orchestrator` prüfen; nur bei `active`: `sudo systemctl restart rvkompass-orchestrator` | ja |
+| starten (P0 bzw. nächster Schritt beginnt) | `sudo systemctl start rvkompass-orchestrator` | ja |
+| starten und nach jedem Reboot automatisch starten | `sudo systemctl enable --now rvkompass-orchestrator` | ja |
+| anhalten | `sudo systemctl stop rvkompass-orchestrator` | – |
+
+`daemon-reload` lädt nur die Unit-Dateien neu und startet nichts. Ein gestoppter Dienst übernimmt
+die neue Unit beim nächsten `start` von selbst. Wird der Dienst mitten in einem Schritt gestoppt,
+wiederholt er diesen Schritt beim nächsten Start. Soll eine Phase stattdessen ganz von vorn
+beginnen, muss sie zurückgesetzt werden (Zustand in `state.json` und lokaler Phasen-Branch in
+`~/dev/rvkompass-phasen`).
+
 ## 5. Wenn das Programm anhält: antworten und fortsetzen
 1. Mail „Eingreifen nötig“ lesen: Sie nennt Phase, Schritt, Grund und ggf. die Frage.
 2. Wenn eine Frage gestellt wurde, die Antwort in `orchestrator/antworten/PN.md` schreiben
@@ -146,7 +167,7 @@ sudo systemctl reload caddy
 sudo cp deploy/systemd/rvkompass-orchestrator.service \
         deploy/systemd/rvkompass-orchestrator-digest.service \
         deploy/systemd/rvkompass-orchestrator-digest.timer /etc/systemd/system/
-sudo systemctl daemon-reload
+sudo systemctl daemon-reload   # lädt nur neu, startet nichts
 sudo systemctl enable --now rvkompass-orchestrator-digest.timer
 
 # 5. Erst wenn du startklar bist: Steuerprogramm starten (beginnt mit P0)
