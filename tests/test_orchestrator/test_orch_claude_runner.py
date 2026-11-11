@@ -134,6 +134,6 @@ def test_build_args_review_has_schema_and_no_persistence():
 def test_runner_strips_api_keys_from_env(tmp_path, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
     monkeypatch.setenv("CLAUDE_API_KEY", "y")
-    env = cr.ClaudeRunner("claude", tmp_path / "bin", 10)._env()
+    env = cr.ClaudeRunner("claude", tmp_path / "bin", 10).env()
     assert "ANTHROPIC_API_KEY" not in env and "CLAUDE_API_KEY" not in env
     assert env["PATH"].startswith(str(tmp_path / "bin"))

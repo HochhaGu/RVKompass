@@ -193,7 +193,7 @@ class ClaudeRunner:
         self.timeout_s = timeout_s
         self.redact = redact
 
-    def _env(self) -> dict[str, str]:
+    def env(self) -> dict[str, str]:
         env = {
             k: v
             for k, v in os.environ.items()
@@ -213,7 +213,7 @@ class ClaudeRunner:
                 check=False,
                 input=inv.prompt,
                 cwd=inv.cwd,
-                env=self._env(),
+                env=self.env(),
                 capture_output=True,
                 text=True,
                 timeout=self.timeout_s,

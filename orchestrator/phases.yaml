@@ -10,6 +10,8 @@ einstellungen:
   statusseite_url: https://rvkompass.ghochhauser.at/status/
   modell: opus
   pruef_modell: opus
+  # Phasenbericht (Zusammenfassung in Klartext) – dafür genügt Sonnet
+  bericht_modell: sonnet
   # Gate: Hit@10 darf gegenüber dem letzten Bericht höchstens so viel sinken.
   hit10_toleranz: 0.02
   # Nutzungslimit erreicht: so lange warten, dann erneut versuchen (Sekunden).

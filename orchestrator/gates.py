@@ -149,7 +149,7 @@ class Gates:
         self.redact = redact
         self._run = run
 
-    def _env(self) -> dict[str, str]:
+    def env(self) -> dict[str, str]:
         import os
 
         env = {k: v for k, v in os.environ.items()}
@@ -163,7 +163,7 @@ class Gates:
             proc = self._run(
                 cmd,
                 cwd=cwd,
-                env=self._env(),
+                env=self.env(),
                 capture_output=True,
                 text=True,
                 timeout=timeout,
