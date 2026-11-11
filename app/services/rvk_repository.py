@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from app.models import Notation
 
@@ -27,7 +27,9 @@ def _row_to_notation(row: sqlite3.Row) -> Notation:
     )
 
 
-def get_notations_by_ids(conn: sqlite3.Connection, notation_ids: list[int]) -> dict[int, Notation]:
+def get_notations_by_ids(
+    conn: sqlite3.Connection, notation_ids: list[int]
+) -> dict[int, Notation]:
     if not notation_ids:
         return {}
     placeholders = ",".join("?" for _ in notation_ids)
@@ -37,7 +39,9 @@ def get_notations_by_ids(conn: sqlite3.Connection, notation_ids: list[int]) -> d
     return {row["id"]: _row_to_notation(row) for row in rows}
 
 
-def keyword_search(conn: sqlite3.Connection, query: str, limit: int = 50) -> list[tuple[int, float]]:
+def keyword_search(
+    conn: sqlite3.Connection, query: str, limit: int = 50
+) -> list[tuple[int, float]]:
     """FTS5-Volltextsuche über Klartext, Hierarchie-Pfad und Registerbegriffe je Notation.
 
     Gibt (notation_id, bm25_score) zurück, aufsteigend nach bm25 (kleiner = relevanter laut FTS5).
@@ -71,7 +75,79 @@ def get_notation_ids_for_term(
     return [(row["notation_id"], row["entry_type"], row["gnd_id"]) for row in rows]
 
 
-def get_register_terms(conn: sqlite3.Connection, notation_id: int, limit: int = 3) -> list[str]:
+GND_ID_BATCH_SIZE = 500
+
+
+def get_notations_by_gnd_ids(
+    conn: sqlite3.Connection, gnd_ids, limit_per_id: int = 10
+) -> dict[str, list[int]]:
+    """Notationen, deren Registereintrag eine der GND-IDs trägt (ohne Präfix, z. B. "4123456-7").
+
+    Pro GND-ID höchstens `limit_per_id` Notationen – derselbe Schutz vor Massentreffern wie in
+    `get_notation_ids_for_term`. Liefert nur Notation-IDs; die Evidence-Objekte baut das Ranking,
+    weil nur dort bekannt ist, über welchen Suchbegriff die GND-ID gefunden wurde.
+    """
+    unique_ids = list(dict.fromkeys(g for g in gnd_ids if g))
+    result: dict[str, list[int]] = {}
+    for start in range(0, len(unique_ids), GND_ID_BATCH_SIZE):
+        batch = unique_ids[start : start + GND_ID_BATCH_SIZE]
+        placeholders = ",".join("?" for _ in batch)
+        rows = conn.execute(
+            "SELECT gnd_id, notation_id FROM register_entry "
+            f"WHERE gnd_id IN ({placeholders}) ORDER BY id",
+            batch,
+        ).fetchall()
+        for row in rows:
+            bucket = result.setdefault(row["gnd_id"], [])
+            if len(bucket) < limit_per_id and row["notation_id"] not in bucket:
+                bucket.append(row["notation_id"])
+    return result
+
+
+def ensure_gnd_cache_table(conn: sqlite3.Connection) -> None:
+    """Legt die Laufzeit-Tabelle gnd_cache an, falls der Datenbestand sie noch nicht hat."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS gnd_cache (request_key TEXT PRIMARY KEY, "
+        "response_json TEXT NOT NULL, created_at TEXT NOT NULL)"
+    )
+
+
+def get_gnd_cache(
+    conn: sqlite3.Connection, request_key: str, max_age_days: int
+) -> str | None:
+    """Gecachte lobid-Antwort; Einträge älter als `max_age_days` gelten als nicht vorhanden."""
+    ensure_gnd_cache_table(conn)
+    row = conn.execute(
+        "SELECT response_json, created_at FROM gnd_cache WHERE request_key = ?",
+        (request_key,),
+    ).fetchone()
+    if row is None:
+        return None
+    try:
+        created = datetime.fromisoformat(row["created_at"])
+    except ValueError:
+        return None
+    if datetime.now(UTC) - created > timedelta(days=max_age_days):
+        return None
+    return row["response_json"]
+
+
+def set_gnd_cache(
+    conn: sqlite3.Connection, request_key: str, response_json: str
+) -> None:
+    ensure_gnd_cache_table(conn)
+    conn.execute(
+        "INSERT INTO gnd_cache (request_key, response_json, created_at) VALUES (?, ?, ?) "
+        "ON CONFLICT(request_key) DO UPDATE SET response_json = excluded.response_json, "
+        "created_at = excluded.created_at",
+        (request_key, response_json, datetime.now(UTC).isoformat()),
+    )
+    conn.commit()
+
+
+def get_register_terms(
+    conn: sqlite3.Connection, notation_id: int, limit: int = 3
+) -> list[str]:
     rows = conn.execute(
         "SELECT term FROM register_entry WHERE notation_id = ? LIMIT ?",
         (notation_id, limit),
@@ -87,7 +163,9 @@ def get_expansion_cache(conn: sqlite3.Connection, query_normalized: str) -> str 
     return row["expansion_json"] if row else None
 
 
-def set_expansion_cache(conn: sqlite3.Connection, query_normalized: str, expansion_json: str) -> None:
+def set_expansion_cache(
+    conn: sqlite3.Connection, query_normalized: str, expansion_json: str
+) -> None:
     conn.execute(
         "INSERT INTO expansion_cache (query_normalized, expansion_json, created_at) VALUES (?, ?, ?) "
         "ON CONFLICT(query_normalized) DO UPDATE SET expansion_json = excluded.expansion_json, "
@@ -106,5 +184,7 @@ def get_and_increment_daily_claude_calls(conn: sqlite3.Connection) -> int:
         (today,),
     )
     conn.commit()
-    row = conn.execute("SELECT claude_calls FROM daily_usage WHERE day = ?", (today,)).fetchone()
+    row = conn.execute(
+        "SELECT claude_calls FROM daily_usage WHERE day = ?", (today,)
+    ).fetchone()
     return row["claude_calls"]

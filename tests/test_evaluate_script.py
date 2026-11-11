@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, Hit, Notation
+from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit, Notation
 from orchestrator.gates import extract_metrics
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -83,17 +83,20 @@ def setup(tmp_path, monkeypatch):
         calls["expand"] += 1
         return ["Zahnrad"] if query == "Getriebe" else []
 
-    def fake_search(conn, service, query, expanded_terms):
+    def fake_search(conn, service, query, expanded_terms, gnd_senses=()):
+        calls.setdefault("gnd_senses", []).append(list(gnd_senses))
         if query == "Getriebe":
-            return [_fake_hit(1, "ZL 4100", query), _fake_hit(2, "ZL 4140", query)]
-        return []
+            hits = [_fake_hit(1, "ZL 4100", query), _fake_hit(2, "ZL 4140", query)]
+        else:
+            hits = []
+        return evaluate.ranking.SearchResult(hits=hits)
 
     monkeypatch.setattr(evaluate, "get_config", lambda: FakeConfig(tmp_path, db_path))
     monkeypatch.setattr(
         evaluate, "build_embedding_service", lambda config: FakeService()
     )
     monkeypatch.setattr(evaluate.query_expansion, "expand_query", fake_expand)
-    monkeypatch.setattr(evaluate.ranking, "search", fake_search)
+    monkeypatch.setattr(evaluate.ranking, "search_result", fake_search)
     return gold, tmp_path / "out", calls
 
 
@@ -201,3 +204,59 @@ def test_missing_data_exits_with_error(setup, monkeypatch, tmp_path):
     monkeypatch.setattr(evaluate, "get_config", lambda: config)
     assert evaluate.main(["--gold", str(gold), "--out", str(out)]) == 1
     assert not out.exists()
+
+
+def test_report_without_gnd_config_has_zero_gnd_senses(setup):
+    gold, out, calls = setup
+    assert evaluate.main(["--gold", str(gold), "--out", str(out)]) == 0
+    (json_path,) = out.glob("eval-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert report["expansion"]["gnd_enabled"] is False
+    assert report["expansion"]["queries_with_gnd_senses"] == 0
+    assert all(q["gnd_senses"] == [] for q in report["per_query"])
+    assert all(senses == [] for senses in calls["gnd_senses"])
+
+
+def test_run_mode_uses_gnd_senses_only_with_expansion(setup, monkeypatch, tmp_path):
+    gold, out, _ = setup
+    config = evaluate.get_config()
+    config.ENABLE_GND_EXPANSION = True
+    monkeypatch.setattr(evaluate, "get_config", lambda: config)
+
+    sense = GndSense(
+        gnd_id="4170768-2",
+        preferred_name="Mutter",
+        qualifier="Technik",
+        terms=(
+            ExpansionTerm(
+                "Schraubenmutter", "gnd", "synonym", "4170768-2", "Mutter <Technik>"
+            ),
+        ),
+    )
+    sources = []
+
+    def fake_senses(conn, cfg, query, source=None, http_get=None):
+        sources.append(source)
+        return [sense] if query == "Feder" else []
+
+    monkeypatch.setattr(evaluate.gnd, "gnd_senses_for_query", fake_senses)
+    assert evaluate.main(["--gold", str(gold), "--out", str(out)]) == 0
+    (json_path,) = out.glob("eval-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+
+    # nur der Lauf mit Erweiterung fragt die GND, und zwar mit einer gemeinsamen Quelle
+    assert len(sources) == 2
+    assert sources[0] is sources[1] is not None
+    assert report["expansion"]["gnd_enabled"] is True
+    assert report["expansion"]["queries_with_gnd_senses"] == 1
+    feder = next(q for q in report["per_query"] if q["query"] == "Feder")
+    assert feder["gnd_senses"] == ["Mutter <Technik>"]
+    assert feder["gnd_terms"] == ["synonym: Schraubenmutter"]
+    no_exp = next(q for q in report["per_query_no_expansion"] if q["query"] == "Feder")
+    assert no_exp["gnd_senses"] == []
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "Anfragen mit GND-Bedeutungen: 1" in md
+    assert "Mehrdeutige Anfragen und GND-Bedeutungen" in md
+    for key in ("hit@1", "hit@5", "hit@10", "mrr"):
+        assert 0.0 <= report["metrics"][key] <= 1.0
+    datetime.fromisoformat(report["timestamp"])

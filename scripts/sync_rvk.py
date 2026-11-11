@@ -76,7 +76,9 @@ def parse_153(datafield):
             pending_notation_parts.append(value)
         elif code == "h":
             ancestor_labels.append(value)
-            ancestor_notations.append(pending_notation_parts[0] if pending_notation_parts else None)
+            ancestor_notations.append(
+                pending_notation_parts[0] if pending_notation_parts else None
+            )
             pending_notation_parts = []
 
     own_notation = f"{own_start} - {own_end}" if own_start and own_end else own_start
@@ -190,11 +192,18 @@ def rebuild_tables(conn: sqlite3.Connection, dump_path: Path) -> tuple[int, int]
                 for entry in parsed["register_entries"]:
                     conn.execute(
                         "INSERT INTO register_entry_new (notation_id, term, entry_type, gnd_id) VALUES (?, ?, ?, ?)",
-                        (notation_id, entry["term"], entry["entry_type"], entry["gnd_id"]),
+                        (
+                            notation_id,
+                            entry["term"],
+                            entry["entry_type"],
+                            entry["gnd_id"],
+                        ),
                     )
                     register_count += 1
 
-                search_text = " ".join(filter(None, [parsed["label"], parsed["hierarchy_path"], *terms]))
+                search_text = " ".join(
+                    filter(None, [parsed["label"], parsed["hierarchy_path"], *terms])
+                )
                 conn.execute(
                     "INSERT INTO search_index_new (notation_id, text) VALUES (?, ?)",
                     (notation_id, search_text),
@@ -211,7 +220,9 @@ def rebuild_tables(conn: sqlite3.Connection, dump_path: Path) -> tuple[int, int]
 
     conn.commit()
     if duplicate_count:
-        print(f"  ({duplicate_count} doppelte Notation+Spannenende-Kombinationen übersprungen)")
+        print(
+            f"  ({duplicate_count} doppelte Notation+Spannenende-Kombinationen übersprungen)"
+        )
     return notation_count, register_count
 
 
@@ -229,6 +240,7 @@ def swap_in_new_tables(conn: sqlite3.Connection):
         CREATE INDEX IF NOT EXISTS idx_notation_notation ON notation(notation);
         CREATE INDEX IF NOT EXISTS idx_register_notation_id ON register_entry(notation_id);
         CREATE INDEX IF NOT EXISTS idx_register_term ON register_entry(term);
+        CREATE INDEX IF NOT EXISTS idx_register_gnd_id ON register_entry(gnd_id);
         """
     )
     conn.commit()
@@ -240,7 +252,9 @@ def main():
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.executescript(SCHEMA_SQL)  # stellt sicher, dass sync_log/expansion_cache existieren
+    conn.executescript(
+        SCHEMA_SQL
+    )  # stellt sicher, dass sync_log/expansion_cache existieren
 
     try:
         notation_count, register_count = rebuild_tables(conn, dump_path)
@@ -248,10 +262,18 @@ def main():
         swap_in_new_tables(conn)
         conn.execute(
             "INSERT INTO sync_log (run_at, source_file, notation_count, register_count, status) VALUES (?, ?, ?, ?, ?)",
-            (datetime.now(UTC).isoformat(), dump_path.name, notation_count, register_count, "success"),
+            (
+                datetime.now(UTC).isoformat(),
+                dump_path.name,
+                notation_count,
+                register_count,
+                "success",
+            ),
         )
         conn.commit()
-        print(f"Fertig: {notation_count} Notationen, {register_count} Registereinträge.")
+        print(
+            f"Fertig: {notation_count} Notationen, {register_count} Registereinträge."
+        )
     except Exception as exc:
         conn.rollback()
         conn.execute(

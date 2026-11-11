@@ -150,8 +150,14 @@ def main_group_hit_at_k(results: list[str], expected: list[str], k: int) -> bool
 
 
 def evaluate_query(
-    entry: GoldEntry, results: list[str], seconds: float, expanded_terms: list[str]
+    entry: GoldEntry,
+    results: list[str],
+    seconds: float,
+    expanded_terms: list[str],
+    gnd_terms: list[str] | None = None,
+    gnd_senses: list[str] | None = None,
 ) -> dict:
+    """Kennzahlen einer Anfrage. `gnd_terms` als „Beziehung: Begriff“, `gnd_senses` als Namen."""
     rank = first_hit_rank(results, entry.expected)
     return {
         "query": entry.query,
@@ -168,6 +174,8 @@ def evaluate_query(
         "result_count": len(results),
         "response_ms": round(seconds * 1000, 1),
         "expanded_terms": list(expanded_terms),
+        "gnd_senses": list(gnd_senses or []),
+        "gnd_terms": list(gnd_terms or []),
     }
 
 
@@ -304,6 +312,10 @@ def render_markdown(report: dict) -> str:
             f"API-Schlüssel vorhanden: {_fmt(expansion.get('api_key_present'))}, "
             f"Anfragen mit Erweiterungsbegriffen: {_fmt(expansion.get('queries_with_terms'))}"
         ),
+        (
+            f"- GND-Erweiterung eingeschaltet: {_fmt(expansion.get('gnd_enabled'))}, "
+            f"Anfragen mit GND-Bedeutungen: {_fmt(expansion.get('queries_with_gnd_senses'))}"
+        ),
         f"- RVK-Stand: {report.get('rvk_version') or '–'}",
         f"- Embedding-Modell: {report.get('embedding_model', '–')}",
         "",
@@ -357,6 +369,22 @@ def render_markdown(report: dict) -> str:
     if report.get("by_fachgebiet"):
         lines += ["", "## Kennzahlen je Fachgebiet", ""]
         lines += _metrics_table(report["by_fachgebiet"], "Fachgebiet")
+
+    ambiguous = [q for q in report.get("per_query", []) if q.get("typ") == "Mehrdeutig"]
+    if ambiguous:
+        lines += [
+            "",
+            "## Mehrdeutige Anfragen und GND-Bedeutungen",
+            "",
+            "| Anfrage | erwartet | Rang | GND-Bedeutungen |",
+            "|---|---|---|---|",
+        ]
+        for q in ambiguous:
+            senses = ", ".join(q.get("gnd_senses") or []) or "(keine)"
+            lines.append(
+                f"| {_cell(q['query'])} | {_cell(', '.join(q['expected']))} | "
+                f"{q['rank'] if q['rank'] else '–'} | {_cell(senses)} |"
+            )
 
     lines += [
         "",

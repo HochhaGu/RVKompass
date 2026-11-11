@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, render_template, request
 
 from app import limiter
 from app.services import embedding_service, query_expansion, ranking, rvk_repository
+from app.services.expansion import gnd
 
 bp = Blueprint("search", __name__)
 
@@ -29,9 +30,25 @@ def search():
                 daily_limit=current_app.config["CLAUDE_DAILY_LIMIT"],
             )
 
+        gnd_senses = gnd.gnd_senses_for_query(conn, current_app.config, query)
+        # Fachfilter als RVK-Hauptgruppen, kommagetrennt (z. B. "ZL,ZM"); Auswahlfeld folgt in P5.
+        subject_filter = [
+            part.strip().upper()
+            for part in request.form.get("fach", "").split(",")
+            if part.strip()
+        ]
+
         service = embedding_service.get_service()
-        hits = ranking.search(conn, service, query, expanded_terms)
-        results = ranking.hits_to_rows(conn, hits)
+        result = ranking.search_result(
+            conn,
+            service,
+            query,
+            expanded_terms,
+            gnd_senses=gnd_senses,
+            subject_filter=subject_filter,
+        )
+        results = ranking.hits_to_rows(conn, result.hits)
+        senses = ranking.senses_to_rows(conn, result.senses)
     finally:
         conn.close()
 
@@ -40,4 +57,5 @@ def search():
         results=results,
         query=query,
         expanded_terms=expanded_terms,
+        senses=senses,
     )

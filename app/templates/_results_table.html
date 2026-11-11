@@ -6,6 +6,29 @@
   {% if expanded_terms %}
     <p class="expanded-terms">Erweitert um: {{ expanded_terms | join(', ') }}</p>
   {% endif %}
+  {% if senses and senses | length > 1 %}
+    <section class="gnd-senses">
+      <p><strong>Mehrere Bedeutungen gefunden</strong> (laut GND – bitte die passende wählen):</p>
+      <ol>
+        {% for s in senses %}
+        <li>
+          <strong>{{ s.name }}</strong>
+          {% if s.subject_categories %}<small>(Sachgruppe: {{ s.subject_categories | join(', ') }})</small>{% endif %}
+          {% if s.notations %}
+            –
+            {% for n in s.notations %}<a href="{{ n.rvk_online_url }}" target="_blank" rel="noopener" title="{{ n.label or '' }}"><code>{{ n.notation }}</code></a>{% if not loop.last %}, {% endif %}{% endfor %}
+          {% else %}
+            – <em>keine Systemstelle über diese Bedeutung gefunden</em>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% elif senses %}
+    <p class="gnd-senses">GND-Begriff: <strong>{{ senses[0].name }}</strong>
+      {% if senses[0].subject_categories %}<small>(Sachgruppe: {{ senses[0].subject_categories | join(', ') }})</small>{% endif %}
+    </p>
+  {% endif %}
   <table>
     <thead>
       <tr>

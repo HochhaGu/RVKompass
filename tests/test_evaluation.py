@@ -64,6 +64,36 @@ def _q(query, results, expected, ms=10.0):
     return ev.evaluate_query(entry, results, ms / 1000, [])
 
 
+def test_evaluate_query_records_gnd_fields():
+    entry = ev.GoldEntry(query="Mutter", expected=["ZL 4620"], typ="Mehrdeutig")
+    q = ev.evaluate_query(
+        entry,
+        ["ZL 4620"],
+        0.01,
+        [],
+        gnd_terms=["synonym: Schraubenmutter"],
+        gnd_senses=["Mutter <Technik>", "Mutter <Familie>"],
+    )
+    assert q["gnd_terms"] == ["synonym: Schraubenmutter"]
+    assert q["gnd_senses"] == ["Mutter <Technik>", "Mutter <Familie>"]
+    # ohne Angabe leere Listen (alte Aufrufer bleiben gültig)
+    assert _q("x", [], ["X 1"])["gnd_senses"] == []
+    assert _q("x", [], ["X 1"])["gnd_terms"] == []
+
+
+def test_markdown_lists_ambiguous_queries_with_senses():
+    entry = ev.GoldEntry(query="Mutter", expected=["ZL 4620"], typ="Mehrdeutig")
+    q = ev.evaluate_query(entry, ["ZL 4620"], 0.01, [], gnd_senses=["Mutter <Technik>"])
+    report = {
+        "metrics": ev.aggregate([q]),
+        "per_query": [q],
+        "expansion": {"gnd_enabled": True, "queries_with_gnd_senses": 1},
+    }
+    md = ev.render_markdown(report)
+    assert "Anfragen mit GND-Bedeutungen: 1" in md
+    assert "| Mutter | ZL 4620 | 1 | Mutter <Technik> |" in md
+
+
 def test_aggregate_hand_calculated():
     per_query = [
         _q("a", ["X 1", "X 2"], ["X 1"], ms=10),  # Rang 1
