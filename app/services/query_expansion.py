@@ -48,7 +48,9 @@ def expand_query(
 
     call_count = rvk_repository.get_and_increment_daily_claude_calls(conn)
     if call_count > daily_limit:
-        logger.warning("Tageslimit für Claude-Calls erreicht (%s/%s)", call_count, daily_limit)
+        logger.warning(
+            "Tageslimit für Claude-Calls erreicht (%s/%s)", call_count, daily_limit
+        )
         return []
 
     try:
@@ -61,11 +63,15 @@ def expand_query(
         text = response.content[0].text.strip()
         terms = json.loads(text)
         if not isinstance(terms, list):
-            raise ValueError("Erwartete JSON-Liste")
+            raise TypeError("Erwartete JSON-Liste")
         terms = [str(t) for t in terms][:8]
     except Exception:
-        logger.exception("Claude-Begriffserweiterung fehlgeschlagen für Query %r", query)
+        logger.exception(
+            "Claude-Begriffserweiterung fehlgeschlagen für Query %r", query
+        )
         return []
 
-    rvk_repository.set_expansion_cache(conn, normalized, json.dumps(terms, ensure_ascii=False))
+    rvk_repository.set_expansion_cache(
+        conn, normalized, json.dumps(terms, ensure_ascii=False)
+    )
     return terms

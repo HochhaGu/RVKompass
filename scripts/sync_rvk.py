@@ -11,7 +11,7 @@ from __future__ import annotations
 import glob
 import sqlite3
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from lxml import etree
@@ -248,7 +248,7 @@ def main():
         swap_in_new_tables(conn)
         conn.execute(
             "INSERT INTO sync_log (run_at, source_file, notation_count, register_count, status) VALUES (?, ?, ?, ?, ?)",
-            (datetime.now(timezone.utc).isoformat(), dump_path.name, notation_count, register_count, "success"),
+            (datetime.now(UTC).isoformat(), dump_path.name, notation_count, register_count, "success"),
         )
         conn.commit()
         print(f"Fertig: {notation_count} Notationen, {register_count} Registereinträge.")
@@ -256,7 +256,7 @@ def main():
         conn.rollback()
         conn.execute(
             "INSERT INTO sync_log (run_at, source_file, notation_count, register_count, status) VALUES (?, ?, ?, ?, ?)",
-            (datetime.now(timezone.utc).isoformat(), dump_path.name, 0, 0, f"error: {exc}"),
+            (datetime.now(UTC).isoformat(), dump_path.name, 0, 0, f"error: {exc}"),
         )
         conn.commit()
         raise

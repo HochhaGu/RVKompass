@@ -19,7 +19,7 @@ import json
 import sqlite3
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -74,7 +74,7 @@ def main():
             {
                 "model": model_name,
                 "dim": dim,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "notation_ids": notation_ids,
             }
         )
@@ -89,7 +89,7 @@ def main():
             {
                 "model": model_name,
                 "dim": dim,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "terms": terms,
             }
         )
