@@ -222,6 +222,36 @@ def compare_metrics(new: dict, old_report: dict) -> dict:
     return diff
 
 
+def compare_per_query(new_per_query: list[dict], old_report: dict) -> list[dict]:
+    """Anfragen, deren Rang oder Top-3 sich gegenüber dem alten Bericht geändert hat.
+
+    Verglichen werden nur Anfragen, die in beiden Läufen vorkommen. Alte Berichte ohne
+    `per_query` liefern eine leere Liste.
+    """
+    old_list = old_report.get("per_query") if isinstance(old_report, dict) else None
+    if not old_list:
+        return []
+    old_by_query = {q["query"]: q for q in old_list if "query" in q}
+    changed = []
+    for new in new_per_query:
+        old = old_by_query.get(new["query"])
+        if old is None:
+            continue
+        if old.get("rank") != new.get("rank") or list(old.get("top3", [])) != list(
+            new.get("top3", [])
+        ):
+            changed.append(
+                {
+                    "query": new["query"],
+                    "old_rank": old.get("rank"),
+                    "new_rank": new.get("rank"),
+                    "old_top3": list(old.get("top3", [])),
+                    "new_top3": list(new.get("top3", [])),
+                }
+            )
+    return changed
+
+
 def _is_number(value) -> bool:
     return isinstance(value, int | float) and not isinstance(value, bool)
 
@@ -315,6 +345,11 @@ def render_markdown(report: dict) -> str:
                 f"| {label} | {_fmt(row['old'])} | {_fmt(row['new'])} | "
                 f"{'+' if diff > 0 else ''}{_fmt(diff)} |"
             )
+        if "compare_per_query" in report:
+            lines += [
+                "",
+                f"Anfragen mit geänderter Rangfolge: {len(report['compare_per_query'])}",
+            ]
 
     if report.get("by_typ"):
         lines += ["", "## Kennzahlen je Anfragetyp", ""]

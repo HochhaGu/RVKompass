@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from app.models import SCHEMA_SQL
+from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, Hit, Notation
 from orchestrator.gates import extract_metrics
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -23,6 +23,16 @@ def _load_script():
 
 
 evaluate = _load_script()
+
+
+def _fake_hit(nid: int, notation: str, query: str) -> Hit:
+    evidence = Evidence(nid, ExpansionTerm(query, "input", "direct"), "vector", 0.5)
+    return Hit(
+        Notation(nid, notation, None, None, None, None),
+        [evidence],
+        0.5,
+        {"cosine": 0.5},
+    )
 
 
 class FakeService:
@@ -75,7 +85,7 @@ def setup(tmp_path, monkeypatch):
 
     def fake_search(conn, service, query, expanded_terms):
         if query == "Getriebe":
-            return [{"notation": "ZL 4100"}, {"notation": "ZL 4140"}]
+            return [_fake_hit(1, "ZL 4100", query), _fake_hit(2, "ZL 4140", query)]
         return []
 
     monkeypatch.setattr(evaluate, "get_config", lambda: FakeConfig(tmp_path, db_path))
@@ -154,6 +164,35 @@ def test_compare_adds_differences(setup, tmp_path):
     assert report["compare"]["hit@1"]["diff"] == 0.25
     assert report["compare"]["hit@10"]["diff"] == -0.5
     assert "Vergleich" in json_path.with_suffix(".md").read_text(encoding="utf-8")
+    # Alter Bericht ohne per_query: nichts zu vergleichen
+    assert report["compare_per_query"] == []
+
+
+def test_compare_lists_queries_with_changed_ranking(setup, tmp_path):
+    gold, out, _ = setup
+    old = tmp_path / "old.json"
+    old.write_text(
+        json.dumps(
+            {
+                "metrics": {"hit@1": 0.5},
+                "per_query": [
+                    {"query": "Getriebe", "rank": 2, "top3": ["ZL 4140", "ZL 4100"]},
+                    {"query": "Feder", "rank": None, "top3": []},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        evaluate.main(["--gold", str(gold), "--out", str(out), "--compare", str(old)])
+        == 0
+    )
+    (json_path,) = out.glob("eval-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert [q["query"] for q in report["compare_per_query"]] == ["Getriebe"]
+    assert "Anfragen mit geänderter Rangfolge: 1" in json_path.with_suffix(
+        ".md"
+    ).read_text(encoding="utf-8")
 
 
 def test_missing_data_exits_with_error(setup, monkeypatch, tmp_path):
