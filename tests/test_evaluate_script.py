@@ -153,6 +153,13 @@ def test_report_fulfils_contract(setup):
     gate_metrics = extract_metrics(report)
     assert gate_metrics["hit@10"] == report["metrics"]["hit@10"]
 
+    # P5: Scoring-Einstellung und Kennzahlen je Hälfte (Getriebe -> dev, Feder -> dev, je Typ)
+    assert report["scoring"]["formula"] in {"legacy", "sum", "max_plus", "sum_capped"}
+    assert "tier_high" in report["scoring"] and "weights" in report["scoring"]
+    assert set(report["metrics_by_split"]) == {"dev"}
+    assert report["metrics_by_split"]["dev"]["n"] == 2
+    assert "## Scoring" in json_path.with_suffix(".md").read_text(encoding="utf-8")
+
 
 def test_report_has_four_variants_and_llm_block(setup):
     gold, out, calls = setup

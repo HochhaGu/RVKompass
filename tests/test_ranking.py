@@ -79,5 +79,10 @@ class TestSearchIntegration:
 
         scores = [hit.score for hit in hits]
         assert scores == sorted(scores, reverse=True)
-        displayed = [r["confidence_pct"] for r in ranking.hits_to_rows(conn, hits)]
+        rows = ranking.hits_to_rows(conn, hits)
+        displayed = [r["score"] for r in rows]
         assert displayed == sorted(displayed, reverse=True)
+        # Stufen folgen der Reihenfolge: nie „hoch“ nach „mittel“ oder „niedrig“
+        order = {"hoch": 0, "mittel": 1, "niedrig": 2}
+        tiers = [order[r["tier"]] for r in rows]
+        assert tiers == sorted(tiers)

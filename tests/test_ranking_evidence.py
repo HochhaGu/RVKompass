@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit
-from app.services import ranking, rvk_repository
+from app.services import ranking, rvk_repository, scoring, scoring_tuning
 
 MIN_SCORE = 0.1
 
@@ -276,9 +276,18 @@ def test_without_llm_terms_result_is_unchanged_and_has_zero_llm_bonus(conn, serv
     assert all(h.score_components["llm_bonus"] == 0.0 for h in plain.hits)
 
 
-def test_hits_to_rows_keeps_previous_display_keys(conn, service):
+LEGACY = scoring.ScoringSettings(formula="legacy")
+NEW = scoring.ScoringSettings(
+    formula="max_plus",
+    weights=dict(scoring_tuning.START_SETTINGS.weights),
+    path_bonus=0.05,
+)
+
+
+def test_hits_to_rows_shows_tier_and_components_instead_of_percent(conn, service):
     hits = ranking.search(conn, service, "Getriebe", [])
-    rows = ranking.hits_to_rows(conn, hits)
+    settings = LEGACY.replace(tier_high=0.8, tier_medium=0.3)
+    rows = ranking.hits_to_rows(conn, hits, settings)
 
     assert [r["notation"] for r in rows] == [h.notation.notation for h in hits]
     for row, hit in zip(rows, hits, strict=True):
@@ -287,15 +296,70 @@ def test_hits_to_rows_keeps_previous_display_keys(conn, service):
             "label",
             "hierarchy_path",
             "related_terms",
-            "confidence_pct",
+            "tier",
+            "score",
+            "components",
             "rvk_online_url",
         }
-        assert row["confidence_pct"] == round(hit.score * 100)
+        assert row["score"] == round(hit.score, 2)
         assert row["rvk_online_url"] == ranking.build_rvk_online_url(
             hit.notation.notation
         )
+        for segment in row["components"]:
+            assert segment["label"] == scoring.PATH_LABELS[segment["key"]]
+            assert segment["value"] > 0
+    # Scores 0.83 / 0.315 / 0.11
+    assert [r["tier"] for r in rows] == ["hoch", "mittel", "niedrig"]
+    # Balkenlänge relativ zum ersten Vorschlag
+    first = sum(s["width"] for s in rows[0]["components"])
+    assert first == pytest.approx(ranking.SCORE_BAR_EM, abs=0.02)
     assert _by_notation(hits)["ZL 4300"].notation.id == 5
     assert rows[1]["related_terms"] == ["Kupplung"]
+
+
+def test_legacy_is_default_and_explicit_legacy_is_identical(conn, service):
+    default = ranking.search_result(conn, service, "Getriebe", [], [KUPPLUNG])
+    explicit = ranking.search_result(
+        conn, service, "Getriebe", [], [KUPPLUNG], scoring_settings=LEGACY
+    )
+    assert [(h.notation.id, h.score, h.score_components) for h in default.hits] == [
+        (h.notation.id, h.score, h.score_components) for h in explicit.hits
+    ]
+
+
+def test_new_formula_components_carry_path_types_and_sum_to_score(conn, service):
+    result = ranking.search_result(
+        conn, service, "Getriebe", _llm("Zahnrad"), [KUPPLUNG], scoring_settings=NEW
+    )
+    scores = [h.score for h in result.hits]
+    assert scores == sorted(scores, reverse=True)
+    for hit in result.hits:
+        assert set(hit.score_components) <= set(scoring.PATH_TYPES) | {"path_bonus"}
+        assert hit.score == pytest.approx(sum(hit.score_components.values()))
+    kupplung = _by_notation(result.hits)["ZL 4300"]
+    # GND-Synonym ist der stärkste Pfad; dazu Vektor und Mehrfach-Fund
+    assert kupplung.score_components["gnd_synonym"] == pytest.approx(0.9)
+    assert kupplung.score_components["vector"] == pytest.approx(0.4 * 0.3)
+    assert "path_bonus" in kupplung.score_components
+    zahnrad = _by_notation(result.hits)["ZL 4140"]
+    assert zahnrad.score_components["llm_verified"] == pytest.approx(0.5)
+
+
+def test_online_and_offline_scoring_give_same_ranking(conn, service):
+    for settings in (LEGACY, NEW):
+        result = ranking.search_result(
+            conn, service, "Getriebe", [], [KUPPLUNG], scoring_settings=settings
+        )
+        candidates = ranking.build_candidates(conn, service, "Getriebe", [], [KUPPLUNG])
+        offline = ranking.score_candidates(candidates.features, settings)
+        assert [h.notation.notation for h in result.hits] == [
+            f.notation for f, _, _ in offline[: ranking.MAX_RESULTS]
+        ]
+        assert [h.score for h in result.hits] == [s for _, s, _ in offline]
+
+
+def test_build_candidates_without_hits_returns_none(conn, service):
+    assert ranking.build_candidates(conn, service, "Unbekannt", []) is None
 
 
 # --- P3: GND-Bedeutungen ----------------------------------------------------------------------

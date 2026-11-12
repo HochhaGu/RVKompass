@@ -1,5 +1,6 @@
 """Suchroute mit GND-Bedeutungen – ohne Netz, ohne Modell; Datenbank als temporäre Datei."""
 
+import re
 import sqlite3
 from pathlib import Path
 
@@ -201,6 +202,23 @@ def test_llm_block_without_hits(client, monkeypatch):
     html = test_client.post("/search", data={"q": "Getriebe"}).get_data(as_text=True)
     assert "Keine passenden RVK-Systemstellen" in html
     assert "Vorschläge des Sprachmodells" in html
+
+
+def test_results_show_relevance_tier_and_bar_without_percent(client):
+    test_client, _ = client
+    html = test_client.post("/search", data={"q": "Getriebe"}).get_data(as_text=True)
+    table = html.split("<table>", 1)[1].split("</table>", 1)[0]
+    assert "<th>Relevanz</th>" in table
+    assert "Konfidenz" not in html
+    cells = re.findall(r'<td class="relevance-cell">(.*?)</td>', table, re.DOTALL)
+    assert cells
+    assert all("%" not in cell for cell in cells)
+    assert "Wahrscheinlichkeit" not in table
+    assert re.search(r'class="tier tier-(hoch|mittel|niedrig)"', table)
+    assert 'title="Relevanzwert 0.50"' in table
+    assert 'class="seg seg-cosine"' in table and 'title="Vektor: 0.46"' in table
+    assert 'class="seg seg-gnd_bonus"' in table and 'title="GND: 0.04"' in table
+    assert "keine Wahrscheinlichkeit" in html
 
 
 def test_no_llm_block_without_suggestions(client):

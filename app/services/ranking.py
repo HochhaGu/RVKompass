@@ -6,12 +6,15 @@ Suchbegriffe sind die Eingabe und jeder Erweiterungsbegriff einzeln. Früher wur
 Text und einem Vektor verschmolzen; dann ließ sich kein Treffer einem Begriff zuordnen, und die
 Erweiterung verwässerte die eigentliche Anfrage.
 
-Grundlage der Sortierung ist die Cosine-Similarity zur Eingabeanfrage. Volltext- und
-Registerbegriff-Treffer sowie Erweiterungsbegriffe erweitern nur die Kandidatenmenge (Recall);
-Volltext- und Registertreffer geben zusätzlich einen kleinen additiven Bonus. Der Score ist ein
-Relevanzmaß, keine Wahrscheinlichkeit. Sortierung und angezeigter Wert beruhen auf derselben Zahl,
-damit die Reihenfolge nie der Anzeige widerspricht (eine frühere Reciprocal-Rank-Fusion hatte
-genau dieses Problem).
+Ablauf (P5): `build_candidates` sammelt die Evidenzen und berechnet je Kandidat die Merkmale
+(Cosine zur Eingabe, stärkste Evidenz je Pfadtyp, Bestandteile der alten Formel).
+`score_candidates` bildet daraus mit der eingestellten Formel (app/services/scoring.py) Score und
+Bestandteile und sortiert. Erweiterungsbegriffe und Registerwege erweitern die Kandidatenmenge;
+wie stark sie zählen, bestimmen die Pfadgewichte in app/config.py.
+
+Der Score ist ein Relevanzmaß, keine Wahrscheinlichkeit. Sortierung und Anzeige (Stufe und
+Balken) beruhen auf derselben Zahl, damit die Reihenfolge nie der Anzeige widerspricht (eine
+frühere Reciprocal-Rank-Fusion hatte genau dieses Problem).
 """
 
 from __future__ import annotations
@@ -22,21 +25,17 @@ from urllib.parse import quote
 
 from app.config import Config
 from app.models import Evidence, ExpansionTerm, GndSense, Hit
-from app.services import rvk_repository
+from app.services import rvk_repository, scoring
 from app.services.query_expansion import normalize_query
 
 MAX_RESULTS = 20
-KEYWORD_BONUS = 0.03
-TERM_MATCH_BONUS = 0.015
-# P3: Zuschlag für Treffer über die GND-Bedeutung selbst bzw. ein Synonym (über GND-ID oder
-# exakten Registerbegriff) und für Treffer über Ober-, Unter- oder verwandte Begriffe.
-# Es zählt nur der höchste zutreffende Zuschlag.
-GND_SYNONYM_BONUS = 0.08
-GND_RELATION_BONUS = 0.02
+# Zuschläge der Formel „legacy“ (Stand P4), seit P5 in app/services/scoring.py
+KEYWORD_BONUS = scoring.KEYWORD_BONUS
+TERM_MATCH_BONUS = scoring.TERM_MATCH_BONUS
+GND_SYNONYM_BONUS = scoring.GND_SYNONYM_BONUS
+GND_RELATION_BONUS = scoring.GND_RELATION_BONUS
+LLM_VERIFIED_BONUS = scoring.LLM_VERIFIED_BONUS
 GND_REGISTER_LIMIT = 10
-# P4: Zuschlag für Treffer über geprüfte LLM-Begriffe. Bewusst 0: Ein Zuschlag darf nur mit
-# Vorher/Nachher-Messung eingeführt werden. Sichtbar als `llm_bonus` in den Score-Bestandteilen.
-LLM_VERIFIED_BONUS = 0.0
 
 # Parameter je Suchbegriff (unverändert gegenüber der Suche vor P2)
 KEYWORD_LIMIT = 50
@@ -248,12 +247,8 @@ def collect_llm_evidence(
 
 
 def gnd_bonus_for(relations: set[str] | None) -> float:
-    """Höchster zutreffender GND-Zuschlag; ohne GND-Evidenz 0."""
-    if not relations:
-        return 0.0
-    if "synonym" in relations:
-        return GND_SYNONYM_BONUS
-    return GND_RELATION_BONUS
+    """Höchster zutreffende GND-Zuschlag der Formel „legacy“; ohne GND-Evidenz 0."""
+    return scoring.legacy_components(0.0, False, False, relations, False)["gnd_bonus"]
 
 
 @dataclass
@@ -346,22 +341,41 @@ def _empty_result(gnd_senses, subject_filter, mapping) -> SearchResult:
     )
 
 
-def search_result(
+@dataclass
+class CandidateFeatures:
+    """Alles, was der Score eines Kandidaten braucht – ohne Datenbank und ohne Modell.
+
+    Damit lässt sich jede Formel offline neu bewerten (Abstimmung in scripts/tune_scoring.py),
+    mit derselben Rangfolge wie in der Suche selbst.
+    """
+
+    nid: int
+    notation: str
+    cosine: float
+    strengths: dict[str, float]
+    legacy: dict[str, float]
+
+
+@dataclass
+class Candidates:
+    retrieval: Retrieval
+    notations: dict
+    candidate_ids: set[int]
+    # in der Iterationsreihenfolge von candidate_ids (bestimmt Gleichstände bei „legacy“)
+    features: list[CandidateFeatures]
+
+
+def build_candidates(
     conn,
     embedding_service,
     query: str,
     expanded_terms: list[ExpansionTerm],
     gnd_senses: Iterable[GndSense] = (),
-    subject_filter: Iterable[str] | None = None,
-    mapping: Mapping[str, Iterable[str]] | None = None,
-) -> SearchResult:
-    """Trefferliste samt GND-Bedeutungen (P3) und geprüften LLM-Begriffen (P4).
+) -> Candidates | None:
+    """Sammelt die Evidenzen aller Suchwege und berechnet die Merkmale je Kandidat.
 
-    Ohne Bedeutungen identisch mit `search`; ohne LLM-Begriffe identisch mit dem Stand von P3.
+    Ohne zuweisbare Kandidaten: None.
     """
-    gnd_senses = list(gnd_senses)
-    if mapping is None:
-        mapping = Config.GND_SUBJECT_CATEGORY_TO_RVK
     terms = build_expansion_terms(query, expanded_terms)
     retrieval = collect_evidence(conn, embedding_service, terms)
     collect_gnd_evidence(conn, retrieval, gnd_senses)
@@ -382,7 +396,7 @@ def search_result(
     if retrieval.llm_ids:
         all_candidate_ids |= retrieval.llm_ids
     if not all_candidate_ids:
-        return _empty_result(gnd_senses, subject_filter, mapping)
+        return None
 
     notations = rvk_repository.get_notations_by_ids(conn, list(all_candidate_ids))
     candidate_ids = {
@@ -391,59 +405,109 @@ def search_result(
         if nid in notations and is_assignable_notation(notations[nid].notation)
     }
     if not candidate_ids:
-        return _empty_result(gnd_senses, subject_filter, mapping)
+        return None
 
-    # Der Score ist zugleich der angezeigte Wert - beide müssen identisch sein, sonst kann die
-    # Reihenfolge wieder von der Anzeige abweichen (genau das Problem der früheren RRF-Lösung).
-    # Er ist ein Relevanzmaß, keine Wahrscheinlichkeit, und wird auf 1.0 gedeckelt.
-    components_by_id: dict[int, dict[str, float]] = {}
-    score_by_id: dict[int, float] = {}
+    input_norm = normalize_query(query)
+    features = []
     for nid in candidate_ids:
         cosine = vector_score_by_id.get(nid)
         if cosine is None:
             cosine = (
                 embedding_service.score_for_notation(retrieval.query_vec, nid) or 0.0
             )
+        features.append(
+            CandidateFeatures(
+                nid=nid,
+                notation=notations[nid].notation,
+                cosine=cosine,
+                strengths=scoring.path_strengths(
+                    retrieval.evidence_by_id[nid], input_norm
+                ),
+                legacy=scoring.legacy_components(
+                    cosine,
+                    nid in keyword_ids,
+                    nid in term_notation_ids,
+                    retrieval.gnd_relation_by_id.get(nid),
+                    nid in retrieval.llm_ids,
+                ),
+            )
+        )
+    return Candidates(retrieval, notations, candidate_ids, features)
 
-        score = cosine
-        keyword_bonus = 0.0
-        register_bonus = 0.0
-        if nid in keyword_ids:
-            keyword_bonus = KEYWORD_BONUS
-            score += KEYWORD_BONUS
-        if nid in term_notation_ids:
-            register_bonus = TERM_MATCH_BONUS
-            score += TERM_MATCH_BONUS
-        gnd_bonus = gnd_bonus_for(retrieval.gnd_relation_by_id.get(nid))
-        score += gnd_bonus
-        llm_bonus = LLM_VERIFIED_BONUS if nid in retrieval.llm_ids else 0.0
-        if llm_bonus:
-            score += llm_bonus
-        score_by_id[nid] = min(score, 1.0)
-        components_by_id[nid] = {
-            "cosine": cosine,
-            "keyword_bonus": keyword_bonus,
-            "register_bonus": register_bonus,
-            "gnd_bonus": gnd_bonus,
-            "llm_bonus": llm_bonus,
-        }
 
-    ranked_ids = sorted(candidate_ids, key=lambda nid: score_by_id[nid], reverse=True)[
-        :MAX_RESULTS
-    ]
+def score_candidates(
+    features: list[CandidateFeatures], settings: scoring.ScoringSettings
+) -> list[tuple[CandidateFeatures, float, dict[str, float]]]:
+    """Score und Bestandteile je Kandidat, absteigend sortiert (alle Kandidaten).
 
+    „legacy“: stabile Sortierung nur nach dem Score wie vor P5 (bitgleich). Neue Formeln: nach
+    (Score, Cosine, Notation), damit die Rangfolge nicht von der Mengenreihenfolge abhängt.
+    """
+    scored = []
+    for feature in features:
+        if settings.formula == "legacy":
+            components = dict(feature.legacy)
+            score = scoring.legacy_score(components)
+        else:
+            score, components = scoring.combine(
+                settings.formula, feature.strengths, feature.cosine, settings
+            )
+        scored.append((feature, score, components))
+    if settings.formula == "legacy":
+        scored.sort(key=lambda item: item[1], reverse=True)
+    else:
+        # Score auf 9 Stellen gerundet, damit Rundungsreste der Summenreihenfolge keine
+        # Gleichstände auflösen (gleiche Regel wie scoring_tuning.FastScorer)
+        scored.sort(
+            key=lambda item: (-round(item[1], 9), -item[0].cosine, item[0].notation)
+        )
+    return scored
+
+
+def search_result(
+    conn,
+    embedding_service,
+    query: str,
+    expanded_terms: list[ExpansionTerm],
+    gnd_senses: Iterable[GndSense] = (),
+    subject_filter: Iterable[str] | None = None,
+    mapping: Mapping[str, Iterable[str]] | None = None,
+    scoring_settings: scoring.ScoringSettings | None = None,
+) -> SearchResult:
+    """Trefferliste samt GND-Bedeutungen (P3) und geprüften LLM-Begriffen (P4).
+
+    Ohne Bedeutungen identisch mit `search`. `scoring_settings` (P5) wählt Formel und Gewichte;
+    Standard ist die Einstellung aus `Config`.
+    """
+    gnd_senses = list(gnd_senses)
+    if mapping is None:
+        mapping = Config.GND_SUBJECT_CATEGORY_TO_RVK
+    if scoring_settings is None:
+        scoring_settings = scoring.ScoringSettings.from_config(Config)
+    candidates = build_candidates(
+        conn, embedding_service, query, expanded_terms, gnd_senses
+    )
+    if candidates is None:
+        return _empty_result(gnd_senses, subject_filter, mapping)
+
+    # Der Score ist zugleich Sortierschlüssel und Grundlage der Anzeige (Stufe und Balken) – beide
+    # müssen übereinstimmen, sonst widerspricht die Reihenfolge der Anzeige (Problem der früheren
+    # RRF-Lösung). Er ist ein Relevanzmaß, keine Wahrscheinlichkeit.
+    scored = score_candidates(candidates.features, scoring_settings)
+    retrieval = candidates.retrieval
     hits = [
         Hit(
-            notation=notations[nid],
-            evidences=list(retrieval.evidence_by_id[nid]),
-            score=score_by_id[nid],
-            score_components=components_by_id[nid],
+            notation=candidates.notations[feature.nid],
+            evidences=list(retrieval.evidence_by_id[feature.nid]),
+            score=score,
+            score_components=components,
         )
-        for nid in ranked_ids
+        for feature, score, components in scored[:MAX_RESULTS]
     ]
+    score_by_id = {feature.nid: score for feature, score, _ in scored}
     senses = rank_senses(
         gnd_senses,
-        {nid: retrieval.evidence_by_id[nid] for nid in candidate_ids},
+        {nid: retrieval.evidence_by_id[nid] for nid in candidates.candidate_ids},
         subject_filter,
         mapping,
         score_by_id=score_by_id,
@@ -483,8 +547,45 @@ def senses_to_rows(
     return rows
 
 
-def hits_to_rows(conn, hits: list[Hit]) -> list[dict]:
-    """Zeilen für die Ergebnistabelle (_results_table.html), unverändert gegenüber vor P2."""
+# Länge des Balkens beim ersten Vorschlag (CSS-Einheit em); alle anderen relativ dazu
+SCORE_BAR_EM = 8.0
+
+
+def score_bar(
+    components: Mapping[str, float], max_score: float
+) -> list[dict[str, object]]:
+    """Balkensegmente je Bestandteil: Schlüssel, deutsches Label, Wert und Breite in em.
+
+    Die Breite ist relativ zum höchsten Score der Liste und nur Gestaltung, kein angezeigter Text.
+    Negative oder leere Bestandteile erscheinen nicht.
+    """
+    segments = []
+    for key, value in components.items():
+        if value <= 0:
+            continue
+        width = SCORE_BAR_EM * value / max_score if max_score > 0 else 0.0
+        segments.append(
+            {
+                "key": key,
+                "label": scoring.PATH_LABELS.get(key, key),
+                "value": round(value, 2),
+                "width": round(min(width, SCORE_BAR_EM), 2),
+            }
+        )
+    return segments
+
+
+def hits_to_rows(
+    conn, hits: list[Hit], scoring_settings: scoring.ScoringSettings | None = None
+) -> list[dict]:
+    """Zeilen für die Ergebnistabelle (_results_table.html).
+
+    Seit P5 statt Prozentwert: Stufe („hoch / mittel / niedrig“), Relevanzwert (nur im Tooltip)
+    und die Bestandteile als Balkensegmente.
+    """
+    if scoring_settings is None:
+        scoring_settings = scoring.ScoringSettings.from_config(Config)
+    max_score = max((hit.score for hit in hits), default=0.0)
     rows = []
     for hit in hits:
         notation = hit.notation
@@ -496,7 +597,9 @@ def hits_to_rows(conn, hits: list[Hit]) -> list[dict]:
                 "related_terms": rvk_repository.get_register_terms(
                     conn, notation.id, limit=3
                 ),
-                "confidence_pct": round(hit.score * 100),
+                "tier": scoring.tier_for(hit.score, scoring_settings),
+                "score": round(hit.score, 2),
+                "components": score_bar(hit.score_components, max_score),
                 "rvk_online_url": build_rvk_online_url(notation.notation),
             }
         )
