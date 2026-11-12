@@ -128,8 +128,10 @@ def client(tmp_path, monkeypatch):
             filtered_out=3 if kw.get("main_group_filter") else 0,
         )
 
-    def fake_llm(conn, config, query, source=None):
+    def fake_llm(conn, config, query, source=None, stats=None):
         seen["llm_source"] = source
+        if stats is not None and query == "Getriebe":
+            stats["cache_hits"] = stats.get("cache_hits", 0) + 1
         if query != "Getriebe":
             return []
         return [
@@ -163,6 +165,7 @@ def client(tmp_path, monkeypatch):
         TESTING=True,
         RATELIMIT_ENABLED=False,
         DATABASE_PATH=str(db_path),
+        USAGE_DATABASE_PATH=str(tmp_path / "usage.sqlite3"),
         ENABLE_QUERY_EXPANSION=False,
         ENABLE_GND_EXPANSION=True,
         DEFAULT_MAIN_GROUPS=(),
@@ -172,6 +175,7 @@ def client(tmp_path, monkeypatch):
     register_template_context(app)
     seen["app"] = app
     seen["db_path"] = db_path
+    seen["usage_path"] = tmp_path / "usage.sqlite3"
     return app.test_client(), seen
 
 
@@ -393,8 +397,8 @@ def test_changed_label_only_with_data(client):
     assert "geändert in Version" not in html
     conn = sqlite3.connect(seen["db_path"])
     conn.execute(
-        "INSERT INTO notation_change (notation_id, version, change_type) "
-        "VALUES (1, '2026/1', 'geändert')"
+        "INSERT INTO notation_change (notation_id, notation, version, change_type) "
+        "VALUES (1, 'ZL 4620', '2026/1', 'changed')"
     )
     conn.commit()
     conn.close()
@@ -477,3 +481,30 @@ def test_index_without_database_still_renders(client, tmp_path):
     assert "RVK-Stand: unbekannt" in response.get_data(as_text=True)
     # nur lesend: es wird keine leere Datenbankdatei angelegt
     assert not missing.exists()
+
+
+def test_usage_statistics_are_recorded(client):
+    from app.services import usage_stats
+
+    test_client, seen = client
+    _post(test_client, {"q": "Getriebe"})
+    _post(test_client, {"q": "   "})  # leere Eingabe zählt nicht
+    stats = usage_stats.stats_for_day(str(seen["usage_path"]))
+    assert stats["requests"] == 1
+    assert stats["zero_hit_requests"] == 0
+    assert stats["llm_cache_hits"] == 1
+
+
+def test_usage_statistics_count_zero_hits(client, monkeypatch):
+    from app.services import usage_stats
+
+    test_client, seen = client
+    monkeypatch.setattr(
+        search_route.ranking,
+        "search_result",
+        lambda *a, **k: ranking.SearchResult(hits=[], senses=[]),
+    )
+    _post(test_client, {"q": "Unsinnswort"})
+    stats = usage_stats.stats_for_day(str(seen["usage_path"]))
+    assert (stats["requests"], stats["zero_hit_requests"]) == (1, 1)
+    assert stats["zero_hit_rate"] == 1.0

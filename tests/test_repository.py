@@ -228,12 +228,26 @@ def test_list_main_groups_without_table():
 def test_get_change_versions(memory_conn):
     _insert_register(memory_conn, [(1, "A", None), (2, "B", None)])
     memory_conn.executemany(
-        "INSERT INTO notation_change (notation_id, version, change_type) "
-        "VALUES (?, ?, ?)",
-        [(1, "2025/4", "geändert"), (1, "2026/1", "geändert")],
+        "INSERT INTO notation_change (notation_id, notation, version, change_type) "
+        "VALUES (?, ?, ?, ?)",
+        [
+            (1, "A", "2025/4", "new"),
+            (1, "A", "2026/1", "changed"),
+            (None, "WEG 1", "2026/1", "deleted"),
+        ],
     )
     assert rvk_repository.get_change_versions(memory_conn, [1, 2]) == {1: "2026/1"}
     assert rvk_repository.get_change_versions(memory_conn, []) == {}
+
+
+def test_get_change_versions_ignores_deleted(memory_conn):
+    _insert_register(memory_conn, [(1, "A", None)])
+    memory_conn.executemany(
+        "INSERT INTO notation_change (notation_id, notation, version, change_type) "
+        "VALUES (?, ?, ?, ?)",
+        [(1, "A", "2026/1", "new"), (1, "A", "2026/2", "deleted")],
+    )
+    assert rvk_repository.get_change_versions(memory_conn, [1]) == {1: "2026/1"}
 
 
 def test_get_change_versions_without_table_is_empty():

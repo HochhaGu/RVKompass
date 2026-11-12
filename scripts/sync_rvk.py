@@ -2,8 +2,15 @@
 
 Ablauf: MarcXML-Datei (data/raw/rvko_marcxml_*.xml, siehe fetch_marcxml_dump.py) wird
 per Streaming-Parse (lxml.etree.iterparse) gelesen, um bei ~1.3 GB Dateigröße mit wenig
-RAM auszukommen. Aufbau erfolgt in _new-Tabellen, die am Ende atomar eingetauscht werden
-(idempotenter Rebuild statt Delta-Merge, siehe Plan).
+RAM auszukommen. Aufbau erfolgt in _new-Tabellen, die am Ende eingetauscht werden
+(idempotenter Rebuild statt Delta-Merge).
+
+Zwei Wege:
+- Direkt (`python scripts/sync_rvk.py`, Erstinstallation): Import und Tabellentausch in der
+  Live-DB, ohne Vergleich und ohne Prüfungen.
+- Monatlicher Abgleich (`python scripts/monthly_sync.py`, ab P8): `import_into_new_tables` baut
+  die *_new-Tabellen in einer Arbeitskopie unter data/staging/; Vergleich, Prüfungen und Tausch
+  übernimmt app/services/rvk_sync/. Die Live-DB bleibt dabei bis zum Dateitausch unberührt.
 """
 
 from __future__ import annotations
@@ -18,6 +25,7 @@ from lxml import etree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.models import REGISTER_ENTRY_TYPES, SCHEMA_SQL
+from app.services.rvk_sync.diff import migrate_notation_change
 
 RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "rvk.sqlite3"
@@ -246,15 +254,27 @@ def swap_in_new_tables(conn: sqlite3.Connection):
     conn.commit()
 
 
+def import_into_new_tables(db_path: Path, dump_path: Path) -> tuple[int, int]:
+    """Baut notation_new, register_entry_new und search_index_new in `db_path` auf.
+
+    Die bisherigen Tabellen bleiben unverändert (Vergleich und Tausch macht der Aufrufer).
+    """
+    conn = sqlite3.connect(db_path)
+    try:
+        return rebuild_tables(conn, Path(dump_path))
+    finally:
+        conn.close()
+
+
 def main():
     dump_path = find_dump_file()
     print(f"Verwende Gesamtabzug: {dump_path}")
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.executescript(
-        SCHEMA_SQL
-    )  # stellt sicher, dass sync_log/expansion_cache existieren
+    # notation_change auf das Schema ab P8 bringen, dann fehlende Tabellen anlegen
+    migrate_notation_change(conn)
+    conn.executescript(SCHEMA_SQL)
 
     try:
         notation_count, register_count = rebuild_tables(conn, dump_path)

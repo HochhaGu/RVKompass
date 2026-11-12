@@ -65,6 +65,54 @@ def test_default_main_groups_from_env(monkeypatch):
         importlib.reload(config_module)
 
 
+def test_operations_defaults(monkeypatch):
+    names = (
+        "GND_SOURCE",
+        "SYNC_MAX_COUNT_DEVIATION",
+        "SYNC_MAX_HIT10_DROP",
+        "SYNC_BACKUP_KEEP",
+        "SYNC_SAMPLE_NOTATIONS",
+        "SMTP_PORT",
+        "SMTP_STARTTLS",
+        "PROXY_FIX_X_FOR",
+        "GUNICORN_PID_PATH",
+    )
+    try:
+        for name in names:
+            monkeypatch.delenv(name, raising=False)
+        config = importlib.reload(config_module).Config
+        assert config.GND_SOURCE == "local"
+        assert config.GND_DATABASE_PATH.endswith("data/gnd.sqlite3")
+        assert config.USAGE_DATABASE_PATH.endswith("data/usage.sqlite3")
+        assert config.SYNC_WORK_DIR.endswith("data/staging")
+        assert config.SYNC_BACKUP_DIR.endswith("data/backups")
+        assert config.SYNC_MAX_COUNT_DEVIATION == 0.05
+        assert config.SYNC_MAX_HIT10_DROP == 0.05
+        assert config.SYNC_BACKUP_KEEP == 2
+        assert config.SYNC_SAMPLE_NOTATIONS == ()
+        assert config.SMTP_PORT == 587 and config.SMTP_STARTTLS is True
+        assert config.SMTP_TIMEOUT_SECONDS == 30
+        assert config.GUNICORN_PID_PATH == "/tmp/gunicorn.pid"
+        assert config.PROXY_FIX_X_FOR == 0
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config_module)
+
+
+def test_operations_from_env(monkeypatch):
+    try:
+        monkeypatch.setenv("GND_SOURCE", " Lobid ")
+        monkeypatch.setenv("SYNC_SAMPLE_NOTATIONS", "ZL 4620, ,ST 230")
+        monkeypatch.setenv("SYNC_MAX_HIT10_DROP", "0.02")
+        config = importlib.reload(config_module).Config
+        assert config.GND_SOURCE == "lobid"
+        assert config.SYNC_SAMPLE_NOTATIONS == ("ZL 4620", "ST 230")
+        assert config.SYNC_MAX_HIT10_DROP == 0.02
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config_module)
+
+
 def test_llm_expansion_can_be_switched_on_via_env(monkeypatch):
     try:
         assert (

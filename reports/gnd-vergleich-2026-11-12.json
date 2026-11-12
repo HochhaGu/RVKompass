@@ -1,0 +1,1306 @@
+{
+  "queries": 97,
+  "lobid_cached": 97,
+  "same_senses_in_order": 87,
+  "same_sense_set": 89,
+  "local_with_senses": 47,
+  "lobid_with_senses": 46,
+  "only_local_senses": 1,
+  "only_lobid_senses": 0,
+  "rows": [
+    {
+      "query": "Getriebe",
+      "lobid_cached": true,
+      "local_senses": [
+        "Getriebe"
+      ],
+      "lobid_senses": [
+        "Getriebe"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 13,
+      "lobid_terms": 13,
+      "common_terms": 9
+    },
+    {
+      "query": "Wälzlager",
+      "lobid_cached": true,
+      "local_senses": [
+        "Wälzlager"
+      ],
+      "lobid_senses": [
+        "Wälzlager"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 7,
+      "lobid_terms": 7,
+      "common_terms": 7
+    },
+    {
+      "query": "Gleitlagerschmierung",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wie Kräfte in Maschinen übertragen werden",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Feder",
+      "lobid_cached": true,
+      "local_senses": [
+        "Feder",
+        "Vogelfeder"
+      ],
+      "lobid_senses": [
+        "Feder",
+        "Vogelfeder"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 20,
+      "lobid_terms": 20,
+      "common_terms": 18
+    },
+    {
+      "query": "Mutter",
+      "lobid_cached": true,
+      "local_senses": [
+        "Mutter",
+        "Mutter <Motiv>",
+        "Mutter <Technik>",
+        "Tagesmutter"
+      ],
+      "lobid_senses": [
+        "Mutter",
+        "Mutter <Motiv>",
+        "Mutter <Technik>"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 27,
+      "lobid_terms": 22,
+      "common_terms": 22
+    },
+    {
+      "query": "CAD",
+      "lobid_cached": true,
+      "local_senses": [
+        "CAD",
+        "Kaltes Plasma"
+      ],
+      "lobid_senses": [
+        "CAD"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 33,
+      "lobid_terms": 23,
+      "common_terms": 17
+    },
+    {
+      "query": "Transformator",
+      "lobid_cached": true,
+      "local_senses": [
+        "Transformator"
+      ],
+      "lobid_senses": [
+        "Transformator"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 13,
+      "lobid_terms": 13,
+      "common_terms": 10
+    },
+    {
+      "query": "Halbleiter",
+      "lobid_cached": true,
+      "local_senses": [
+        "Halbleiter"
+      ],
+      "lobid_senses": [
+        "Halbleiter"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 15,
+      "lobid_terms": 15,
+      "common_terms": 9
+    },
+    {
+      "query": "Leistungselektronik für Elektroautos",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Spannung",
+      "lobid_cached": true,
+      "local_senses": [
+        "Spannung",
+        "Spannung <Geologie>",
+        "Elektrische Spannung",
+        "Mechanische Spannung"
+      ],
+      "lobid_senses": [
+        "Spannung",
+        "Elektrische Spannung",
+        "Spannung <Geologie>",
+        "Mechanische Spannung"
+      ],
+      "same_senses": false,
+      "same_sense_set": true,
+      "local_terms": 33,
+      "lobid_terms": 33,
+      "common_terms": 21
+    },
+    {
+      "query": "Smart Grid",
+      "lobid_cached": true,
+      "local_senses": [
+        "Intelligentes Stromnetz"
+      ],
+      "lobid_senses": [
+        "Intelligentes Stromnetz"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 8,
+      "lobid_terms": 8,
+      "common_terms": 8
+    },
+    {
+      "query": "Photovoltaik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Fotovoltaik"
+      ],
+      "lobid_senses": [
+        "Fotovoltaik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 9,
+      "lobid_terms": 9,
+      "common_terms": 9
+    },
+    {
+      "query": "Wärmepumpe",
+      "lobid_cached": true,
+      "local_senses": [
+        "Wärmepumpe"
+      ],
+      "lobid_senses": [
+        "Wärmepumpe"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 11,
+      "lobid_terms": 11,
+      "common_terms": 11
+    },
+    {
+      "query": "Wärmepumpenregelung",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Rotorblätter von Windkraftanlagen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Strom aus Sonnenlicht",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Energie speichern für später",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Power-to-X",
+      "lobid_cached": true,
+      "local_senses": [
+        "Power-to-X"
+      ],
+      "lobid_senses": [
+        "Power-to-X"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 9,
+      "lobid_terms": 9,
+      "common_terms": 9
+    },
+    {
+      "query": "Stahl",
+      "lobid_cached": true,
+      "local_senses": [
+        "Stahl",
+        "Stahl <Druckschrift>"
+      ],
+      "lobid_senses": [
+        "Stahl"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 15,
+      "lobid_terms": 13,
+      "common_terms": 5
+    },
+    {
+      "query": "Faserverbundwerkstoffe",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Korrosionsschutz von Aluminium",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Warum Metall rostet",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Kunststoff, der sich selbst repariert",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Ermüdung",
+      "lobid_cached": true,
+      "local_senses": [
+        "Ermüdung",
+        "Ermüdung <Motiv>",
+        "Materialermüdung"
+      ],
+      "lobid_senses": [
+        "Ermüdung",
+        "Ermüdung <Motiv>",
+        "Materialermüdung"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 24,
+      "lobid_terms": 24,
+      "common_terms": 24
+    },
+    {
+      "query": "Datenbank",
+      "lobid_cached": true,
+      "local_senses": [
+        "Datenbank"
+      ],
+      "lobid_senses": [
+        "Datenbank"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 15,
+      "lobid_terms": 15,
+      "common_terms": 5
+    },
+    {
+      "query": "Algorithmus",
+      "lobid_cached": true,
+      "local_senses": [
+        "Algorithmus",
+        "Therapieplan"
+      ],
+      "lobid_senses": [
+        "Algorithmus"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 22,
+      "lobid_terms": 12,
+      "common_terms": 5
+    },
+    {
+      "query": "Neuronale Netze zur Bilderkennung",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Datensicherheit in Unternehmensnetzwerken",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Computer lernt aus Beispielen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Machine Learning",
+      "lobid_cached": true,
+      "local_senses": [
+        "Maschinelles Lernen"
+      ],
+      "lobid_senses": [
+        "Maschinelles Lernen"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 16,
+      "lobid_terms": 16,
+      "common_terms": 14
+    },
+    {
+      "query": "Stahlbeton",
+      "lobid_cached": true,
+      "local_senses": [
+        "Stahlbeton"
+      ],
+      "lobid_senses": [
+        "Stahlbeton"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 6,
+      "lobid_terms": 6,
+      "common_terms": 6
+    },
+    {
+      "query": "Brückenbau",
+      "lobid_cached": true,
+      "local_senses": [
+        "Brückenbau"
+      ],
+      "lobid_senses": [
+        "Brückenbau"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 5,
+      "lobid_terms": 5,
+      "common_terms": 5
+    },
+    {
+      "query": "Mehrgeschossiger Holzbau",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Häuser, die kaum Energie verbrauchen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wie man Gebäude erdbebensicher macht",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "BIM",
+      "lobid_cached": true,
+      "local_senses": [
+        "Building Information Modeling"
+      ],
+      "lobid_senses": [
+        "Building Information Modeling"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 4,
+      "lobid_terms": 4,
+      "common_terms": 4
+    },
+    {
+      "query": "Regelungstechnik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Regelungstechnik"
+      ],
+      "lobid_senses": [
+        "Regelungstechnik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 11,
+      "lobid_terms": 11,
+      "common_terms": 11
+    },
+    {
+      "query": "Sensor",
+      "lobid_cached": true,
+      "local_senses": [
+        "Sensor"
+      ],
+      "lobid_senses": [
+        "Sensor"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 22,
+      "lobid_terms": 22,
+      "common_terms": 14
+    },
+    {
+      "query": "PID-Regler Auslegung",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Messunsicherheit bestimmen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Industrie 4.0",
+      "lobid_cached": true,
+      "local_senses": [
+        "Industrie 4.0"
+      ],
+      "lobid_senses": [
+        "Industrie 4.0"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 7,
+      "lobid_terms": 7,
+      "common_terms": 7
+    },
+    {
+      "query": "Projektmanagement",
+      "lobid_cached": true,
+      "local_senses": [
+        "Projektmanagement"
+      ],
+      "lobid_senses": [
+        "Projektmanagement"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 9,
+      "lobid_terms": 9,
+      "common_terms": 9
+    },
+    {
+      "query": "Qualitätsmanagement",
+      "lobid_cached": true,
+      "local_senses": [
+        "Qualitätsmanagement"
+      ],
+      "lobid_senses": [
+        "Qualitätsmanagement"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 19,
+      "lobid_terms": 19,
+      "common_terms": 19
+    },
+    {
+      "query": "Lean Production in der Automobilindustrie",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wie Firmen ihre Abläufe verbessern",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Bank",
+      "lobid_cached": true,
+      "local_senses": [
+        "Bank",
+        "Bank <Möbel>",
+        "Turnbank",
+        "Untiefe"
+      ],
+      "lobid_senses": [
+        "Bank",
+        "Bank <Möbel>"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 31,
+      "lobid_terms": 23,
+      "common_terms": 16
+    },
+    {
+      "query": "Supply Chain",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Hydraulik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Hydraulik",
+        "Ölhydraulik"
+      ],
+      "lobid_senses": [
+        "Hydraulik",
+        "Ölhydraulik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 10,
+      "lobid_terms": 10,
+      "common_terms": 10
+    },
+    {
+      "query": "Schweißtechnik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Schweißen"
+      ],
+      "lobid_senses": [
+        "Schweißen"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 15,
+      "lobid_terms": 15,
+      "common_terms": 9
+    },
+    {
+      "query": "Zahnrad",
+      "lobid_cached": true,
+      "local_senses": [
+        "Zahnrad"
+      ],
+      "lobid_senses": [
+        "Zahnrad"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 12,
+      "lobid_terms": 12,
+      "common_terms": 12
+    },
+    {
+      "query": "Strömungsmaschinen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Verschleiß an Zahnradgetrieben",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Additive Fertigung von Metallbauteilen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Kühlung von Verbrennungsmotoren",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wie ein Motor im Auto funktioniert",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Teile mit dem 3D-Drucker herstellen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Warum Maschinen vibrieren",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Metallteile dauerhaft verbinden",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Elektromotor",
+      "lobid_cached": true,
+      "local_senses": [
+        "Elektromotor"
+      ],
+      "lobid_senses": [
+        "Elektromotor"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 15,
+      "lobid_terms": 15,
+      "common_terms": 10
+    },
+    {
+      "query": "Schaltungstechnik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Schaltkreistechnik"
+      ],
+      "lobid_senses": [
+        "Schaltkreistechnik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 3,
+      "lobid_terms": 3,
+      "common_terms": 3
+    },
+    {
+      "query": "Akkumulator",
+      "lobid_cached": true,
+      "local_senses": [
+        "Akkumulator",
+        "Akkumulator <Informatik>"
+      ],
+      "lobid_senses": [
+        "Akkumulator",
+        "Akkumulator <Informatik>"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 23,
+      "lobid_terms": 23,
+      "common_terms": 17
+    },
+    {
+      "query": "Hochspannungstechnik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Hochspannungstechnik"
+      ],
+      "lobid_senses": [
+        "Hochspannungstechnik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 2,
+      "lobid_terms": 2,
+      "common_terms": 2
+    },
+    {
+      "query": "Wechselrichter für Photovoltaikanlagen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Steuerung von Drehstrommotoren",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Lithium-Ionen-Batterien als Heimspeicher",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Fernwärmenetze in Städten",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Keramik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Keramik",
+        "Keramik <Motiv>",
+        "Keramik <Technik>"
+      ],
+      "lobid_senses": [
+        "Keramik",
+        "Keramik <Motiv>"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 23,
+      "lobid_terms": 15,
+      "common_terms": 7
+    },
+    {
+      "query": "Polymere",
+      "lobid_cached": true,
+      "local_senses": [
+        "Polymere"
+      ],
+      "lobid_senses": [
+        "Polymere"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 16,
+      "lobid_terms": 16,
+      "common_terms": 14
+    },
+    {
+      "query": "Legierung",
+      "lobid_cached": true,
+      "local_senses": [
+        "Legierung"
+      ],
+      "lobid_senses": [
+        "Legierung"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 14,
+      "lobid_terms": 14,
+      "common_terms": 8
+    },
+    {
+      "query": "Zugversuch an Stahlproben",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Leichte Materialien für Flugzeuge",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Warum Glas bricht",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Smart Materials",
+      "lobid_cached": true,
+      "local_senses": [
+        "Intelligenter Werkstoff"
+      ],
+      "lobid_senses": [
+        "Intelligenter Werkstoff"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 14,
+      "lobid_terms": 14,
+      "common_terms": 14
+    },
+    {
+      "query": "Programmiersprache",
+      "lobid_cached": true,
+      "local_senses": [
+        "Programmiersprache"
+      ],
+      "lobid_senses": [
+        "Programmiersprache"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 13,
+      "lobid_terms": 13,
+      "common_terms": 3
+    },
+    {
+      "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Virus",
+      "lobid_cached": true,
+      "local_senses": [
+        "Viren",
+        "Computervirus"
+      ],
+      "lobid_senses": [],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 18,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Baustatik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Baustatik"
+      ],
+      "lobid_senses": [
+        "Baustatik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 4,
+      "lobid_terms": 4,
+      "common_terms": 4
+    },
+    {
+      "query": "Baustoffe",
+      "lobid_cached": true,
+      "local_senses": [
+        "Baustoff"
+      ],
+      "lobid_senses": [
+        "Baustoff"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 16,
+      "lobid_terms": 16,
+      "common_terms": 12
+    },
+    {
+      "query": "Tunnelbau",
+      "lobid_cached": true,
+      "local_senses": [
+        "Tunnelbau",
+        "Tunnelbau <Motiv>"
+      ],
+      "lobid_senses": [
+        "Tunnelbau",
+        "Tunnelbau <Motiv>"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 11,
+      "lobid_terms": 11,
+      "common_terms": 11
+    },
+    {
+      "query": "Brandschutz im Hochbau",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Warum Häuser nicht einstürzen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Feuchte Wände im Keller",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Decke",
+      "lobid_cached": true,
+      "local_senses": [
+        "Decke",
+        "Decke <Geologie>",
+        "Decke <Textilien>",
+        "Tektonische Decke"
+      ],
+      "lobid_senses": [
+        "Decke",
+        "Tektonische Decke",
+        "Decke <Textilien>",
+        "Decke <Geologie>"
+      ],
+      "same_senses": false,
+      "same_sense_set": true,
+      "local_terms": 24,
+      "lobid_terms": 24,
+      "common_terms": 24
+    },
+    {
+      "query": "Automatisierungstechnik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Automatisierungstechnik"
+      ],
+      "lobid_senses": [
+        "Automatisierungstechnik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 6,
+      "lobid_terms": 6,
+      "common_terms": 6
+    },
+    {
+      "query": "Robotik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Robotik"
+      ],
+      "lobid_senses": [
+        "Robotik"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 14,
+      "lobid_terms": 14,
+      "common_terms": 14
+    },
+    {
+      "query": "Temperaturmessung in Industrieöfen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Roboter, die mit Menschen zusammenarbeiten",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Wie eine Fabrik von selbst läuft",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Kostenrechnung",
+      "lobid_cached": true,
+      "local_senses": [
+        "Kostenrechnung"
+      ],
+      "lobid_senses": [
+        "Kostenrechnung"
+      ],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 17,
+      "lobid_terms": 17,
+      "common_terms": 12
+    },
+    {
+      "query": "Logistik",
+      "lobid_cached": true,
+      "local_senses": [
+        "Logistik",
+        "Mathematische Logik"
+      ],
+      "lobid_senses": [
+        "Logistik"
+      ],
+      "same_senses": false,
+      "same_sense_set": false,
+      "local_terms": 30,
+      "lobid_terms": 11,
+      "common_terms": 9
+    },
+    {
+      "query": "Innovationsmanagement in Technologieunternehmen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    },
+    {
+      "query": "Mitarbeitende gut führen",
+      "lobid_cached": true,
+      "local_senses": [],
+      "lobid_senses": [],
+      "same_senses": true,
+      "same_sense_set": true,
+      "local_terms": 0,
+      "lobid_terms": 0,
+      "common_terms": 0
+    }
+  ]
+}

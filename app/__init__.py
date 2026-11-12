@@ -50,9 +50,23 @@ def register_template_context(app: Flask) -> None:
         return {"rvk_version": read_rvk_version(app.config.get("DATABASE_PATH"))}
 
 
+def apply_proxy_fix(app: Flask) -> None:
+    """Hinter Caddy: Client-Adresse aus X-Forwarded-For (nur für das Rate-Limit, nie gespeichert).
+
+    Ohne das kämen alle Anfragen von 127.0.0.1 und teilten sich ein Rate-Limit. Nur einschalten,
+    wenn der Port ausschließlich vom Reverse Proxy erreichbar ist (docker-compose: 127.0.0.1).
+    """
+    hops = int(app.config.get("PROXY_FIX_X_FOR", 0) or 0)
+    if hops > 0:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=hops, x_proto=hops)
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(get_config())
+    apply_proxy_fix(app)
 
     _configure_logging(app)
     limiter.init_app(app)
@@ -61,11 +75,13 @@ def create_app():
 
     embedding_service.init_app(app)
 
+    from app.routes.health import bp as health_bp
     from app.routes.help import bp as help_bp
     from app.routes.internal import bp as internal_bp
     from app.routes.legal import bp as legal_bp
     from app.routes.search import bp as search_bp
 
+    app.register_blueprint(health_bp)
     app.register_blueprint(search_bp)
     app.register_blueprint(internal_bp)
     app.register_blueprint(legal_bp)

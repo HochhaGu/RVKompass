@@ -1,0 +1,160 @@
+"""Info-Mail zum RVK-Abgleich (P8): HTML direkt im Mailtext, dazu eine Textfassung.
+
+Kein Anhang, kein Link. Zugangsdaten ausschließlich aus der Konfiguration (.env); sie werden nie
+protokolliert. Ohne SMTP-Konfiguration oder bei einem Sendefehler landet das HTML in
+<MAIL_FALLBACK_DIR>/sync-mail-<zeit>.html und im Log steht eine Warnung – der Abgleich selbst
+scheitert daran nicht.
+
+Kennzahlen heißen „Relevanzmaß“ (Dezimalzahlen 0–1), nie Prozent.
+"""
+
+from __future__ import annotations
+
+import logging
+import smtplib
+import ssl
+from collections.abc import Callable
+from datetime import UTC, datetime
+from email.message import EmailMessage
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+logger = logging.getLogger(__name__)
+
+TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
+
+OUTCOME_LABELS = {
+    "swapped": "Neuer Stand ist live.",
+    "rejected": "Prüfungen nicht bestanden – die alte Datenbank bleibt live.",
+    "error": "Fehler – die alte Datenbank bleibt live.",
+    "dry_run": "Probelauf – nichts getauscht.",
+}
+
+
+def _setting(config, key, default=None):
+    if isinstance(config, dict):
+        return config.get(key, default)
+    return getattr(config, key, default)
+
+
+def _environment() -> Environment:
+    return Environment(
+        loader=FileSystemLoader(str(TEMPLATE_DIR)),
+        autoescape=select_autoescape(["html"]),
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+
+
+def _fmt(value) -> str:
+    if value is None:
+        return "–"
+    if isinstance(value, float):
+        return f"{value:.4f}"
+    return str(value)
+
+
+def render_sync_report(result: dict) -> tuple[str, str, str]:
+    """(Betreff, HTML, Text) aus dem Ergebnis von run_monthly_sync (siehe pipeline.py)."""
+    outcome = result.get("status", "error")
+    outcome_text = OUTCOME_LABELS.get(outcome, outcome)
+    new_version = result.get("new_version") or "?"
+    old_version = result.get("old_version") or "?"
+    if outcome == "swapped":
+        subject = f"RVKompass: RVK-Stand {new_version} ist live"
+    elif outcome == "rejected":
+        subject = f"RVKompass: RVK-Stand {new_version} nicht übernommen"
+    elif outcome == "dry_run":
+        subject = f"RVKompass: Probelauf RVK-Stand {new_version}"
+    else:
+        subject = "RVKompass: Fehler beim RVK-Abgleich"
+    context = dict(result)
+    context.update(
+        outcome_text=outcome_text,
+        old_version=old_version,
+        new_version=new_version,
+        fmt=_fmt,
+    )
+    env = _environment()
+    html = env.get_template("mail/sync_report.html").render(**context)
+    text = env.get_template("mail/sync_report.txt").render(**context)
+    return subject, html, text
+
+
+def build_message(config, subject: str, html: str, text: str) -> EmailMessage:
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = _setting(config, "MAIL_FROM", "")
+    message["To"] = _setting(config, "MAIL_TO", "")
+    message.set_content(text)
+    message.add_alternative(html, subtype="html")
+    return message
+
+
+def smtp_configured(config) -> bool:
+    return bool(
+        _setting(config, "SMTP_HOST")
+        and _setting(config, "MAIL_FROM")
+        and _setting(config, "MAIL_TO")
+    )
+
+
+def send_mail(
+    config, subject: str, html: str, text: str, smtp_factory: Callable = smtplib.SMTP
+) -> None:
+    """Sendet multipart/alternative (Text + HTML im Mailtext). Fehler gehen an den Aufrufer."""
+    message = build_message(config, subject, html, text)
+    with smtp_factory(
+        _setting(config, "SMTP_HOST"),
+        int(_setting(config, "SMTP_PORT", 587)),
+        timeout=int(_setting(config, "SMTP_TIMEOUT_SECONDS", 30)),
+    ) as smtp:
+        if _setting(config, "SMTP_STARTTLS", True):
+            smtp.starttls(context=ssl.create_default_context())
+        user = _setting(config, "SMTP_USER")
+        if user:
+            smtp.login(user, _setting(config, "SMTP_PASSWORD", ""))
+        smtp.send_message(message)
+
+
+def write_fallback(config, html: str, now: datetime | None = None) -> Path:
+    directory = Path(_setting(config, "MAIL_FALLBACK_DIR", "logs"))
+    directory.mkdir(parents=True, exist_ok=True)
+    stamp = (now or datetime.now(UTC)).strftime("%Y%m%dT%H%M%SZ")
+    path = directory / f"sync-mail-{stamp}.html"
+    path.write_text(html, encoding="utf-8")
+    return path
+
+
+def deliver(
+    config, subject: str, html: str, text: str, smtp_factory: Callable = smtplib.SMTP
+) -> str:
+    """Sendet oder schreibt ersatzweise eine Datei. Liefert "sent" oder "file:<pfad>"."""
+    if smtp_configured(config):
+        try:
+            send_mail(config, subject, html, text, smtp_factory=smtp_factory)
+            logger.info("Info-Mail gesendet: %s", subject)
+            return "sent"
+        except Exception as exc:  # noqa: BLE001 – Mailfehler darf den Abgleich nicht stoppen
+            # Nur Typ und Meldung, keine Zugangsdaten
+            logger.warning("Info-Mail nicht gesendet (%s: %s)", type(exc).__name__, exc)
+    else:
+        logger.warning("Kein SMTP konfiguriert (SMTP_HOST, MAIL_FROM, MAIL_TO).")
+    path = write_fallback(config, html)
+    logger.warning("Info-Mail ersatzweise gespeichert: %s", path)
+    return f"file:{path}"
+
+
+def notify_gnd_error(
+    config, message: str, smtp_factory: Callable = smtplib.SMTP
+) -> str:
+    """Mail bei Fehlern der GND-Aktualisierung (ein normaler Wechsel steht nur im Log)."""
+    result = {
+        "status": "error",
+        "kind": "gnd",
+        "error": message,
+    }
+    subject, html, text = render_sync_report(result)
+    subject = "RVKompass: Fehler bei der GND-Aktualisierung"
+    return deliver(config, subject, html, text, smtp_factory=smtp_factory)

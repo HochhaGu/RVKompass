@@ -2,9 +2,38 @@
 {% block content %}
   <h2>Datenschutzerklärung</h2>
   <p><em>
-    TODO: Vor dem produktiven, öffentlichen Betrieb rechtssicher ausfüllen (DSGVO-Angaben:
-    verantwortliche Stelle, Zweck der Verarbeitung von Suchanfragen, ggf. Weitergabe an die
-    Anthropic-Claude-API bei aktivierter Begriffserweiterung, Speicherdauer, Betroffenenrechte).
-    Diese Seite ist nur ein Platzhalter und keine rechtsgültige Datenschutzerklärung.
+    Entwurf: Vor dem öffentlichen Betrieb rechtlich prüfen und ergänzen (verantwortliche Stelle,
+    Rechtsgrundlagen, Speicherdauer, Betroffenenrechte). Diese Seite ist noch keine rechtsgültige
+    Datenschutzerklärung.
   </em></p>
+
+  <h3>Verantwortliche Stelle</h3>
+  <p><em>TODO: Angaben wie im Impressum.</em></p>
+
+  <h3>Was beim Suchen gespeichert wird</h3>
+  <ul>
+    <li><strong>Nutzungsstatistik:</strong> Es werden nur Tageszähler geführt – Zahl der
+      Suchanfragen, Zahl der Anfragen ohne Treffer und wie oft eine Antwort aus dem
+      Zwischenspeicher kam. Es werden keine IP-Adressen, keine Suchtexte und keine Browser-Kennung
+      (User-Agent) gespeichert. Es werden keine Cookies gesetzt.</li>
+    <li><strong>Schutz vor Überlastung:</strong> Damit niemand den Dienst mit sehr vielen
+      Anfragen blockiert, wird die IP-Adresse kurzzeitig im Arbeitsspeicher gezählt. Sie wird
+      nicht auf Datenträger geschrieben und verschwindet spätestens nach einer Stunde oder beim
+      Neustart.</li>
+    <li><strong>Kein Zugriffsprotokoll:</strong> Weder der Anwendungsserver noch der vorgeschaltete
+      Webserver protokollieren einzelne Zugriffe.</li>
+    <li><strong>Zwischenspeicher:</strong> Antworten der GND-Abfrage und – falls eingeschaltet – des
+      Sprachmodells werden je Suchbegriff zwischengespeichert, damit dieselbe Anfrage nicht erneut
+      gestellt werden muss. Gespeichert werden der Suchbegriff und die Antwort, ohne Bezug zu einer
+      Person, ohne IP-Adresse und ohne Zeitpunkt der einzelnen Suche.</li>
+  </ul>
+
+  <h3>Weitergabe an Dritte</h3>
+  <ul>
+    <li><strong>GND:</strong> Die Gemeinsame Normdatei liegt als Abzug der Deutschen
+      Nationalbibliothek lokal vor. Nur wenn dieser Abzug nicht verfügbar ist, wird der Suchbegriff
+      an den Dienst lobid-gnd (hbz) geschickt.</li>
+    <li><strong>Sprachmodell:</strong> Nur wenn die Begriffserweiterung eingeschaltet ist, wird der
+      Suchbegriff an die Anthropic-API übermittelt. Im Auslieferungszustand ist sie ausgeschaltet.</li>
+  </ul>
 {% endblock %}

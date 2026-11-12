@@ -131,6 +131,65 @@ class Config:
     DEFAULT_MAIN_GROUPS: ClassVar[tuple[str, ...]] = parse_main_groups_env(
         os.environ.get("DEFAULT_MAIN_GROUPS", "")
     )
+    # --- Betrieb (P8) ------------------------------------------------------------------------
+    # Lokaler GND-Abzug (Sachschlagwörter, CC0) in eigener Datei; lobid-gnd nur Rückfallebene.
+    GND_SOURCE = os.environ.get("GND_SOURCE", "local").strip().lower()
+    GND_DATABASE_PATH = os.environ.get(
+        "GND_DATABASE_PATH", str(BASE_DIR / "data" / "gnd.sqlite3")
+    )
+    # DNB-Open-Data (geprüft am 12.11.2026): Verzeichnis mit den datierten Abzügen
+    # „authorities-gnd-sachbegriff_lds_<JJJJMMTT>.jsonld.gz“ und das Sachgruppen-Vokabular.
+    GND_DUMP_INDEX_URL = os.environ.get(
+        "GND_DUMP_INDEX_URL", "https://data.dnb.de/opendata/"
+    )
+    GND_SC_VOCAB_URL = os.environ.get(
+        "GND_SC_VOCAB_URL", "https://d-nb.info/standards/vocab/gnd/gnd-sc.nt"
+    )
+    GND_DOWNLOAD_TIMEOUT_SECONDS = 120
+
+    # Anonyme Nutzungsstatistik: eigene Datei, damit sie den RVK-Tausch übersteht
+    USAGE_DATABASE_PATH = os.environ.get(
+        "USAGE_DATABASE_PATH", str(BASE_DIR / "data" / "usage.sqlite3")
+    )
+
+    # Monatlicher RVK-Abgleich
+    SYNC_WORK_DIR = os.environ.get("SYNC_WORK_DIR", str(BASE_DIR / "data" / "staging"))
+    SYNC_BACKUP_DIR = os.environ.get(
+        "SYNC_BACKUP_DIR", str(BASE_DIR / "data" / "backups")
+    )
+    SYNC_LOCK_PATH = os.environ.get(
+        "SYNC_LOCK_PATH", str(BASE_DIR / "data" / "sync.lock")
+    )
+    SYNC_LOG_PATH = os.environ.get("SYNC_LOG_PATH", str(BASE_DIR / "logs" / "sync.log"))
+    SYNC_RAW_DIR = os.environ.get("SYNC_RAW_DIR", str(BASE_DIR / "data" / "raw"))
+    GUNICORN_PID_PATH = os.environ.get("GUNICORN_PID_PATH", "/tmp/gunicorn.pid")
+    # Schwellen der Prüfungen vor dem Tausch
+    SYNC_MAX_COUNT_DEVIATION = float(os.environ.get("SYNC_MAX_COUNT_DEVIATION", "0.05"))
+    SYNC_MAX_HIT10_DROP = float(os.environ.get("SYNC_MAX_HIT10_DROP", "0.05"))
+    SYNC_BACKUP_KEEP = int(os.environ.get("SYNC_BACKUP_KEEP", "2"))
+    # Zusätzliche Stichprobe (kommagetrennt) zu den automatisch geprüften Hauptgruppen
+    SYNC_SAMPLE_NOTATIONS: ClassVar[tuple[str, ...]] = tuple(
+        s.strip()
+        for s in os.environ.get("SYNC_SAMPLE_NOTATIONS", "").split(",")
+        if s.strip()
+    )
+    SYNC_GOLD_PATH = os.environ.get(
+        "SYNC_GOLD_PATH", str(BASE_DIR / "eval" / "goldstandard.csv")
+    )
+
+    # Info-Mail; Zugangsdaten ausschließlich aus .env, nie im Log
+    SMTP_HOST = os.environ.get("SMTP_HOST", "")
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+    SMTP_USER = os.environ.get("SMTP_USER", "")
+    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+    SMTP_STARTTLS = os.environ.get("SMTP_STARTTLS", "true").lower() == "true"
+    SMTP_TIMEOUT_SECONDS = int(os.environ.get("SMTP_TIMEOUT_SECONDS", "30"))
+    MAIL_FROM = os.environ.get("MAIL_FROM", "")
+    MAIL_TO = os.environ.get("MAIL_TO", "")
+    # Anzahl vertrauenswürdiger Reverse-Proxys vor der App (Caddy: 1). 0 = aus (Werkstatt).
+    PROXY_FIX_X_FOR = int(os.environ.get("PROXY_FIX_X_FOR", "0"))
+    MAIL_FALLBACK_DIR = os.environ.get("MAIL_FALLBACK_DIR", str(BASE_DIR / "logs"))
+
     DEBUG = False
 
 

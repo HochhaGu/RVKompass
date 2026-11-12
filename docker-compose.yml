@@ -1,0 +1,31 @@
+# RVKompass – Live-Betrieb auf dem VPS (P8). Anleitung: docs/deployment.md
+# Aufruf im Ordner /srv/rvkompass/app (Klon des Repos):  docker compose up -d --build
+# ERST NACH GÜNTHERS FREIGABE STARTEN (siehe docs/deployment.md, Abschnitt 4).
+name: rvkompass
+services:
+  rvkompass:
+    build:
+      context: .
+      args:
+        # Eigentümer von /srv/rvkompass/data und /srv/rvkompass/logs (id -u / id -g)
+        APP_UID: "${APP_UID:-1000}"
+        APP_GID: "${APP_GID:-1000}"
+    image: rvkompass:latest
+    container_name: rvkompass
+    restart: unless-stopped
+    # Nur lokal erreichbar; von außen geht es ausschließlich über Caddy (HTTPS)
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Caddy ist genau ein Reverse Proxy vor der App (Rate-Limit je Client-Adresse)
+      PROXY_FIX_X_FOR: "1"
+      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-2}"
+    volumes:
+      - /srv/rvkompass/data:/app/data
+      - /srv/rvkompass/logs:/app/logs
+      - /srv/rvkompass/.env:/app/.env:ro
+    # Healthcheck steht im Dockerfile (GET /health alle 30 s).
+    # Speicher-Obergrenze bewusst noch nicht gesetzt: Jeder Worker hält die Embeddings
+    # (1 266 MB, Stand 12.11.2026) und das Modell im Speicher; der monatliche Abgleich lädt sie
+    # zusätzlich. Wert nach dem ersten Start mit "docker stats" messen und dann z. B. setzen:
+    # mem_limit: 6g

@@ -1,0 +1,81 @@
+[ [ {
+  "@id" : "_:node1",
+  "http://purl.org/dc/terms/description" : [ {
+    "@value" : "(Quasisynonym)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Schraubenmutter"
+  } ]
+}, {
+  "@id" : "https://d-nb.info/gnd/9000001-1",
+  "@type" : [ "https://d-nb.info/standards/elementset/gnd#SubjectHeadingSensoStricto" ],
+  "https://d-nb.info/standards/elementset/gnd#gndIdentifier" : [ {
+    "@value" : "9000001-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#preferredNameForTheSubjectHeading" : [ {
+    "@value" : "Mutter <Technik>"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#variantNameForTheSubjectHeading" : [ {
+    "@value" : "Schraubenmutter"
+  }, {
+    "@value" : "Mutter <Maschinenelement>"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#broaderTermGeneric" : [ {
+    "@id" : "https://d-nb.info/gnd/9000003-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#relatedTerm" : [ {
+    "@id" : "https://d-nb.info/gnd/9000004-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#gndSubjectCategory" : [ {
+    "@id" : "https://d-nb.info/standards/vocab/gnd/gnd-sc#31.6"
+  } ]
+}, {
+  "@id" : "https://d-nb.info/gnd/9000001-1/about",
+  "http://purl.org/dc/terms/license" : [ {
+    "@id" : "http://creativecommons.org/publicdomain/zero/1.0/"
+  } ]
+} ], [ {
+  "@id" : "https://d-nb.info/gnd/9000002-1",
+  "https://d-nb.info/standards/elementset/gnd#gndIdentifier" : [ {
+    "@value" : "9000002-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#preferredNameForTheSubjectHeading" : [ {
+    "@value" : "Mutter"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#variantNameForTheSubjectHeading" : [ {
+    "@value" : "Mütter"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#gndSubjectCategory" : [ {
+    "@id" : "https://d-nb.info/standards/vocab/gnd/gnd-sc#99.9"
+  } ]
+} ], [ {
+  "@id" : "https://d-nb.info/gnd/9000003-1",
+  "https://d-nb.info/standards/elementset/gnd#gndIdentifier" : [ {
+    "@value" : "9000003-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#preferredNameForTheSubjectHeading" : [ {
+    "@value" : "Schraubenverbindung"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#broaderTermPartitive" : [ {
+    "@id" : "https://d-nb.info/gnd/4999999-9"
+  } ]
+} ], [ {
+  "@id" : "https://d-nb.info/gnd/9000004-1",
+  "https://d-nb.info/standards/elementset/gnd#gndIdentifier" : [ {
+    "@value" : "9000004-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#preferredNameForTheSubjectHeading" : [ {
+    "@value" : "Gewinde"
+  } ]
+} ], [ {
+  "@id" : "https://d-nb.info/gnd/9000005-1",
+  "https://d-nb.info/standards/elementset/gnd#gndIdentifier" : [ {
+    "@value" : "9000005-1"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#preferredNameForTheSubjectHeading" : [ {
+    "@value" : "Hutmutter"
+  } ],
+  "https://d-nb.info/standards/elementset/gnd#broaderTermGeneric" : [ {
+    "@id" : "https://d-nb.info/gnd/9000001-1"
+  } ]
+} ] ]
