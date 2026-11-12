@@ -53,7 +53,7 @@
         <th>RVK-Notation</th>
         <th>Kurzbeschreibung</th>
         <th>Verwandte Begriffe</th>
-        <th>Konfidenz</th>
+        <th>Relevanz</th>
       </tr>
     </thead>
     <tbody>
@@ -81,15 +81,17 @@
           {% if r.hierarchy_path %}<br><small>{{ r.hierarchy_path }}</small>{% endif %}
         </td>
         <td>{{ r.related_terms | join(', ') }}</td>
-        <td>
-          {% if r.confidence_pct is not none %}
-            <span class="confidence confidence-{{ 'high' if r.confidence_pct >= 70 else ('medium' if r.confidence_pct >= 55 else 'low') }}">{{ r.confidence_pct }}%</span>
-          {% else %}
-            <span class="confidence">–</span>
-          {% endif %}
+        <td class="relevance-cell">
+          <span class="tier tier-{{ r.tier }}" title="Relevanzwert {{ '%.2f' | format(r.score) }}">{{ r.tier }}</span>
+          <span class="score-bar">
+            {%- for c in r.components -%}
+            <span class="seg seg-{{ c.key }}" style="width: {{ c.width }}em" title="{{ c.label }}: {{ '%.2f' | format(c.value) }}"></span>
+            {%- endfor -%}
+          </span>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  <p class="relevance-note"><small>Relevanz: Stufen aus der Evaluation abgeleitet; Balkenlänge relativ zum ersten Vorschlag; keine Wahrscheinlichkeit. Die Farben im Balken zeigen, über welche Wege ein Vorschlag gefunden wurde (Mauszeiger auf ein Segment).</small></p>
 {% endif %}

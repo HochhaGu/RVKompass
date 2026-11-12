@@ -338,6 +338,40 @@ def test_render_markdown_sections_and_no_confidence():
     assert "%" not in md
 
 
+def test_render_markdown_scoring_section():
+    per_query = [_q("Getriebe", ["ZL 4100"], ["ZL 4100"]), _q("Feder", [], ["ZL 4300"])]
+    metrics = ev.aggregate(per_query)
+    report = {
+        "timestamp": "2026-11-11T10:00:00+00:00",
+        "metrics": metrics,
+        "scoring": {
+            "formula": "max_plus",
+            "weights": {"gnd_synonym": 0.9, "vector": 0.4},
+            "path_bonus": 0.05,
+            "path_bonus_cap": 0.15,
+            "tier_high": 0.75,
+            "tier_medium": 0.55,
+        },
+        "metrics_by_split": {
+            "dev": ev.aggregate(per_query[:1]),
+            "test": ev.aggregate(per_query[1:]),
+        },
+    }
+    md = ev.render_markdown(report)
+    assert "## Scoring" in md
+    assert "- Formel: max_plus" in md
+    assert "hoch ab 0.75, mittel ab 0.55" in md
+    assert "gnd_synonym 0.9" in md
+    assert "Mehrfach-Fund: 0.05" in md
+    assert "### Kennzahlen je Hälfte des Goldstandards" in md
+    assert "| Entwicklungshälfte | 1 | 1 |" in md
+    assert "| Testhälfte | 1 | 0 |" in md
+    assert "%" not in md
+
+    legacy = ev.render_markdown({**report, "scoring": {"formula": "legacy"}})
+    assert "Pfadgewichte" not in legacy
+
+
 def _pq(query, rank, top3):
     return {"query": query, "rank": rank, "top3": top3}
 

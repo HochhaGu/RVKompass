@@ -391,6 +391,56 @@ def _variants_section(report: dict) -> list[str]:
     return lines
 
 
+SPLIT_LABELS = {"dev": "Entwicklungshälfte", "test": "Testhälfte"}
+
+
+def _scoring_section(report: dict) -> list[str]:
+    """Abschnitt „Scoring“ (P5): Formel, Gewichte, Stufenschwellen, Kennzahlen je Hälfte."""
+    settings = report.get("scoring")
+    if not settings:
+        return []
+    lines = [
+        "",
+        "## Scoring",
+        "",
+        f"- Formel: {settings.get('formula', '–')}",
+        (
+            f"- Stufenschwellen: hoch ab {_fmt(settings.get('tier_high'))}, "
+            f"mittel ab {_fmt(settings.get('tier_medium'))} (Relevanzwerte, keine "
+            "Wahrscheinlichkeiten)"
+        ),
+    ]
+    if settings.get("formula") != "legacy":
+        weights = settings.get("weights") or {}
+        lines.append(
+            "- Pfadgewichte: " + ", ".join(f"{k} {_fmt(v)}" for k, v in weights.items())
+        )
+        if settings.get("formula") == "max_plus":
+            lines.append(
+                f"- Mehrfach-Fund: {_fmt(settings.get('path_bonus'))} je weiterem Pfad, "
+                f"Deckel {_fmt(settings.get('path_bonus_cap'))}"
+            )
+        if settings.get("formula") == "sum_capped":
+            lines.append(f"- Deckel der Pfadsumme: {_fmt(settings.get('sum_cap'))}")
+    by_split = report.get("metrics_by_split") or {}
+    if by_split:
+        keys = ["n", "hit@1", "hit@5", "hit@10", "mrr", "main_group_hit@5"]
+        lines += [
+            "",
+            "### Kennzahlen je Hälfte des Goldstandards",
+            "",
+            "| Hälfte | " + " | ".join(METRIC_LABELS[k] for k in keys) + " |",
+            "|---" * (len(keys) + 1) + "|",
+        ]
+        for split, metrics in by_split.items():
+            lines.append(
+                f"| {SPLIT_LABELS.get(split, split)} | "
+                + " | ".join(_fmt(metrics.get(k)) for k in keys)
+                + " |"
+            )
+    return lines
+
+
 def _rank_text(rank) -> str:
     return str(rank) if rank else "–"
 
@@ -505,6 +555,7 @@ def render_markdown(report: dict) -> str:
         for key in METRIC_KEYS:
             lines.append(f"| {METRIC_LABELS[key]} | {_fmt(metrics.get(key))} |")
 
+    lines += _scoring_section(report)
     lines += _variants_section(report)
     lines += _llm_section(report)
 

@@ -1,0 +1,519 @@
+{
+  "timestamp": "2026-11-11T14:46:07+00:00",
+  "git_commit": "c877270",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 97,
+  "gnd_enabled": true,
+  "llm_enabled": false,
+  "queries_with_gnd_senses": 46,
+  "queries_with_llm_terms": 0,
+  "p4_reference": {
+    "hit@10": 0.5567,
+    "mrr": 0.3432,
+    "hit@1": 0.2577,
+    "file": "reports/eval-2026-11-11-c784d47-4.json"
+  },
+  "gate": {
+    "file": "reports/eval-2026-11-11-c784d47-4.json",
+    "hit@10": 0.5464
+  },
+  "split": {
+    "dev_count": 50,
+    "test_count": 47,
+    "dev": [
+      "Getriebe",
+      "Gleitlagerschmierung",
+      "Wie Kräfte in Maschinen übertragen werden",
+      "Feder",
+      "CAD",
+      "Transformator",
+      "Spannung",
+      "Photovoltaik",
+      "Wärmepumpenregelung",
+      "Energie speichern für später",
+      "Power-to-X",
+      "Stahl",
+      "Korrosionsschutz von Aluminium",
+      "Kunststoff, der sich selbst repariert",
+      "Datenbank",
+      "Datensicherheit in Unternehmensnetzwerken",
+      "Stahlbeton",
+      "Häuser, die kaum Energie verbrauchen",
+      "BIM",
+      "Regelungstechnik",
+      "PID-Regler Auslegung",
+      "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "Projektmanagement",
+      "Lean Production in der Automobilindustrie",
+      "Bank",
+      "Supply Chain",
+      "Hydraulik",
+      "Zahnrad",
+      "Additive Fertigung von Metallbauteilen",
+      "Kühlung von Verbrennungsmotoren",
+      "Wie ein Motor im Auto funktioniert",
+      "Warum Maschinen vibrieren",
+      "Elektromotor",
+      "Akkumulator",
+      "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "Lithium-Ionen-Batterien als Heimspeicher",
+      "Wirkungsgrad von Gasturbinenkraftwerken",
+      "Keramik",
+      "Legierung",
+      "Leichte Materialien für Flugzeuge",
+      "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "Baustatik",
+      "Tunnelbau",
+      "Warum Häuser nicht einstürzen",
+      "Decke",
+      "Robotik",
+      "Temperaturmessung in Industrieöfen",
+      "Roboter, die mit Menschen zusammenarbeiten",
+      "Logistik",
+      "Mitarbeitende gut führen"
+    ],
+    "test": [
+      "Wälzlager",
+      "Mutter",
+      "Halbleiter",
+      "Leistungselektronik für Elektroautos",
+      "Smart Grid",
+      "Wärmepumpe",
+      "Rotorblätter von Windkraftanlagen",
+      "Strom aus Sonnenlicht",
+      "Faserverbundwerkstoffe",
+      "Warum Metall rostet",
+      "Ermüdung",
+      "Algorithmus",
+      "Neuronale Netze zur Bilderkennung",
+      "Computer lernt aus Beispielen",
+      "Machine Learning",
+      "Brückenbau",
+      "Mehrgeschossiger Holzbau",
+      "Wie man Gebäude erdbebensicher macht",
+      "Sensor",
+      "Messunsicherheit bestimmen",
+      "Industrie 4.0",
+      "Qualitätsmanagement",
+      "Wie Firmen ihre Abläufe verbessern",
+      "Schweißtechnik",
+      "Strömungsmaschinen",
+      "Verschleiß an Zahnradgetrieben",
+      "Schwingungsdämpfung in Werkzeugmaschinen",
+      "Teile mit dem 3D-Drucker herstellen",
+      "Metallteile dauerhaft verbinden",
+      "Schaltungstechnik",
+      "Hochspannungstechnik",
+      "Wechselrichter für Photovoltaikanlagen",
+      "Steuerung von Drehstrommotoren",
+      "Fernwärmenetze in Städten",
+      "Polymere",
+      "Zugversuch an Stahlproben",
+      "Warum Glas bricht",
+      "Smart Materials",
+      "Programmiersprache",
+      "Virus",
+      "Baustoffe",
+      "Brandschutz im Hochbau",
+      "Feuchte Wände im Keller",
+      "Automatisierungstechnik",
+      "Wie eine Fabrik von selbst läuft",
+      "Kostenrechnung",
+      "Innovationsmanagement in Technologieunternehmen"
+    ]
+  },
+  "grid": {
+    "weights": {
+      "gnd_synonym": [
+        0.8,
+        0.9,
+        1.0
+      ],
+      "gnd_narrower": [
+        0.6,
+        0.75,
+        0.9
+      ],
+      "gnd_broader": [
+        0.55,
+        0.7,
+        0.85
+      ],
+      "gnd_related": [
+        0.45,
+        0.6,
+        0.75
+      ],
+      "vector": [
+        0.2,
+        0.4,
+        0.7,
+        1.0,
+        1.5,
+        2.0
+      ],
+      "label_fts": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "register_similar": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    "path_bonus": [
+      0.0,
+      0.025,
+      0.05,
+      0.1
+    ],
+    "sum_cap": [
+      0.9,
+      1.2,
+      1.5
+    ],
+    "start": {
+      "formula": "sum",
+      "weights": {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.75,
+        "gnd_broader": 0.7,
+        "gnd_related": 0.6,
+        "llm_verified": 0.5,
+        "label_fts": 0.2,
+        "register_similar": 0.4,
+        "vector": 0.4
+      },
+      "path_bonus": 0.05,
+      "path_bonus_cap": 0.15,
+      "sum_cap": 1.2,
+      "tier_high": 0.75,
+      "tier_medium": 0.55
+    }
+  },
+  "grid_size_total": 34992,
+  "self_check": {
+    "legacy_full": {
+      "hit@1": 0.2577,
+      "hit@5": 0.4639,
+      "hit@10": 0.5567,
+      "mrr": 0.3432,
+      "main_group_hit@5": 0.7216,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "diff_hit@10": 0.0,
+    "diff_mrr": 0.0,
+    "fast_matches_reference": true
+  },
+  "variants": [
+    {
+      "variant": "legacy",
+      "settings": {
+        "formula": "legacy",
+        "weights": {
+          "register_exact": 1.0,
+          "gnd_synonym": 0.9,
+          "gnd_narrower": 0.75,
+          "gnd_broader": 0.7,
+          "gnd_related": 0.6,
+          "llm_verified": 0.5,
+          "label_fts": 0.2,
+          "register_similar": 0.4,
+          "vector": 0.4
+        },
+        "path_bonus": 0.05,
+        "path_bonus_cap": 0.15,
+        "sum_cap": 1.2,
+        "tier_high": 0.75,
+        "tier_medium": 0.55
+      },
+      "settings_text": "feste Zuschläge wie in P4",
+      "dev": {
+        "hit@1": 0.3,
+        "hit@5": 0.52,
+        "hit@10": 0.56,
+        "mrr": 0.3801,
+        "main_group_hit@5": 0.76,
+        "zero_result_rate": 0.0,
+        "n": 50
+      },
+      "test": {
+        "hit@1": 0.2128,
+        "hit@5": 0.4043,
+        "hit@10": 0.5532,
+        "mrr": 0.3039,
+        "main_group_hit@5": 0.6809,
+        "zero_result_rate": 0.0,
+        "n": 47
+      },
+      "full": {
+        "hit@1": 0.2577,
+        "hit@5": 0.4639,
+        "hit@10": 0.5567,
+        "mrr": 0.3432,
+        "main_group_hit@5": 0.7216,
+        "zero_result_rate": 0.0,
+        "n": 97
+      }
+    },
+    {
+      "variant": "sum",
+      "settings": {
+        "formula": "sum",
+        "weights": {
+          "register_exact": 1.0,
+          "gnd_synonym": 0.9,
+          "gnd_narrower": 0.6,
+          "gnd_broader": 0.7,
+          "gnd_related": 0.6,
+          "llm_verified": 0.5,
+          "label_fts": 0.4,
+          "register_similar": 0.4,
+          "vector": 0.7
+        },
+        "path_bonus": 0.05,
+        "path_bonus_cap": 0.15,
+        "sum_cap": 1.2,
+        "tier_high": 0.75,
+        "tier_medium": 0.55
+      },
+      "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.6, gnd_broader 0.7, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.7",
+      "dev": {
+        "hit@1": 0.38,
+        "hit@5": 0.6,
+        "hit@10": 0.66,
+        "mrr": 0.4685,
+        "main_group_hit@5": 0.84,
+        "zero_result_rate": 0.0,
+        "n": 50
+      },
+      "test": {
+        "hit@1": 0.2766,
+        "hit@5": 0.5532,
+        "hit@10": 0.5532,
+        "mrr": 0.391,
+        "main_group_hit@5": 0.8085,
+        "zero_result_rate": 0.0,
+        "n": 47
+      },
+      "full": {
+        "hit@1": 0.3299,
+        "hit@5": 0.5773,
+        "hit@10": 0.6082,
+        "mrr": 0.431,
+        "main_group_hit@5": 0.8247,
+        "zero_result_rate": 0.0,
+        "n": 97
+      }
+    },
+    {
+      "variant": "max_plus",
+      "settings": {
+        "formula": "max_plus",
+        "weights": {
+          "register_exact": 1.0,
+          "gnd_synonym": 0.9,
+          "gnd_narrower": 0.75,
+          "gnd_broader": 0.55,
+          "gnd_related": 0.6,
+          "llm_verified": 0.5,
+          "label_fts": 0.4,
+          "register_similar": 0.4,
+          "vector": 0.2
+        },
+        "path_bonus": 0.1,
+        "path_bonus_cap": 0.15,
+        "sum_cap": 1.2,
+        "tier_high": 0.75,
+        "tier_medium": 0.55
+      },
+      "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.75, gnd_broader 0.55, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.2; Mehrfach-Fund 0.1 je weiterem Pfad, Deckel 0.15",
+      "dev": {
+        "hit@1": 0.46,
+        "hit@5": 0.64,
+        "hit@10": 0.64,
+        "mrr": 0.5278,
+        "main_group_hit@5": 0.84,
+        "zero_result_rate": 0.0,
+        "n": 50
+      },
+      "test": {
+        "hit@1": 0.2979,
+        "hit@5": 0.5532,
+        "hit@10": 0.5532,
+        "mrr": 0.3979,
+        "main_group_hit@5": 0.8085,
+        "zero_result_rate": 0.0,
+        "n": 47
+      },
+      "full": {
+        "hit@1": 0.3814,
+        "hit@5": 0.5979,
+        "hit@10": 0.5979,
+        "mrr": 0.4649,
+        "main_group_hit@5": 0.8247,
+        "zero_result_rate": 0.0,
+        "n": 97
+      }
+    },
+    {
+      "variant": "sum_capped",
+      "settings": {
+        "formula": "sum_capped",
+        "weights": {
+          "register_exact": 1.0,
+          "gnd_synonym": 0.9,
+          "gnd_narrower": 0.6,
+          "gnd_broader": 0.7,
+          "gnd_related": 0.6,
+          "llm_verified": 0.5,
+          "label_fts": 0.4,
+          "register_similar": 0.4,
+          "vector": 0.7
+        },
+        "path_bonus": 0.05,
+        "path_bonus_cap": 0.15,
+        "sum_cap": 1.5,
+        "tier_high": 0.75,
+        "tier_medium": 0.55
+      },
+      "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.6, gnd_broader 0.7, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.7; Deckel 1.5",
+      "dev": {
+        "hit@1": 0.42,
+        "hit@5": 0.64,
+        "hit@10": 0.66,
+        "mrr": 0.5057,
+        "main_group_hit@5": 0.88,
+        "zero_result_rate": 0.0,
+        "n": 50
+      },
+      "test": {
+        "hit@1": 0.2979,
+        "hit@5": 0.5532,
+        "hit@10": 0.5532,
+        "mrr": 0.4017,
+        "main_group_hit@5": 0.8085,
+        "zero_result_rate": 0.0,
+        "n": 47
+      },
+      "full": {
+        "hit@1": 0.3608,
+        "hit@5": 0.5979,
+        "hit@10": 0.6082,
+        "mrr": 0.4553,
+        "main_group_hit@5": 0.8454,
+        "zero_result_rate": 0.0,
+        "n": 97
+      }
+    }
+  ],
+  "decision": {
+    "chosen": "legacy",
+    "option": "b",
+    "checks": [
+      {
+        "variant": "max_plus",
+        "accepted": false,
+        "conditions": {
+          "test_hit10_ge_p4": false,
+          "test_mrr_ge_p4": true,
+          "test_hit10_ge_legacy": true,
+          "test_mrr_ge_legacy": true,
+          "full_hit10_gate": true
+        },
+        "beats_legacy_on_test_only": true
+      },
+      {
+        "variant": "sum_capped",
+        "accepted": false,
+        "conditions": {
+          "test_hit10_ge_p4": false,
+          "test_mrr_ge_p4": true,
+          "test_hit10_ge_legacy": true,
+          "test_mrr_ge_legacy": true,
+          "full_hit10_gate": true
+        },
+        "beats_legacy_on_test_only": true
+      },
+      {
+        "variant": "sum",
+        "accepted": false,
+        "conditions": {
+          "test_hit10_ge_p4": false,
+          "test_mrr_ge_p4": true,
+          "test_hit10_ge_legacy": true,
+          "test_mrr_ge_legacy": true,
+          "full_hit10_gate": true
+        },
+        "beats_legacy_on_test_only": true
+      }
+    ],
+    "reason": "Keine Formel erfüllt alle Bedingungen – Option (b): bisherige Rangfolge („legacy“) bleibt, neu ist nur die Stufenanzeige."
+  },
+  "tiers": {
+    "formula": "legacy",
+    "tier_high": 0.6551,
+    "tier_medium": 0.5754,
+    "method": "quantile",
+    "shares": {
+      "dev": {
+        "hoch": {
+          "n": 166,
+          "share_main_group": 0.4578,
+          "share_exact": 0.1145
+        },
+        "mittel": {
+          "n": 167,
+          "share_main_group": 0.3533,
+          "share_exact": 0.0359
+        },
+        "niedrig": {
+          "n": 165,
+          "share_main_group": 0.2424,
+          "share_exact": 0.0182
+        }
+      },
+      "test": {
+        "hoch": {
+          "n": 196,
+          "share_main_group": 0.4694,
+          "share_exact": 0.0765
+        },
+        "mittel": {
+          "n": 142,
+          "share_main_group": 0.3592,
+          "share_exact": 0.0352
+        },
+        "niedrig": {
+          "n": 132,
+          "share_main_group": 0.2348,
+          "share_exact": 0.0455
+        }
+      }
+    }
+  },
+  "chosen_settings": {
+    "formula": "legacy",
+    "weights": {
+      "register_exact": 1.0,
+      "gnd_synonym": 0.9,
+      "gnd_narrower": 0.75,
+      "gnd_broader": 0.7,
+      "gnd_related": 0.6,
+      "llm_verified": 0.5,
+      "label_fts": 0.2,
+      "register_similar": 0.4,
+      "vector": 0.4
+    },
+    "path_bonus": 0.05,
+    "path_bonus_cap": 0.15,
+    "sum_cap": 1.2,
+    "tier_high": 0.6551,
+    "tier_medium": 0.5754
+  }
+}

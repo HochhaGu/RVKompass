@@ -31,7 +31,14 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from app.config import get_config
-from app.services import evaluation, query_expansion, ranking, rvk_repository
+from app.services import (
+    evaluation,
+    query_expansion,
+    ranking,
+    rvk_repository,
+    scoring,
+    scoring_tuning,
+)
 from app.services.expansion import gnd, llm
 
 
@@ -201,6 +208,16 @@ def llm_summary(config, per_query: list[dict], stats: dict) -> dict:
     }
 
 
+def metrics_by_split(entries, per_query: list[dict]) -> dict[str, dict]:
+    """Kennzahlen getrennt nach Entwicklungs- und Testhälfte (Aufteilung wie in P5)."""
+    dev_idx, test_idx = scoring_tuning.split_indices(entries)
+    result = {}
+    for key, indices in (("dev", dev_idx), ("test", test_idx)):
+        if indices:
+            result[key] = evaluation.aggregate([per_query[i] for i in indices])
+    return result
+
+
 def build_embedding_service(config):
     from app.services import embedding_service
 
@@ -339,6 +356,8 @@ def main(argv=None) -> int:
         },
         "rvk_version": rvk_version,
         "embedding_model": config.EMBEDDING_MODEL_NAME,
+        "scoring": scoring.ScoringSettings.from_config(config).to_dict(),
+        "metrics_by_split": metrics_by_split(entries, main_run),
         "by_typ": evaluation.aggregate_by(main_run, "typ"),
         "by_fachgebiet": evaluation.aggregate_by(main_run, "fachgebiet"),
         "worst": evaluation.worst_queries(main_run, 10),

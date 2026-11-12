@@ -190,26 +190,65 @@ th {
   color: #888;
 }
 
-.confidence {
-  font-weight: 600;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+/* P5: Relevanz als Stufe und gestapelter Balken – neutrale Farben, keine Ampel */
+.relevance-cell {
   white-space: nowrap;
 }
 
-.confidence-high {
-  background: #d4edda;
-  color: #1e5f2e;
+.tier {
+  display: inline-block;
+  min-width: 4.5em;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #b8c2cc;
+  color: #2d3a45;
 }
 
-.confidence-medium {
-  background: #fff3cd;
-  color: #7a5c00;
+.tier-hoch {
+  background: #dde4ea;
 }
 
-.confidence-low {
-  background: #f8d7da;
-  color: #7a1f28;
+.tier-mittel {
+  background: #eef1f4;
+}
+
+.tier-niedrig {
+  background: #fff;
+  color: #5c6873;
+}
+
+.score-bar {
+  display: inline-flex;
+  vertical-align: middle;
+  height: 0.7em;
+  margin-left: 0.4em;
+  background: #f1f3f5;
+}
+
+.score-bar .seg {
+  display: inline-block;
+  height: 100%;
+}
+
+.seg-register_exact { background: #1f4e79; }
+.seg-gnd_synonym { background: #2e75b6; }
+.seg-gnd_narrower { background: #5b9bd5; }
+.seg-gnd_broader { background: #8fb8de; }
+.seg-gnd_related { background: #b4cfe8; }
+.seg-gnd_bonus { background: #2e75b6; }
+.seg-llm_verified,
+.seg-llm_bonus { background: #7f6a93; }
+.seg-label_fts,
+.seg-keyword_bonus { background: #8a8a8a; }
+.seg-register_similar,
+.seg-register_bonus { background: #a9a9a9; }
+.seg-vector,
+.seg-cosine { background: #c9b28a; }
+.seg-path_bonus { background: #4d4d4d; }
+
+.relevance-note {
+  color: #5c6873;
 }
 
 @media (max-width: 700px) {

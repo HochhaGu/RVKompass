@@ -79,6 +79,40 @@ class Config:
         # Betriebswirtschaftslehre (alle Untergruppen 10.11...) -> Goldstandard „Wirtschaft“: QP
         "10.11*": ("QP",),
     }
+
+    # Scoring (P5). Der Score ist ein Relevanzmaß, keine Wahrscheinlichkeit. Er setzt sich aus
+    # benannten Bestandteilen zusammen, die die Oberfläche als Balken zeigt. Formeln: "legacy"
+    # (Stand P4), "sum", "max_plus", "sum_capped" – siehe app/services/scoring.py.
+    # Entscheidung P5 (reports/scoring-2026-11-11-c877270-2.json, docs/phasen/phase-5.md): Keine
+    # neue Formel hat auf der Testhälfte Hit@10 >= 0.5567 (P4-Wert) erreicht, alle lagen wie
+    # „legacy“ bei 0.5532. Nach Günthers Regel gilt Option (b): Rangfolge bleibt „legacy“, neu sind
+    # nur die Stufen. Umschalten zum Ausprobieren per .env (SCORING_FORMULA=max_plus usw.).
+    SCORING_FORMULA = os.environ.get("SCORING_FORMULA", "legacy")
+    # Pfadgewicht je Pfadtyp: Beitrag = Gewicht × Evidenzstärke (Vektor: Gewicht × Cosine).
+    # Startgewichte des Phasen-Auftrags; bei Formel „legacy“ ohne Wirkung. Die auf der
+    # Entwicklungshälfte abgestimmten Gewichte je Formel stehen im Bericht oben.
+    SCORE_WEIGHTS: ClassVar[dict[str, float]] = {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.75,
+        "gnd_broader": 0.7,
+        "gnd_related": 0.6,
+        "llm_verified": 0.5,
+        "vector": 0.4,
+        "label_fts": 0.2,
+        "register_similar": 0.4,
+    }
+    # Zuschlag je weiterem unabhängigem Pfadtyp (nur Formel "max_plus") und sein Deckel
+    SCORE_PATH_BONUS = 0.05
+    SCORE_PATH_BONUS_CAP = 0.15
+    # Deckel für die Summe der Pfadbeiträge ohne Vektor (nur Formel "sum_capped")
+    SCORE_SUM_CAP = 1.2
+    # Stufen „hoch / mittel / niedrig“: Score ab diesem Wert. Abgeleitet auf der
+    # Entwicklungshälfte mit Formel „legacy“ (reports/scoring-2026-11-11-c877270-2.json): Die
+    # Anteilsregel (80 % / 50 % passende Treffer) war nicht erreichbar, daher Drittel-Quantile der
+    # Scores der ersten 10 Treffer. Gilt nur für die eingestellte Formel.
+    SCORE_TIER_HIGH = 0.6551
+    SCORE_TIER_MEDIUM = 0.5754
     DEBUG = False
 
 
