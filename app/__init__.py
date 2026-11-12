@@ -10,6 +10,7 @@ from flask_limiter.util import get_remote_address
 load_dotenv()
 
 from app.config import get_config
+from app.services import log_privacy
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["60 per hour"])
 
@@ -25,6 +26,8 @@ def _configure_logging(app: Flask) -> None:
     )
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.DEBUG if app.config["DEBUG"] else logging.INFO)
+    # Keine Suchbegriffe, keine IP-Adressen in Logs (auch nicht im Container-Log über stderr)
+    log_privacy.install(app.logger)
 
 
 def read_rvk_version(db_path: str | None) -> str | None:

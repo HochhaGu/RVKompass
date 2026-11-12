@@ -21,6 +21,7 @@ from collections.abc import Iterable, Mapping
 from app.models import ExpansionTerm, LlmSuggestion
 from app.services import query_expansion, rvk_repository
 from app.services.expansion import gnd
+from app.services.log_privacy import error_kind
 from app.services.query_expansion import normalize_query
 
 logger = logging.getLogger(__name__)
@@ -81,7 +82,11 @@ def gnd_match(source, term: str, size: int = 5) -> tuple[str, str] | None:
             if gnd.matches_query(record, normalized):
                 return record.preferred_name, record.gnd_id
     except Exception as exc:  # noqa: BLE001 – Ausfall der Quelle heißt: nicht geprüft
-        logger.warning("GND-Prüfung für %r fehlgeschlagen: %s", term, exc)
+        logger.warning(
+            "GND-Prüfung fehlgeschlagen (Begriff mit %d Zeichen): %s",
+            len(term or ""),
+            error_kind(exc),
+        )
     return None
 
 
@@ -98,7 +103,11 @@ def verify_suggestions(
         try:
             found = register_match(conn, term)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Registerprüfung für %r fehlgeschlagen: %s", term, exc)
+            logger.warning(
+                "Registerprüfung fehlgeschlagen (Begriff mit %d Zeichen): %s",
+                len(term or ""),
+                error_kind(exc),
+            )
             found = None
         if found is not None:
             matched, gnd_id = found
@@ -181,7 +190,7 @@ def llm_suggestions_for_query(
             conn, raw, source, gnd_size=_setting(config, "LLM_VERIFY_GND_SIZE", 5)
         )
     except Exception as exc:  # noqa: BLE001
-        logger.warning("LLM-Erweiterung abgeschaltet wegen Fehler: %s", exc)
+        logger.warning("LLM-Erweiterung abgeschaltet wegen Fehler: %s", error_kind(exc))
         return []
 
 

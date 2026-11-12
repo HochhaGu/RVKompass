@@ -24,6 +24,12 @@ services:
       - /srv/rvkompass/data:/app/data
       - /srv/rvkompass/logs:/app/logs
       - /srv/rvkompass/.env:/app/.env:ro
+    # Container-Log (stdout/stderr) begrenzen: höchstens 3 Dateien à 10 MB, dann überschrieben
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     # Healthcheck steht im Dockerfile (GET /health alle 30 s).
     # Speicher-Obergrenze bewusst noch nicht gesetzt: Jeder Worker hält die Embeddings
     # (1 266 MB, Stand 12.11.2026) und das Modell im Speicher; der monatliche Abgleich lädt sie

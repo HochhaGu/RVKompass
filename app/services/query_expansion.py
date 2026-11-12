@@ -22,7 +22,7 @@ import logging
 from functools import lru_cache
 
 from app.models import LLM_RELATIONS
-from app.services import rvk_repository
+from app.services import log_privacy, rvk_repository
 
 logger = logging.getLogger(__name__)
 
@@ -220,7 +220,8 @@ def suggest_terms(
             return suggestions
         except (ValueError, TypeError):
             logger.warning(
-                "Unlesbarer LLM-Cache-Eintrag für %r, wird neu geholt", query
+                "Unlesbarer LLM-Cache-Eintrag (Begriff mit %d Zeichen), wird neu geholt",
+                len(query),
             )
 
     if not api_key:
@@ -256,13 +257,11 @@ def suggest_terms(
         suggestions = parse_suggestions(response_text(response), query, max_items)
     except Exception as exc:  # noqa: BLE001 – jeder Fehler heißt: keine Erweiterung
         _count(stats, "api_errors")
-        # Nur Fehlertyp und ggf. HTTP-Status loggen, nie Schlüssel oder Anfragedetails
-        status = getattr(exc, "status_code", None)
+        # Nur Fehlerart und ggf. HTTP-Status loggen, nie Schlüssel, Suchbegriff oder Anfragedetails
         logger.warning(
-            "Claude-Begriffsvorschläge fehlgeschlagen für %r: %s%s",
-            query,
-            type(exc).__name__,
-            f" (HTTP {status})" if status else "",
+            "Claude-Begriffsvorschläge fehlgeschlagen (Begriff mit %d Zeichen): %s",
+            len(query),
+            log_privacy.error_kind(exc),
         )
         return []
 

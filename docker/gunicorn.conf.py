@@ -22,3 +22,17 @@ preload_app = False
 accesslog = None
 errorlog = "-"
 loglevel = "info"
+
+
+def on_starting(server):
+    """gunicorn-Meldungen (stderr → Docker-Log) ohne IP-Adressen und Query-Strings.
+
+    Der Filter hängt am Logger „gunicorn.error“, nicht an dessen Handlern: gunicorn baut die
+    Handler bei SIGHUP neu auf, der Logger mit seinen Filtern bleibt. Worker erben ihn beim Fork.
+    """
+    import logging
+
+    from app.services.log_privacy import add_filter, quiet_limiter_logger
+
+    add_filter(logging.getLogger("gunicorn.error"))
+    quiet_limiter_logger()

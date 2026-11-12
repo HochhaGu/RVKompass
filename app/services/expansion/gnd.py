@@ -26,6 +26,7 @@ import requests
 
 from app.models import ExpansionTerm, GndSense
 from app.services import rvk_repository
+from app.services.log_privacy import error_kind
 from app.services.query_expansion import normalize_query
 
 logger = logging.getLogger(__name__)
@@ -219,7 +220,7 @@ class LobidGndSource:
                 raise TypeError("Antwort ist kein JSON-Objekt")
         except Exception as exc:  # noqa: BLE001 – jeder Fehler heißt: keine Erweiterung
             self.consecutive_failures += 1
-            logger.warning("lobid-gnd-Anfrage fehlgeschlagen (%s): %s", key, exc)
+            logger.warning("lobid-gnd-Anfrage fehlgeschlagen: %s", error_kind(exc))
             return None
         self.consecutive_failures = 0
         try:
@@ -525,7 +526,11 @@ def expand_gnd(
                 break
         return senses
     except Exception as exc:  # noqa: BLE001 – Fehler der Quelle heißt: keine Erweiterung
-        logger.warning("GND-Erweiterung für %r fehlgeschlagen: %s", query, exc)
+        logger.warning(
+            "GND-Erweiterung fehlgeschlagen (Begriff mit %d Zeichen): %s",
+            len(query or ""),
+            error_kind(exc),
+        )
         return []
 
 
@@ -576,5 +581,5 @@ def gnd_senses_for_query(
             search_size=_setting(config, "GND_SEARCH_SIZE", 10),
         )
     except Exception as exc:  # noqa: BLE001
-        logger.warning("GND-Erweiterung abgeschaltet wegen Fehler: %s", exc)
+        logger.warning("GND-Erweiterung abgeschaltet wegen Fehler: %s", error_kind(exc))
         return []
