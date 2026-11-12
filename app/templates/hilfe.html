@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="help">
+    <h2>So arbeiten Sie mit RVKompass</h2>
+    <nav class="help-toc" aria-label="Übersicht der Hilfe">
+      <p><strong>Übersicht</strong></p>
+      <ol>
+        <li><a href="#vorschlag">Vorschlag ≠ Entscheidung</a></li>
+        <li><a href="#fundwege">Wie ein Vorschlag gefunden wird (Fundwege)</a></li>
+        <li><a href="#warum">„Warum?“ und der Warnhinweis</a></li>
+        <li><a href="#relevanz">Relevanzstufen</a></li>
+        <li><a href="#bedienung">Erweiterung, Bedeutungen, Hauptgruppen</a></li>
+        <li><a href="#grenzen">Was das Werkzeug nicht tut</a></li>
+      </ol>
+    </nav>
+
+    <h3 id="vorschlag">Vorschlag ≠ Entscheidung</h3>
+    <p>RVKompass zeigt <strong>Vorschläge</strong>: Systemstellen der RVK, die zu Ihrem Suchbegriff passen könnten. Die Entscheidung, welche Stelle ein Werk bekommt, treffen Sie. Prüfen Sie jede Stelle über „in RVK-Online prüfen“ im Zusammenhang der Systematik – mit Hierarchiepfad und RVK-Bemerkung.</p>
+
+    <h3 id="fundwege">Wie ein Vorschlag gefunden wird (Fundwege)</h3>
+    <dl class="help-paths">
+      <dt>{{ path_labels.register_exact }}</dt>
+      <dd>Ihr Begriff steht wörtlich im RVK-Register an dieser Stelle. Sehr verlässlich.</dd>
+      <dt>{{ path_labels.label_fts }}</dt>
+      <dd>Ihr Begriff kommt als Wort in Benennung, Hierarchiepfad oder Registereinträgen vor. Verlässlich, aber Wörter können in anderem Sinn stehen.</dd>
+      <dt>{{ path_labels.gnd_synonym }}</dt>
+      <dd>Ein gleichbedeutender Begriff aus der Gemeinsamen Normdatei (GND) steht im RVK-Register. Verlässlich, wenn die GND-Bedeutung die gemeinte ist.</dd>
+      <dt>{{ path_labels.gnd_broader }}</dt>
+      <dd>Ein allgemeinerer GND-Begriff führt zur Stelle. Die Stelle ist oft breiter als Ihr Thema.</dd>
+      <dt>{{ path_labels.gnd_narrower }}</dt>
+      <dd>Ein speziellerer GND-Begriff führt zur Stelle. Die Stelle deckt oft nur einen Teil Ihres Themas ab.</dd>
+      <dt>{{ path_labels.gnd_related }}</dt>
+      <dd>Ein verwandter GND-Begriff führt zur Stelle. Nur ein Hinweis auf das Umfeld – genau prüfen.</dd>
+      <dt>{{ path_labels.llm_verified }}</dt>
+      <dd>Ein Sprachmodell hat einen Begriff vorgeschlagen, und dieser Begriff steht im RVK-Register oder in der GND. Gesucht wird nur mit solchen geprüften Begriffen; nicht geprüfte Vorschläge werden angezeigt, aber nicht gesucht.</dd>
+      <dt>{{ path_labels.register_similar }}</dt>
+      <dd>Ein Registerbegriff ist Ihrem Begriff inhaltlich ähnlich (Vektor-Ähnlichkeit). Ein Hinweis, keine Übereinstimmung.</dd>
+      <dt>{{ path_labels.vector }}</dt>
+      <dd>Die Benennung der Stelle ist Ihrem Begriff inhaltlich ähnlich (Vektor-Ähnlichkeit über ein Sprachmodell für Texte). Am wenigsten verlässlich – immer im Register prüfen.</dd>
+    </dl>
+
+    <h3 id="warum">„Warum?“ und der Warnhinweis</h3>
+    <p>Unter „Warum?“ steht bei jedem Vorschlag die Kette, über die er gefunden wurde, zum Beispiel: Eingabe „Wärmepumpe“ → GND-Oberbegriff „Heiztechnik“ → Registereintrag an der Notation. Darunter stehen die Bestandteile der Relevanz als Text.</p>
+    <p>Wurde ein Vorschlag <strong>nur über Ähnlichkeit</strong> gefunden, steht am Vorschlag: „⚠ Nur über Ähnlichkeit gefunden – bitte im Register prüfen“. Dann gibt es keinen Registereintrag und keinen Normbegriff, der die Stelle stützt.</p>
+
+    <h3 id="relevanz">Relevanzstufen</h3>
+    <p>Die Stufen „hoch“, „mittel“ und „niedrig“ ordnen die Vorschläge. Sie sind ein Relevanzmaß und <strong>keine Wahrscheinlichkeit</strong>, dass eine Stelle richtig ist. Der Balken zeigt, aus welchen Fundwegen sich die Relevanz zusammensetzt; seine Länge ist relativ zum ersten Vorschlag.</p>
+
+    <h3 id="bedienung">Erweiterung, Bedeutungen, Hauptgruppen</h3>
+    <ul>
+      <li><strong>Ihre Suche wurde erweitert:</strong> zeigt alle Begriffe, mit denen gesucht wurde. Entfernen Sie ein Häkchen, wird ohne diesen Begriff neu gesucht.</li>
+      <li><strong>Mehrere Bedeutungen:</strong> Hat ein Wort laut GND mehrere Bedeutungen (etwa „Mutter“), stehen die Vorschläge getrennt je Bedeutung. Die zum gewählten Fachgebiet passende Bedeutung ist aufgeklappt.</li>
+      <li><strong>Hauptgruppen einschränken:</strong> zeigt nur Vorschläge aus den gewählten RVK-Hauptgruppen. Wie viele Fundstellen dadurch wegfallen, steht unter der Liste.</li>
+    </ul>
+
+    <h3 id="grenzen">Was das Werkzeug nicht tut</h3>
+    <ul>
+      <li>Es kennt Ihre <strong>lokale Aufstellungspraxis</strong> nicht – etwa Haus-Regeln, welche Stellen Ihre Bibliothek bevorzugt.</li>
+      <li>Es bildet <strong>keine Signaturen</strong>: Signaturbildung (Cutter, Auflage, Exemplar) ist nicht Teil des Werkzeugs.</li>
+      <li>Es ersetzt nicht den Blick in die RVK selbst und nicht die fachliche Entscheidung.</li>
+    </ul>
+  </section>
+{% endblock %}

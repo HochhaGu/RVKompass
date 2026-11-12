@@ -27,6 +27,29 @@ def _configure_logging(app: Flask) -> None:
     app.logger.setLevel(logging.DEBUG if app.config["DEBUG"] else logging.INFO)
 
 
+def read_rvk_version(db_path: str | None) -> str | None:
+    """RVK-Stand für den Footer, nur lesend; bei fehlender Datenbank oder Fehlern None."""
+    from app.services import rvk_repository
+
+    if not db_path:
+        return None
+    conn = rvk_repository.get_readonly_connection(db_path)
+    if conn is None:
+        return None
+    try:
+        return rvk_repository.latest_rvk_version(conn)
+    finally:
+        conn.close()
+
+
+def register_template_context(app: Flask) -> None:
+    """Stellt allen Templates `rvk_version` bereit (Footer „RVK-Stand: …“)."""
+
+    @app.context_processor
+    def inject_rvk_version():
+        return {"rvk_version": read_rvk_version(app.config.get("DATABASE_PATH"))}
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(get_config())
@@ -38,6 +61,7 @@ def create_app():
 
     embedding_service.init_app(app)
 
+    from app.routes.help import bp as help_bp
     from app.routes.internal import bp as internal_bp
     from app.routes.legal import bp as legal_bp
     from app.routes.search import bp as search_bp
@@ -45,5 +69,7 @@ def create_app():
     app.register_blueprint(search_bp)
     app.register_blueprint(internal_bp)
     app.register_blueprint(legal_bp)
+    app.register_blueprint(help_bp)
+    register_template_context(app)
 
     return app

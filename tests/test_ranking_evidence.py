@@ -300,6 +300,16 @@ def test_hits_to_rows_shows_tier_and_components_instead_of_percent(conn, service
             "score",
             "components",
             "rvk_online_url",
+            # P6: Anzeige am Vorschlag (Rang, Hauptgruppe, RVK-Bemerkung, „Warum?“ usw.)
+            "rank",
+            "notation_id",
+            "main_group",
+            "note",
+            "see_also",
+            "components_text",
+            "explanation",
+            "vector_only",
+            "changed_in",
         }
         assert row["score"] == round(hit.score, 2)
         assert row["rvk_online_url"] == ranking.build_rvk_online_url(
@@ -532,3 +542,80 @@ def test_rvk_groups_for_sense_exact_and_prefix():
         "a", "X", [], [("31.6", "Maschinenbau"), ("10.11b", "BWL"), ("31.60", "?")]
     )
     assert ranking.rvk_groups_for_sense(sense, MAPPING) == ("ZL", "QP")
+
+
+# --- P6: Hauptgruppen-Filter und Anzeige am Vorschlag ------------------------------------------
+
+
+def _add_other_main_group(conn):
+    # Nur über die Volltextsuche gefunden, Cosine 0 -> letzter Platz
+    conn.execute(
+        "INSERT INTO notation (id, notation, label, note) "
+        "VALUES (6, 'QP 100', 'Getriebebau', 'Nur Betriebswirtschaft')"
+    )
+    conn.execute("INSERT INTO search_index (notation_id, text) VALUES (6, 'Getriebe')")
+    conn.commit()
+
+
+def test_without_main_group_filter_result_is_unchanged(conn, service):
+    _add_other_main_group(conn)
+    plain = ranking.search_result(conn, service, "Getriebe", [], [KUPPLUNG])
+    empty = ranking.search_result(
+        conn, service, "Getriebe", [], [KUPPLUNG], main_group_filter=[]
+    )
+    none = ranking.search_result(
+        conn, service, "Getriebe", [], [KUPPLUNG], main_group_filter=None
+    )
+    for other in (empty, none):
+        assert [(h.notation.notation, h.score) for h in other.hits] == [
+            (h.notation.notation, h.score) for h in plain.hits
+        ]
+        assert other.filtered_out == 0
+    assert "QP 100" in [h.notation.notation for h in plain.hits]
+
+
+def test_main_group_filter_applies_before_cut_and_counts(conn, service, monkeypatch):
+    _add_other_main_group(conn)
+    monkeypatch.setattr(ranking, "MAX_RESULTS", 2)
+    plain = ranking.search_result(conn, service, "Getriebe", [])
+    assert "QP 100" not in [h.notation.notation for h in plain.hits]
+
+    only_qp = ranking.search_result(
+        conn, service, "Getriebe", [], main_group_filter=["qp"]
+    )
+    assert [h.notation.notation for h in only_qp.hits] == ["QP 100"]
+    total = len(ranking.build_candidates(conn, service, "Getriebe", []).features)
+    assert only_qp.filtered_out == total - 1
+
+    only_zl = ranking.search_result(
+        conn, service, "Getriebe", [], main_group_filter=["ZL"]
+    )
+    assert [h.notation.notation for h in only_zl.hits] == [
+        h.notation.notation for h in plain.hits
+    ]
+    assert only_zl.filtered_out == 1
+
+
+def test_hits_to_rows_shows_note_explanation_and_vector_warning(conn, service):
+    _add_other_main_group(conn)
+    hits = ranking.search(conn, service, "Getriebe", [])
+    rows = {
+        r["notation"]: r for r in ranking.hits_to_rows(conn, hits, query="Getriebe")
+    }
+
+    qp = rows["QP 100"]
+    assert qp["note"] == "Nur Betriebswirtschaft"
+    assert qp["main_group"] == "QP"
+    assert qp["vector_only"] is False
+    assert [c["path_label"] for c in qp["explanation"]["chains"]] == ["Volltext"]
+    assert qp["changed_in"] is None
+    assert [r["rank"] for r in rows.values()] == list(range(1, len(rows) + 1))
+
+    # ZL 4300 „Kupplungen“ kommt nur über Ähnlichkeit (Vektor und ähnlicher Registerbegriff)
+    kupplung = rows["ZL 4300"]
+    assert kupplung["vector_only"] is True
+    assert kupplung["components_text"].startswith("Vektor ")
+    assert rows["ZL 4100"]["vector_only"] is False
+
+    # ohne Eingabe (z. B. Aufrufer vor P6) keine Erklärung, sonst gleich
+    assert ranking.hits_to_rows(conn, hits)[0]["explanation"] is None

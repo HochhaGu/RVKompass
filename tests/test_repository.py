@@ -139,3 +139,131 @@ def test_gnd_cache_expires_after_max_age(memory_conn):
     too_old = (datetime.now(UTC) - timedelta(days=31)).isoformat()
     memory_conn.execute("UPDATE gnd_cache SET created_at = ?", (too_old,))
     assert rvk_repository.get_gnd_cache(memory_conn, "k", 30) is None
+
+
+# --- P6: RVK-Stand, Hauptgruppen, Änderungsstand ---------------------------------------------
+
+
+def _sync(conn, source_file, status="success", run_at="2026-11-10T13:37:59"):
+    conn.execute(
+        "INSERT INTO sync_log (run_at, source_file, status) VALUES (?, ?, ?)",
+        (run_at, source_file, status),
+    )
+
+
+def test_latest_rvk_version_from_last_successful_sync(memory_conn):
+    _sync(memory_conn, "rvko_marcxml_2026_1.xml")
+    _sync(memory_conn, "rvko_marcxml_2026_2.xml")
+    _sync(memory_conn, "rvko_marcxml_2026_3.xml", status="error")
+    assert rvk_repository.latest_rvk_version(memory_conn) == "2026/2"
+
+
+def test_latest_rvk_version_unknown_file_name_shows_date(memory_conn):
+    _sync(memory_conn, "eigener_abzug.xml", run_at="2026-11-01T08:00:00")
+    assert rvk_repository.latest_rvk_version(memory_conn) == "2026-11-01"
+
+
+def test_latest_rvk_version_without_success_or_table():
+    connection = sqlite3.connect(":memory:")
+    try:
+        assert rvk_repository.latest_rvk_version(connection) is None
+        connection.executescript(SCHEMA_SQL)
+        _sync(connection, "rvko_marcxml_2026_1.xml", status="error")
+        assert rvk_repository.latest_rvk_version(connection) is None
+    finally:
+        connection.close()
+
+
+def _notations(conn, rows):
+    for notation, label in rows:
+        conn.execute(
+            "INSERT INTO notation (notation, label) VALUES (?, ?)", (notation, label)
+        )
+
+
+def test_get_main_group_labels(memory_conn):
+    _notations(memory_conn, [("ZN", "Elektrotechnik"), ("ZN 1000", "X"), ("ZL", None)])
+    assert rvk_repository.get_main_group_labels(memory_conn, ["ZN", "ZL", "QP"]) == {
+        "ZN": "Elektrotechnik"
+    }
+    assert rvk_repository.get_main_group_labels(memory_conn, []) == {}
+
+
+def test_list_main_groups_with_labels_and_cache(tmp_path):
+    db_path = tmp_path / "rvk.sqlite3"
+    connection = rvk_repository.get_connection(str(db_path))
+    connection.executescript(SCHEMA_SQL)
+    _notations(
+        connection, [("ZN", "Elektrotechnik"), ("AA", "Allgemeines"), ("ZN 1", "x")]
+    )
+    connection.commit()
+    try:
+        assert rvk_repository.list_main_groups(connection) == [
+            ("AA", "Allgemeines"),
+            ("ZN", "Elektrotechnik"),
+        ]
+        # zwischengespeichert: neue Zeile ohne neuen Sync-Lauf ändert nichts
+        _notations(connection, [("ZL", "Maschinenbau")])
+        assert len(rvk_repository.list_main_groups(connection)) == 2
+        # neuer Sync-Lauf -> neu gelesen
+        _sync(connection, "rvko_marcxml_2026_2.xml")
+        assert len(rvk_repository.list_main_groups(connection)) == 3
+    finally:
+        connection.close()
+
+
+def test_list_main_groups_fallback_without_letter_rows(memory_conn):
+    _notations(memory_conn, [("ZN 1000", "a"), ("ZN 2000", "b"), ("QP 100", "c")])
+    assert rvk_repository.list_main_groups(memory_conn) == [("QP", ""), ("ZN", "")]
+
+
+def test_list_main_groups_without_table():
+    connection = sqlite3.connect(":memory:")
+    try:
+        assert rvk_repository.list_main_groups(connection) == []
+    finally:
+        connection.close()
+
+
+def test_get_change_versions(memory_conn):
+    _insert_register(memory_conn, [(1, "A", None), (2, "B", None)])
+    memory_conn.executemany(
+        "INSERT INTO notation_change (notation_id, version, change_type) "
+        "VALUES (?, ?, ?)",
+        [(1, "2025/4", "geändert"), (1, "2026/1", "geändert")],
+    )
+    assert rvk_repository.get_change_versions(memory_conn, [1, 2]) == {1: "2026/1"}
+    assert rvk_repository.get_change_versions(memory_conn, []) == {}
+
+
+def test_get_change_versions_without_table_is_empty():
+    connection = sqlite3.connect(":memory:")
+    try:
+        assert rvk_repository.get_change_versions(connection, [1, 2]) == {}
+    finally:
+        connection.close()
+
+
+def test_readonly_connection_does_not_create_file(tmp_path):
+    missing = tmp_path / "fehlt.sqlite3"
+    assert rvk_repository.get_readonly_connection(str(missing)) is None
+    assert not missing.exists()
+
+
+def test_main_groups_in_real_database_read_only():
+    """Prüft nur lesend (mode=ro), ob die echte Datenbank Hauptgruppen mit Bezeichnung hat.
+
+    Stand 12.11.2026: 345 Hauptgruppen, alle mit Bezeichnung (z. B. „ZP Energietechnik“).
+    """
+    connection = rvk_repository.get_readonly_connection(DB_PATH)
+    if connection is None:
+        pytest.skip("Keine lokale RVK-Datenbank vorhanden.")
+    try:
+        groups = rvk_repository.list_main_groups(connection)
+        assert groups, "Keine Hauptgruppen gefunden"
+        assert any(label for _, label in groups)
+        assert rvk_repository.latest_rvk_version(connection)
+        with pytest.raises(sqlite3.OperationalError):
+            connection.execute("CREATE TABLE schreibtest (x)")
+    finally:
+        connection.close()

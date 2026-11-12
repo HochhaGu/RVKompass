@@ -2,14 +2,30 @@
 
 from __future__ import annotations
 
+import re
 import sqlite3
+from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 from app.models import Notation
 
 
 def get_connection(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def get_readonly_connection(db_path: str) -> sqlite3.Connection | None:
+    """Nur lesende Verbindung (Startseite, Footer); legt keine Datei an. Fehlt sie: None."""
+    path = Path(db_path)
+    if not path.is_file():
+        return None
+    try:
+        conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return None
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -174,6 +190,124 @@ def get_register_terms(
         (notation_id, limit),
     ).fetchall()
     return [row["term"] for row in rows]
+
+
+_VERSION_RE = re.compile(r"rvko_marcxml_(\d{4})_(\d+)")
+
+
+def latest_rvk_version(conn: sqlite3.Connection) -> str | None:
+    """RVK-Stand des letzten erfolgreichen Syncs, z. B. "2026/2" (aus `sync_log.source_file`).
+
+    Passt der Dateiname nicht zum Muster von scripts/fetch_marcxml_dump.py, wird das Datum des
+    Laufs angezeigt. Ohne Tabelle, ohne erfolgreichen Lauf oder bei Fehlern: None. Nur lesend.
+    """
+    try:
+        row = conn.execute(
+            "SELECT run_at, source_file FROM sync_log WHERE status = 'success' "
+            "ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    except sqlite3.Error:
+        return None
+    if row is None:
+        return None
+    run_at, source_file = row[0], row[1]
+    match = _VERSION_RE.search(source_file or "")
+    if match:
+        return f"{match.group(1)}/{match.group(2)}"
+    return (run_at or "")[:10] or None
+
+
+def get_main_group_labels(
+    conn: sqlite3.Connection, codes: Iterable[str]
+) -> dict[str, str]:
+    """Bezeichnungen der RVK-Hauptgruppen (Zeilen nur aus Buchstaben, z. B. "ZN")."""
+    unique = list(dict.fromkeys(c for c in codes if c))
+    if not unique:
+        return {}
+    placeholders = ",".join("?" for _ in unique)
+    try:
+        rows = conn.execute(
+            f"SELECT notation, label FROM notation WHERE notation IN ({placeholders})",
+            unique,
+        ).fetchall()
+    except sqlite3.Error:
+        return {}
+    return {row[0]: row[1] for row in rows if row[1]}
+
+
+# (Datenbankpfad, letzte sync_log-ID) -> Liste der Hauptgruppen
+_main_group_cache: dict[tuple[str, int | None], list[tuple[str, str]]] = {}
+
+
+def _database_path(conn: sqlite3.Connection) -> str:
+    try:
+        row = conn.execute("PRAGMA database_list").fetchone()
+    except sqlite3.Error:
+        return ""
+    return (row[2] if row else "") or ""
+
+
+def _last_sync_id(conn: sqlite3.Connection) -> int | None:
+    try:
+        row = conn.execute("SELECT MAX(id) FROM sync_log").fetchone()
+    except sqlite3.Error:
+        return None
+    return row[0] if row else None
+
+
+def list_main_groups(conn: sqlite3.Connection) -> list[tuple[str, str]]:
+    """Alle RVK-Hauptgruppen als (Code, Bezeichnung), nach Code sortiert.
+
+    Grundlage sind die Zeilen aus genau zwei Großbuchstaben. Fehlen sie, kommen die Codes aus
+    den führenden zwei Buchstaben aller Notationen (Bezeichnung leer). Zwischengespeichert je
+    Datenbank und Sync-Lauf; In-Memory-Datenbanken werden nicht gespeichert.
+    """
+    path = _database_path(conn)
+    key = (path, _last_sync_id(conn))
+    if path and key in _main_group_cache:
+        return _main_group_cache[key]
+    try:
+        rows = conn.execute(
+            "SELECT notation, label FROM notation WHERE notation GLOB '[A-Z][A-Z]' "
+            "ORDER BY notation"
+        ).fetchall()
+        groups = [(row[0], row[1] or "") for row in rows]
+        if not groups:
+            rows = conn.execute(
+                "SELECT DISTINCT substr(notation, 1, 2) FROM notation "
+                "WHERE notation GLOB '[A-Z][A-Z]*' ORDER BY 1"
+            ).fetchall()
+            groups = [(row[0], "") for row in rows]
+    except sqlite3.Error:
+        return []
+    if path:
+        _main_group_cache[key] = groups
+    return groups
+
+
+def get_change_versions(
+    conn: sqlite3.Connection, notation_ids: Iterable[int]
+) -> dict[int, str]:
+    """Jüngster RVK-Stand mit Änderung je Notation (Tabelle `notation_change`).
+
+    Fehlt die Tabelle (Datenbestand vor P6), ist das Ergebnis still leer. Nur lesend.
+    """
+    ids = list(dict.fromkeys(notation_ids))
+    if not ids:
+        return {}
+    placeholders = ",".join("?" for _ in ids)
+    try:
+        rows = conn.execute(
+            "SELECT notation_id, version FROM notation_change "
+            f"WHERE notation_id IN ({placeholders}) ORDER BY rowid",
+            ids,
+        ).fetchall()
+    except sqlite3.Error:
+        return {}
+    versions: dict[int, str] = {}
+    for row in rows:
+        versions[row[0]] = row[1]
+    return versions
 
 
 def get_expansion_cache(conn: sqlite3.Connection, query_normalized: str) -> str | None:

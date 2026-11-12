@@ -88,8 +88,8 @@ class EmbeddingService:
         """Cosine-Similarity für eine einzelne Notation, unabhängig von Top-K-Cutoffs.
 
         Wird für Treffer benötigt, die nur über die Keyword-Suche gefunden wurden und daher
-        nicht zwangsläufig unter den Top-K der Vektorsuche waren, aber trotzdem eine
-        Konfidenzanzeige in der Ergebnistabelle bekommen sollen.
+        nicht zwangsläufig unter den Top-K der Vektorsuche waren, aber trotzdem einen
+        Relevanzwert (Stufe und Balken) in der Vorschlagsliste bekommen sollen.
         """
         index = self._notation_index_by_id.get(notation_id)
         if index is None:

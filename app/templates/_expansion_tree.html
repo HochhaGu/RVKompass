@@ -1,0 +1,61 @@
+<section class="expansion" aria-labelledby="tree-title">
+  <h3 id="tree-title">Ihre Suche wurde erweitert</h3>
+  <p><small>Gesucht wird mit allen angehakten Begriffen. Ein Häkchen entfernen nimmt den Begriff aus der Suche; die Vorschläge werden sofort neu berechnet.</small></p>
+  <div id="expansion-tree" hx-post="/search" hx-trigger="change" hx-target="#results" hx-include="#search-form, #expansion-tree" hx-indicator="#spinner">
+    <input type="hidden" name="baum" value="1">
+    <ul class="tree">
+      <li>Eingabe „{{ tree.query }}“ <small>(wird immer gesucht)</small>
+        <ul>
+          {% for s in tree.senses %}
+          <li class="tree-sense">
+            {% if s.own %}
+            <label><input type="checkbox" name="begriff" value="{{ s.own.key }}"{% if s.own.checked %} checked{% endif %}> GND-Begriff „{{ s.name }}“</label>
+            {% else %}
+            GND-Begriff „{{ s.name }}“
+            {% endif %}
+            <a href="{{ s.url }}" target="_blank" rel="noopener">bei lobid-gnd ansehen<span class="visually-hidden"> ({{ s.name }})</span></a>
+            {% if s.subject_categories %}<small>– Sachgruppe: {{ s.subject_categories | join(', ') }}</small>{% endif %}
+            {% if s.own and not s.own.checked %}<small class="excluded">– abgewählt, nicht gesucht</small>{% endif %}
+            {% if s.groups %}
+            <ul>
+              {% for g in s.groups %}
+              <li>{{ g.label }}:
+                <ul>
+                  {% for t in g.terms %}
+                  <li>
+                    <label><input type="checkbox" name="begriff" value="{{ t.key }}"{% if t.checked %} checked{% endif %}> {{ t.term }}</label>
+                    {% if t.url %}<a href="{{ t.url }}" target="_blank" rel="noopener">GND<span class="visually-hidden"> ({{ t.term }})</span></a>{% endif %}
+                    {% if not t.checked %}<small class="excluded">– abgewählt, nicht gesucht</small>{% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
+          {% if tree.llm %}
+          <li class="llm-suggestions"><strong>Vorschläge des Sprachmodells</strong> – gesucht wird nur, was im Normvokabular (RVK-Register oder GND) steht:
+            <ul>
+              {% for s in tree.llm %}
+              {% if s.verified %}
+              <li class="llm-verified">
+                <label><input type="checkbox" name="begriff" value="{{ s.key }}"{% if s.checked %} checked{% endif %}> <strong>{{ s.term }}</strong>{% if s.matched_term and s.matched_term != s.term %} (als „{{ s.matched_term }}“){% endif %}</label>
+                <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.status }}{% if not s.checked %} – abgewählt, nicht gesucht{% endif %}</small>
+              </li>
+              {% else %}
+              <li class="llm-unverified">
+                {{ s.term }}
+                <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.status }}</small>
+              </li>
+              {% endif %}
+              {% endfor %}
+            </ul>
+          </li>
+          {% endif %}
+        </ul>
+      </li>
+    </ul>
+  </div>
+</section>

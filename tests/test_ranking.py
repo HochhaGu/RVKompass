@@ -86,3 +86,48 @@ class TestSearchIntegration:
         order = {"hoch": 0, "mittel": 1, "niedrig": 2}
         tiers = [order[r["tier"]] for r in rows]
         assert tiers == sorted(tiers)
+
+    def test_results_page_renders_with_real_data(self, service, monkeypatch):
+        """P6: Vorschlagsliste mit echten Daten rendern – ohne Netz (GND und LLM aus)."""
+        import re
+
+        from flask import Flask
+
+        from app import limiter, register_template_context
+        from app.routes import search as search_route
+
+        templates = Path(__file__).resolve().parent.parent / "app" / "templates"
+        app = Flask(__name__, template_folder=str(templates))
+        app.config.update(
+            TESTING=True,
+            RATELIMIT_ENABLED=False,
+            DATABASE_PATH=config.DATABASE_PATH,
+            ENABLE_QUERY_EXPANSION=False,
+            ENABLE_GND_EXPANSION=False,
+            DEFAULT_MAIN_GROUPS=(),
+        )
+        limiter.init_app(app)
+        app.register_blueprint(search_route.bp)
+        register_template_context(app)
+        monkeypatch.setattr(
+            search_route.embedding_service, "get_service", lambda: service
+        )
+        client = app.test_client()
+
+        html = client.post("/search", data={"q": "Wärmepumpe"}).get_data(as_text=True)
+        assert "<summary>Warum?</summary>" in html
+        assert "Fachgebiete:" in html
+        assert "in RVK-Online prüfen" in html
+        # Hauptgruppen tragen ihre Bezeichnung aus der Datenbank
+        assert re.search(r"<caption>[A-Z]{2} [^<]+ – \d+ Vorschl", html)
+        assert "Konfidenz" not in html and "Ergebnis" not in html
+
+        filtered = client.post(
+            "/search", data={"q": "Wärmepumpe", "hg": "ZP", "hg_form": "1"}
+        ).get_data(as_text=True)
+        captions = re.findall(r"<caption>([A-Z]+) ", filtered)
+        assert captions and set(captions) == {"ZP"}
+
+        start = client.get("/").get_data(as_text=True)
+        assert re.search(r"RVK-Stand: \d{4}/\d+", start)
+        assert 'name="hg" value="ZP"' in start

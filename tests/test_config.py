@@ -44,6 +44,27 @@ def test_scoring_formula_can_be_switched_via_env(monkeypatch):
         importlib.reload(config_module)
 
 
+def test_default_main_groups_empty_by_default(monkeypatch):
+    try:
+        monkeypatch.delenv("DEFAULT_MAIN_GROUPS", raising=False)
+        assert importlib.reload(config_module).Config.DEFAULT_MAIN_GROUPS == ()
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config_module)
+
+
+def test_default_main_groups_from_env(monkeypatch):
+    try:
+        monkeypatch.setenv("DEFAULT_MAIN_GROUPS", "zl, ZM,,zl ")
+        assert importlib.reload(config_module).Config.DEFAULT_MAIN_GROUPS == (
+            "ZL",
+            "ZM",
+        )
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config_module)
+
+
 def test_llm_expansion_can_be_switched_on_via_env(monkeypatch):
     try:
         assert (
