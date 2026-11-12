@@ -1,7 +1,13 @@
 from flask import Blueprint, current_app, render_template, request
 
 from app import limiter
-from app.services import embedding_service, presentation, ranking, rvk_repository
+from app.services import (
+    embedding_service,
+    presentation,
+    ranking,
+    rvk_repository,
+    usage_stats,
+)
 from app.services.expansion import gnd, llm
 
 bp = Blueprint("search", __name__)
@@ -48,6 +54,8 @@ def search():
         )
 
     conn = rvk_repository.get_connection(config["DATABASE_PATH"])
+    source = None
+    llm_stats: dict = {}
     try:
         # Eine GND-Quelle für GND-Erweiterung und Prüfung der LLM-Vorschläge zusammen
         source = gnd.build_gnd_source(conn, config)
@@ -56,7 +64,7 @@ def search():
         # P4: Das Sprachmodell schlägt vor; gesucht wird nur, was im Register oder in der GND steht
         llm_source = source if config.get("ENABLE_GND_EXPANSION") else None
         suggestions = llm.llm_suggestions_for_query(
-            conn, config, query, source=llm_source
+            conn, config, query, source=llm_source, stats=llm_stats
         )
         all_llm_terms = llm.verified_terms(suggestions, query)
 
@@ -89,7 +97,20 @@ def search():
             conn, {row["main_group"] for row in results}
         )
     finally:
+        close_source = getattr(source, "close", None)
+        if callable(close_source):
+            close_source()
         conn.close()
+
+    # P8: anonyme Tageszähler – keine IP, kein Suchtext (app/services/usage_stats.py)
+    usage_path = config.get("USAGE_DATABASE_PATH")
+    if usage_path:
+        usage_stats.record_search(usage_path, len(results))
+        usage_stats.record_cache_hits(
+            usage_path,
+            gnd=int(getattr(source, "cache_hits", 0) or 0),
+            llm=int(llm_stats.get("cache_hits", 0) or 0),
+        )
 
     blocks = presentation.assign_to_senses(results, result.senses, senses, labels)
     return render_template(

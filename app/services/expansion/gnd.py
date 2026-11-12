@@ -1,9 +1,9 @@
 """GND-Erweiterung: Synonyme, Ober-, Unter- und verwandte Begriffe aus der Gemeinsamen Normdatei.
 
 Aufbau:
-- `GndSource` ist die Schnittstelle. Heute steht `LobidGndSource` (lobid-gnd live, 30-Tage-Cache)
-  dahinter, ab P8 ein lokaler GND-Abzug mit lobid als Rückfallebene. Aufrufer kennen nur die
-  Schnittstelle.
+- `GndSource` ist die Schnittstelle. Seit P8 steht standardmäßig `LocalGndSource` (lokaler
+  DNB-Abzug in data/gnd.sqlite3) dahinter, mit `LobidGndSource` (lobid-gnd live,
+  30-Tage-Cache) als Rückfallebene. Aufrufer kennen nur die Schnittstelle.
 - `expand_gnd` macht aus den Datensätzen Bedeutungen (`GndSense`). Mehrdeutige Begriffe werden
   nicht still aufgelöst: Jeder passende Datensatz wird eine eigene Bedeutung. Kein LLM.
 
@@ -183,6 +183,8 @@ class LobidGndSource:
         self.cache_days = cache_days
         self.http_get = http_get
         self.consecutive_failures = 0
+        # Antworten aus gnd_cache (für /health und die Nutzungsstatistik)
+        self.cache_hits = 0
 
     def _request_key(self, params: dict) -> str:
         return f"{self.base_url}?{urlencode(sorted(params.items()))}"
@@ -196,9 +198,12 @@ class LobidGndSource:
             cached = None
         if cached is not None:
             try:
-                return json.loads(cached)
+                data = json.loads(cached)
             except json.JSONDecodeError:
                 pass
+            else:
+                self.cache_hits += 1
+                return data
         if self.consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
             return None
         try:
@@ -244,6 +249,198 @@ class LobidGndSource:
             "size": str(limit),
         }
         return parse_search_response(self._fetch(params))[:limit]
+
+
+# --- lokaler Abzug (P8) ---------------------------------------------------------------------
+
+
+class LocalGndSource:
+    """GND aus dem lokalen Abzug data/gnd.sqlite3 (siehe app/services/gnd_local.py).
+
+    Gesucht wird exakt über den normalisierten Namen (gleiche Normalisierung wie
+    `matches_query`): Vorzugsnamen vor Namensvarianten, danach nach GND-ID, höchstens `size`.
+
+    Rückfallebene: Fehlt die Datei, ist sie leer oder unlesbar, oder tritt bei der Abfrage ein
+    SQLite-Fehler auf, fragt die Quelle `fallback` (lobid-gnd). Ein leeres Ergebnis bei
+    funktionierender lokaler Datenbank heißt dagegen „keine Bedeutung“ und geht nicht an lobid.
+    """
+
+    def __init__(self, db_path: str, fallback: GndSource | None = None):
+        self.db_path = db_path
+        self.fallback = fallback
+        self._conn: sqlite3.Connection | None = None
+        self._checked = False
+        self.used_fallback = 0
+        self._category_labels: dict[str, str] | None = None
+
+    @property
+    def cache_hits(self) -> int:
+        return int(getattr(self.fallback, "cache_hits", 0) or 0)
+
+    def _connection(self) -> sqlite3.Connection | None:
+        if self._checked:
+            return self._conn
+        self._checked = True
+        conn = rvk_repository.get_readonly_connection(self.db_path)
+        if conn is None:
+            logger.warning("Lokale GND %s fehlt – Rückfall auf lobid-gnd", self.db_path)
+            return None
+        try:
+            row = conn.execute("SELECT COUNT(*) FROM gnd_subject").fetchone()
+            if not row or not row[0]:
+                raise sqlite3.DatabaseError("gnd_subject ist leer")
+        except sqlite3.Error as exc:
+            logger.warning(
+                "Lokale GND %s unbrauchbar (%s) – Rückfall auf lobid-gnd",
+                self.db_path,
+                exc,
+            )
+            conn.close()
+            return None
+        self._conn = conn
+        return conn
+
+    def close(self) -> None:
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+
+    def _labels(self, conn) -> dict[str, str]:
+        if self._category_labels is None:
+            try:
+                rows = conn.execute("SELECT code, label FROM gnd_category_label")
+                self._category_labels = {r[0]: r[1] for r in rows}
+            except sqlite3.Error:
+                self._category_labels = {}
+        return self._category_labels
+
+    def _records(self, conn, gnd_ids: list[str]) -> list[GndRecord]:
+        """GndRecord-Objekte in der Reihenfolge von `gnd_ids`, wie bei lobid aufgebaut."""
+        if not gnd_ids:
+            return []
+        placeholders = ",".join("?" for _ in gnd_ids)
+        subjects = {
+            r[0]: r
+            for r in conn.execute(
+                "SELECT gnd_id, uri, preferred_name, categories_json FROM gnd_subject "
+                f"WHERE gnd_id IN ({placeholders})",
+                gnd_ids,
+            )
+        }
+        variants: dict[str, list[str]] = {}
+        for gnd_id, name in conn.execute(
+            f"SELECT gnd_id, name FROM gnd_variant WHERE gnd_id IN ({placeholders}) "
+            "ORDER BY gnd_id, position",
+            gnd_ids,
+        ):
+            variants.setdefault(gnd_id, []).append(name)
+        relations: dict[str, list[tuple[str, str]]] = {}
+        targets: set[str] = set()
+        for gnd_id, target, relation in conn.execute(
+            "SELECT gnd_id, target_gnd_id, relation FROM gnd_relation "
+            f"WHERE gnd_id IN ({placeholders}) ORDER BY gnd_id, relation, position",
+            gnd_ids,
+        ):
+            relations.setdefault(gnd_id, []).append((relation, target))
+            targets.add(target)
+        # Bezeichnungen der Ober- und verwandten Begriffe aus gnd_subject ergänzen
+        target_names: dict[str, str] = {}
+        target_list = sorted(targets)
+        for start in range(0, len(target_list), 500):
+            batch = target_list[start : start + 500]
+            marks = ",".join("?" for _ in batch)
+            for gnd_id, name in conn.execute(
+                "SELECT gnd_id, preferred_name FROM gnd_subject "
+                f"WHERE gnd_id IN ({marks})",
+                batch,
+            ):
+                target_names[gnd_id] = name
+        labels = self._labels(conn)
+        records = []
+        for gnd_id in gnd_ids:
+            row = subjects.get(gnd_id)
+            if row is None:
+                continue
+            try:
+                codes = json.loads(row[3] or "[]")
+            except json.JSONDecodeError:
+                codes = []
+            broader = [
+                (t, target_names[t])
+                for rel, t in relations.get(gnd_id, [])
+                if rel == "broader" and t in target_names
+            ]
+            related = [
+                (t, target_names[t])
+                for rel, t in relations.get(gnd_id, [])
+                if rel == "related" and t in target_names
+            ]
+            records.append(
+                GndRecord(
+                    id=row[1],
+                    gnd_id=gnd_id,
+                    preferred_name=row[2],
+                    variant_names=tuple(variants.get(gnd_id, [])),
+                    broader=tuple(broader),
+                    related=tuple(related),
+                    subject_categories=tuple((c, labels.get(c, "")) for c in codes),
+                )
+            )
+        return records
+
+    def _fallback(self, method: str, *args) -> list[GndRecord]:
+        if self.fallback is None:
+            return []
+        self.used_fallback += 1
+        return getattr(self.fallback, method)(*args)
+
+    def search_subject_headings(self, query: str, size: int) -> list[GndRecord]:
+        conn = self._connection()
+        if conn is None:
+            return self._fallback("search_subject_headings", query, size)
+        from app.services.gnd_local import name_norm
+
+        key = name_norm(query)
+        if not key or size <= 0:
+            return []
+        try:
+            rows = conn.execute(
+                "SELECT n.gnd_id, MAX(n.is_preferred), s.preferred_name FROM gnd_name n "
+                "JOIN gnd_subject s ON s.gnd_id = n.gnd_id WHERE n.name_norm = ? "
+                "GROUP BY n.gnd_id LIMIT 500",
+                (key,),
+            ).fetchall()
+            # Rangfolge: Vorzugsname genau ohne Zusatz, dann Vorzugsname mit Zusatz <…>,
+            # dann Namensvarianten; innerhalb gleichen Rangs nach GND-ID.
+            query_norm = normalize_query(query)
+
+            def rank(row) -> tuple[int, str]:
+                if row[1] and normalize_query(row[2]) == query_norm:
+                    return (0, row[0])
+                return (1 if row[1] else 2, row[0])
+
+            ordered = [r[0] for r in sorted(rows, key=rank)[:size]]
+            return self._records(conn, ordered)
+        except sqlite3.Error as exc:
+            logger.warning("Lokale GND-Abfrage fehlgeschlagen: %s", exc)
+            return self._fallback("search_subject_headings", query, size)
+
+    def find_narrower(self, record_id: str, limit: int) -> list[GndRecord]:
+        if not record_id or limit <= 0:
+            return []
+        conn = self._connection()
+        if conn is None:
+            return self._fallback("find_narrower", record_id, limit)
+        try:
+            rows = conn.execute(
+                "SELECT DISTINCT gnd_id FROM gnd_relation "
+                "WHERE target_gnd_id = ? AND relation = 'broader' ORDER BY gnd_id LIMIT ?",
+                (gnd_id_from_uri(record_id), limit),
+            ).fetchall()
+            return self._records(conn, [r[0] for r in rows])
+        except sqlite3.Error as exc:
+            logger.warning("Lokale GND-Abfrage fehlgeschlagen: %s", exc)
+            return self._fallback("find_narrower", record_id, limit)
 
 
 # --- Bedeutungen ----------------------------------------------------------------------------
@@ -339,14 +536,23 @@ def _setting(config, key: str, default=None):
 
 
 def build_gnd_source(conn, config, http_get=None) -> GndSource:
-    """Die GND-Quelle laut Konfiguration (P3: lobid-gnd)."""
-    return LobidGndSource(
+    """Die GND-Quelle laut Konfiguration.
+
+    GND_SOURCE = "local" (Standard ab P8): lokaler Abzug, lobid-gnd als Rückfallebene.
+    GND_SOURCE = "lobid": nur lobid-gnd (Stand P3).
+    """
+    lobid = LobidGndSource(
         conn,
         base_url=_setting(config, "GND_API_URL", "https://lobid.org/gnd/search"),
         timeout=_setting(config, "GND_TIMEOUT_SECONDS", 4),
         cache_days=_setting(config, "GND_CACHE_DAYS", 30),
         http_get=http_get or requests.get,
     )
+    source = str(_setting(config, "GND_SOURCE", "lobid") or "lobid").lower()
+    db_path = _setting(config, "GND_DATABASE_PATH", None)
+    if source == "local" and db_path:
+        return LocalGndSource(db_path, fallback=lobid)
+    return lobid
 
 
 def gnd_senses_for_query(

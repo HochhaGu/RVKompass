@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="utf-8"><title>RVKompass – Abgleich</title></head>
+<body style="font-family: sans-serif; line-height: 1.4; color: #222;">
+{% set th = 'style="text-align:left; padding:4px 8px; border-bottom:1px solid #ccc;"' %}
+{% set td = 'style="padding:4px 8px; border-bottom:1px solid #eee;"' %}
+{% if kind == "gnd" %}
+  <h2>GND-Aktualisierung fehlgeschlagen</h2>
+  <p>Der lokale GND-Abzug bleibt auf dem bisherigen Stand.</p>
+  <p><strong>Ursache:</strong> {{ error }}</p>
+{% else %}
+  <h2>RVK-Abgleich: {{ outcome_text }}</h2>
+  <table style="border-collapse: collapse;">
+    <tr><th {{ th|safe }}>Bisheriger Stand</th><td {{ td|safe }}>{{ old_version }}</td></tr>
+    <tr><th {{ th|safe }}>Neuer Stand</th><td {{ td|safe }}>{{ new_version }}</td></tr>
+    <tr><th {{ th|safe }}>Notationen gesamt (alt → neu)</th>
+        <td {{ td|safe }}>{{ fmt(old_count) }} → {{ fmt(new_count) }}</td></tr>
+    {% if diff %}
+    <tr><th {{ th|safe }}>Neu / geändert / gelöscht</th>
+        <td {{ td|safe }}>{{ diff.new }} / {{ diff.changed }} / {{ diff.deleted }}
+        {% if diff_baseline %}(erster Lauf ohne bisherigen Stand: keine Änderungsliste){% endif %}</td></tr>
+    <tr><th {{ th|safe }}>Einträge in notation_change</th><td {{ td|safe }}>{{ fmt(notation_change_rows) }}</td></tr>
+    {% endif %}
+    <tr><th {{ th|safe }}>Backup</th><td {{ td|safe }}>{{ backup_dir or "–" }}</td></tr>
+  </table>
+
+  {% if error %}
+  <h3>Ursache des Fehlers</h3>
+  <p>{{ error }}</p>
+  {% endif %}
+
+  {% if eval_before or eval_after %}
+  <h3>Evaluation (Relevanzmaße 0–1, gleiche Goldstandard-Liste vorher und nachher)</h3>
+  <table style="border-collapse: collapse;">
+    <tr><th {{ th|safe }}></th><th {{ th|safe }}>vorher</th><th {{ th|safe }}>nachher</th></tr>
+    <tr><th {{ th|safe }}>Hit@10</th><td {{ td|safe }}>{{ fmt((eval_before or {}).get("hit@10")) }}</td>
+        <td {{ td|safe }}>{{ fmt((eval_after or {}).get("hit@10")) }}</td></tr>
+    <tr><th {{ th|safe }}>MRR</th><td {{ td|safe }}>{{ fmt((eval_before or {}).get("mrr")) }}</td>
+        <td {{ td|safe }}>{{ fmt((eval_after or {}).get("mrr")) }}</td></tr>
+    <tr><th {{ th|safe }}>Anfragen in der Wertung</th><td {{ td|safe }}>{{ fmt((eval_before or {}).get("n")) }}</td>
+        <td {{ td|safe }}>{{ fmt((eval_after or {}).get("n")) }}</td></tr>
+  </table>
+  {% endif %}
+
+  {% if checks %}
+  <h3>Prüfungen</h3>
+  <table style="border-collapse: collapse;">
+    <tr><th {{ th|safe }}>Prüfung</th><th {{ th|safe }}>Ergebnis</th><th {{ th|safe }}>Einzelheiten</th></tr>
+    {% for check in checks %}
+    <tr><td {{ td|safe }}>{{ check.name }}</td>
+        <td {{ td|safe }}>{{ "bestanden" if check.passed else "NICHT bestanden" }}</td>
+        <td {{ td|safe }}>{{ check.message }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <h3>Goldstandard-Markierungen</h3>
+  {% if gold_marks %}
+  <p>„gelöscht“ fällt vorher und nachher aus der Wertung; „fehlte schon vorher“ bleibt in der
+     Wertung (in beiden Läufen nicht erreichbar).</p>
+  <table style="border-collapse: collapse;">
+    <tr><th {{ th|safe }}>Anfrage</th><th {{ th|safe }}>Notation</th><th {{ th|safe }}>Markierung</th></tr>
+    {% for mark in gold_marks %}
+    <tr><td {{ td|safe }}>{{ mark.query }}</td><td {{ td|safe }}>{{ mark.notation }}</td>
+        <td {{ td|safe }}>{{ mark.label }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>Keine.</p>
+  {% endif %}
+{% endif %}
+<p style="color:#666; font-size: 0.9em;">Automatisch erzeugt von RVKompass{% if finished_at %} am {{ finished_at }}{% endif %}.</p>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% if kind == "gnd" %}
+GND-Aktualisierung fehlgeschlagen. Der lokale GND-Abzug bleibt auf dem bisherigen Stand.
+Ursache: {{ error }}
+{% else %}
+RVK-Abgleich: {{ outcome_text }}
+
+Bisheriger Stand: {{ old_version }}
+Neuer Stand: {{ new_version }}
+Notationen gesamt (alt -> neu): {{ fmt(old_count) }} -> {{ fmt(new_count) }}
+{% if diff %}
+Neu / geändert / gelöscht: {{ diff.new }} / {{ diff.changed }} / {{ diff.deleted }}{% if diff_baseline %} (erster Lauf ohne bisherigen Stand){% endif %}
+
+Einträge in notation_change: {{ fmt(notation_change_rows) }}
+{% endif %}
+Backup: {{ backup_dir or "-" }}
+{% if error %}
+
+Ursache des Fehlers: {{ error }}
+{% endif %}
+{% if eval_before or eval_after %}
+
+Evaluation (Relevanzmaße 0-1, gleiche Goldstandard-Liste):
+  Hit@10 vorher {{ fmt((eval_before or {}).get("hit@10")) }}, nachher {{ fmt((eval_after or {}).get("hit@10")) }}
+  MRR    vorher {{ fmt((eval_before or {}).get("mrr")) }}, nachher {{ fmt((eval_after or {}).get("mrr")) }}
+{% endif %}
+{% if checks %}
+
+Prüfungen:
+{% for check in checks %}
+  - {{ check.name }}: {{ "bestanden" if check.passed else "NICHT bestanden" }} ({{ check.message }})
+{% endfor %}
+{% endif %}
+
+Goldstandard-Markierungen:
+{% for mark in gold_marks or [] %}
+  - {{ mark.query }} / {{ mark.notation }}: {{ mark.label }}
+{% else %}
+  keine
+{% endfor %}
+{% endif %}

@@ -329,3 +329,32 @@ def test_run_mode_uses_gnd_senses_only_with_expansion(setup, monkeypatch, tmp_pa
     for key in ("hit@1", "hit@5", "hit@10", "mrr"):
         assert 0.0 <= report["metrics"][key] <= 1.0
     datetime.fromisoformat(report["timestamp"])
+
+
+def test_evaluate_database_uses_overridden_paths(setup, tmp_path):
+    gold, _, calls = setup
+    entries = evaluate.evaluation.parse_gold(
+        gold.read_text(encoding="utf-8").splitlines()
+    )
+    base = evaluate.get_config()
+    other_db = tmp_path / "staging.sqlite3"
+    other_db.write_bytes((tmp_path / "rvk.sqlite3").read_bytes())
+    seen = []
+
+    def factory(config):
+        seen.append((config.DATABASE_PATH, config.EMBEDDINGS_PATH))
+        return FakeService()
+
+    metrics = evaluate.evaluate_database(
+        {"DATABASE_PATH": other_db, "EMBEDDINGS_PATH": "/staging/embeddings.npy"},
+        entries,
+        base_config=base,
+        service_factory=factory,
+    )
+    assert seen == [(str(other_db), "/staging/embeddings.npy")]
+    assert metrics["n"] == 2
+    assert metrics["hit@10"] == 0.5  # Getriebe gefunden, Feder nicht
+    # Hauptvariante: LLM-Vorschläge werden genutzt (Schalter in der Konfiguration an)
+    assert calls["expand"] == 2
+    # Basis-Konfiguration bleibt unverändert
+    assert base.DATABASE_PATH == str(tmp_path / "rvk.sqlite3")

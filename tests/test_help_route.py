@@ -38,6 +38,21 @@ def test_required_content(html):
         assert scoring.PATH_LABELS[path] in html
 
 
+def test_privacy_page_mentions_no_ip_storage():
+    from app.routes import legal
+
+    app = Flask(__name__, template_folder=str(TEMPLATES))
+    app.config.update(TESTING=True)
+    app.register_blueprint(legal.bp)
+    response = app.test_client().get("/datenschutz")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "keine IP-Adressen" in html
+    assert "Tageszähler" in html
+    assert "Anthropic" in html
+    assert "Konfidenz" not in html
+
+
 def test_no_confidence_or_percent(html):
     assert "Konfidenz" not in html
     assert "%" not in html

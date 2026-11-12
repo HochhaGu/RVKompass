@@ -1,0 +1,12 @@
+# /etc/cron.d/rvkompass – Monatliche Abgleiche im Container (P8). Zeiten in UTC.
+# Die Jobs laufen als Nutzer rvkompass (wie gunicorn), damit getauschte Dateien für die Worker
+# lesbar bleiben und das SIGHUP an gunicorn erlaubt ist. Einstellungen kommen aus /app/.env
+# (load_dotenv in app/__init__.py), nicht aus der Umgebung des Containers.
+SHELL=/bin/sh
+PATH=/usr/local/bin:/usr/bin:/bin
+HF_HOME=/app/data/hf-cache
+
+# RVK: am 2. jedes Monats um 03:00
+0 3 2 * * rvkompass cd /app && /usr/local/bin/python /app/scripts/monthly_sync.py >> /app/logs/sync.log 2>&1
+# GND-Sachbegriffe: am 3. jedes Monats um 04:00
+0 4 3 * * rvkompass cd /app && /usr/local/bin/python /app/scripts/sync_gnd.py >> /app/logs/gnd.log 2>&1

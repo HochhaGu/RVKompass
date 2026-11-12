@@ -121,6 +121,38 @@ def parse_gold(lines: Iterable[str]) -> list[GoldEntry]:
     return entries
 
 
+def exclude_notations(
+    entries: Iterable[GoldEntry], notations: Iterable[str]
+) -> list[GoldEntry]:
+    """Gold-Liste ohne die angegebenen Notationen (P8, z. B. „gelöscht in 2026/3“).
+
+    Anfragen, denen danach keine erwartete Notation bleibt, fallen ganz heraus. Die Einträge
+    werden kopiert, die übergebene Liste bleibt unverändert.
+    """
+    drop = {normalize_notation(n) for n in notations}
+    result = []
+    for entry in entries:
+        kept = [n for n in entry.expected if normalize_notation(n) not in drop]
+        if not kept:
+            continue
+        if len(kept) == len(entry.expected):
+            result.append(entry)
+            continue
+        result.append(
+            GoldEntry(
+                query=entry.query,
+                expected=kept,
+                quelle=entry.quelle,
+                fachgebiet=entry.fachgebiet,
+                typ=entry.typ,
+                anmerkung=entry.anmerkung,
+                line=entry.line,
+                extra=dict(entry.extra),
+            )
+        )
+    return result
+
+
 def first_hit_rank(results: list[str], expected: list[str]) -> int | None:
     """1-basierter Rang des ersten erwarteten Treffers, sonst None."""
     wanted = {normalize_notation(e) for e in expected}

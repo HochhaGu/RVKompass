@@ -61,15 +61,19 @@ CREATE TABLE IF NOT EXISTS daily_usage (
     claude_calls INTEGER NOT NULL DEFAULT 0
 );
 
--- P6: RVK-Stand, in dem eine Notation zuletzt geändert wurde (Etikett „geändert in Version …“).
--- Bleibt leer bis P8: Der monatliche Sync vergleicht dann neuen und bisherigen Gesamtabzug
--- (neu, geändert, gelöscht) und befüllt die Tabelle. Ohne Eintrag erscheint kein Etikett.
+-- P6/P8: RVK-Stand, in dem eine Notation neu kam, geändert oder gelöscht wurde (Etikett
+-- „geändert in Version …“). Der monatliche Abgleich (app/services/rvk_sync/diff.py) vergleicht
+-- neuen und bisherigen Gesamtabzug und befüllt die Tabelle. Schlüssel ist der Notationstext, weil
+-- die IDs bei jedem Neuaufbau neu entstehen; gelöschte Notationen haben keine ID (NULL).
 CREATE TABLE IF NOT EXISTS notation_change (
-    notation_id INTEGER NOT NULL REFERENCES notation(id),
+    notation_id INTEGER,
+    notation TEXT NOT NULL,
     version TEXT NOT NULL,
-    change_type TEXT
+    change_type TEXT NOT NULL CHECK (change_type IN ('new', 'changed', 'deleted'))
 );
 
+-- Index auf notation_change(notation) legt migrate_notation_change() an: Ältere Datenbestände
+-- haben die Spalte noch nicht, und SCHEMA_SQL läuft auch auf ihnen.
 CREATE INDEX IF NOT EXISTS idx_notation_change_notation_id ON notation_change(notation_id);
 """
 

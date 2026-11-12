@@ -26,6 +26,7 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -228,6 +229,51 @@ def build_embedding_service(config):
         register_term_embeddings_path=config.REGISTER_TERM_EMBEDDINGS_PATH,
         register_term_meta_path=config.REGISTER_TERM_META_PATH,
     )
+
+
+def config_with_overrides(base, overrides: dict | None):
+    """Kopie der Konfiguration (Großbuchstaben-Attribute) mit überschriebenen Werten."""
+    values = {k: getattr(base, k) for k in dir(base) if k.isupper()}
+    values.update(
+        {
+            k: (str(v) if isinstance(v, Path) else v)
+            for k, v in (overrides or {}).items()
+        }
+    )
+    return SimpleNamespace(**values)
+
+
+def evaluate_database(
+    config_overrides: dict | None,
+    entries: list,
+    base_config=None,
+    service_factory=None,
+) -> dict:
+    """Kennzahlen der Hauptvariante (GND und, falls eingeschaltet, LLM) für einen Datenbestand.
+
+    Für den monatlichen RVK-Abgleich (P8): `config_overrides` setzt DATABASE_PATH und die
+    Embedding-Pfade auf den Live- oder den Staging-Stand. Ergebnis wie evaluation.aggregate.
+    """
+    config = config_with_overrides(base_config or get_config(), config_overrides)
+    service = (service_factory or build_embedding_service)(config)
+    conn = rvk_repository.get_connection(config.DATABASE_PATH)
+    try:
+        source = gnd.build_gnd_source(conn, config) if gnd_enabled(config) else None
+        per_query = run_mode(
+            conn,
+            service,
+            entries,
+            config,
+            use_gnd=True,
+            use_llm=True,
+            source=source,
+        )
+    finally:
+        close = getattr(source, "close", None) if gnd_enabled(config) else None
+        if callable(close):
+            close()
+        conn.close()
+    return evaluation.aggregate(per_query)
 
 
 def parse_args(argv=None):

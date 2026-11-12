@@ -1,0 +1,34 @@
+# VORLAGE – erst nach Günthers Freigabe aktivieren (docs/deployment.md, Abschnitt 4).
+# Ersetzt dann /etc/caddy/sites/rvkompass.caddy. Bis dahin gilt deploy/caddy/rvkompass.caddy (503).
+#
+# /etc/caddy/sites/rvkompass.caddy – RVKompass unter rvkompass.ghochhauser.at
+# Caddy holt das HTTPS-Zertifikat selbst (Port 80 und 443 müssen offen sein).
+# Geschrieben für Caddy 2.6 (Passwortschutz heißt hier noch "basicauth").
+
+rvkompass.ghochhauser.at {
+	encode gzip
+
+	# Kein Zugriffsprotokoll: Ohne "log"-Anweisung schreibt Caddy keine Zugriffe mit.
+
+	# Statusseite des Steuerprogramms – passwortgeschützt (unverändert)
+	redir /status /status/
+	handle_path /status/* {
+		# Enthält "basicauth { <nutzer> <bcrypt-hash> }", erzeugt mit make_status_auth.sh
+		import /etc/caddy/rvkompass-status.auth
+		header Cache-Control "no-store"
+		header X-Robots-Tag "noindex, nofollow"
+		root * /srv/rvkompass-status
+		file_server
+	}
+
+	# Interne Endpunkte sind von außen gesperrt. Manueller Abgleich nur auf dem Server:
+	#   curl -X POST -H "X-Sync-Token: …" http://127.0.0.1:8000/internal/sync
+	handle /internal/* {
+		respond 404
+	}
+
+	# Die App
+	handle {
+		reverse_proxy 127.0.0.1:8000
+	}
+}

@@ -185,11 +185,25 @@ def test_lobid_cache_hit_avoids_http(conn):
     http = FakeHttp(FakeResponse(load_fixture()))
     gnd.LobidGndSource(conn, http_get=http).search_subject_headings("Mutter", 10)
     second = FakeHttp()
-    records = gnd.LobidGndSource(conn, http_get=second).search_subject_headings(
-        "Mutter", 10
-    )
+    cached_source = gnd.LobidGndSource(conn, http_get=second)
+    records = cached_source.search_subject_headings("Mutter", 10)
     assert len(records) == 3
     assert second.calls == []
+    assert cached_source.cache_hits == 1
+
+
+def test_build_gnd_source_follows_config(tmp_path, conn):
+    local = gnd.build_gnd_source(
+        conn,
+        {"GND_SOURCE": "local", "GND_DATABASE_PATH": str(tmp_path / "gnd.sqlite3")},
+    )
+    assert isinstance(local, gnd.LocalGndSource)
+    assert isinstance(local.fallback, gnd.LobidGndSource)
+    assert isinstance(
+        gnd.build_gnd_source(conn, {"GND_SOURCE": "lobid"}), gnd.LobidGndSource
+    )
+    # Ohne Angabe (alte Konfigurationen, Tests): lobid wie in P3
+    assert isinstance(gnd.build_gnd_source(conn, {}), gnd.LobidGndSource)
 
 
 def test_lobid_empty_valid_answer_is_cached(conn):

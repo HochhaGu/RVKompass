@@ -290,6 +290,7 @@ def get_change_versions(
 ) -> dict[int, str]:
     """Jüngster RVK-Stand mit Änderung je Notation (Tabelle `notation_change`).
 
+    Zählt nur „neu“ und „geändert“; gelöschte Einträge haben keine gültige Notation-ID.
     Fehlt die Tabelle (Datenbestand vor P6), ist das Ergebnis still leer. Nur lesend.
     """
     ids = list(dict.fromkeys(notation_ids))
@@ -299,7 +300,8 @@ def get_change_versions(
     try:
         rows = conn.execute(
             "SELECT notation_id, version FROM notation_change "
-            f"WHERE notation_id IN ({placeholders}) ORDER BY rowid",
+            f"WHERE notation_id IN ({placeholders}) AND notation_id IS NOT NULL "
+            "AND (change_type IS NULL OR change_type != 'deleted') ORDER BY rowid",
             ids,
         ).fetchall()
     except sqlite3.Error:
