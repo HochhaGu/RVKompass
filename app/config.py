@@ -5,6 +5,16 @@ from typing import ClassVar
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def parse_main_groups_env(value: str) -> tuple[str, ...]:
+    """ "zl, ZM,," -> ("ZL", "ZM"): Großbuchstaben, ohne Leerwerte und Dubletten."""
+    groups: list[str] = []
+    for part in (value or "").split(","):
+        code = part.strip().upper()
+        if code and code not in groups:
+            groups.append(code)
+    return tuple(groups)
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
     DATABASE_PATH = os.environ.get(
@@ -113,6 +123,14 @@ class Config:
     # Scores der ersten 10 Treffer. Gilt nur für die eingestellte Formel.
     SCORE_TIER_HIGH = 0.6551
     SCORE_TIER_MEDIUM = 0.5754
+
+    # Oberfläche (P6): Voreinstellung für den Filter „Hauptgruppen einschränken“. In .env als
+    # kommagetrennte RVK-Hauptgruppen, z. B. DEFAULT_MAIN_GROUPS="ZL,ZM"; leer = kein Filter.
+    # Die Startseite setzt dafür die Häkchen vor; die Auswahl wirkt auf die Liste der Vorschläge
+    # und darauf, welche GND-Bedeutung aufgeklappt ist.
+    DEFAULT_MAIN_GROUPS: ClassVar[tuple[str, ...]] = parse_main_groups_env(
+        os.environ.get("DEFAULT_MAIN_GROUPS", "")
+    )
     DEBUG = False
 
 

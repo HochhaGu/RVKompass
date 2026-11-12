@@ -9,21 +9,26 @@
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#inhalt">Zum Inhalt</a>
   <header>
     <h1 class="tool-title">RVKompass</h1>
     <p class="tool-slogan">Klassifizieren mit Richtung – semantische Unterstützung mit KI</p>
-    <nav>
+    <nav aria-label="Hauptnavigation">
+      <a href="/">Suche</a>
+      <a href="/hilfe">Hilfe</a>
       <a href="https://ghochhauser.at/index.html">Start</a>
       <a href="https://ghochhauser.at/tools/overview.html">Projekte &amp; Tools</a>
       <a href="https://ghochhauser.at/ueber-mich.html">Über mich</a>
       <a href="https://ghochhauser.at/kontakt.html">Kontakt</a>
     </nav>
   </header>
-  <main>
+  <main id="inhalt" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
   <footer>
-    <p><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
+    <p><a href="/hilfe">Hilfe</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
+    <p class="rvk-version">RVK-Stand: {{ rvk_version or "unbekannt" }}</p>
   </footer>
+  <div id="live-status" class="visually-hidden" aria-live="polite"></div>
 </body>
 </html>

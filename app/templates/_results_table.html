@@ -1,97 +1,49 @@
-{% if query and llm_suggestions %}
-  <section class="llm-suggestions">
-    <p><strong>Vorschläge des Sprachmodells</strong> – gesucht wird nur, was im Normvokabular (RVK-Register oder GND) steht:</p>
-    <ul>
-      {% for s in llm_suggestions %}
-      {% if s.verified %}
-      <li class="llm-verified">
-        <strong>{{ s.term }}</strong>{% if s.matched_term and s.matched_term != s.term %} (als „{{ s.matched_term }}“){% endif %}
-        <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.verified_label }}</small>
-      </li>
-      {% else %}
-      <li class="llm-unverified">
-        {{ s.term }}
-        <small>– {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – nicht im Normvokabular gefunden – nicht gesucht</small>
-      </li>
-      {% endif %}
-      {% endfor %}
-    </ul>
-  </section>
-{% endif %}
 {% if not query %}
   <p><em>Noch keine Suche durchgeführt.</em></p>
-{% elif not results %}
-  <p>Keine passenden RVK-Systemstellen für „{{ query }}" gefunden.</p>
 {% else %}
-  {% if senses and senses | length > 1 %}
-    <section class="gnd-senses">
-      <p><strong>Mehrere Bedeutungen gefunden</strong> (laut GND – bitte die passende wählen):</p>
-      <ol>
-        {% for s in senses %}
-        <li>
-          <strong>{{ s.name }}</strong>
-          {% if s.subject_categories %}<small>(Sachgruppe: {{ s.subject_categories | join(', ') }})</small>{% endif %}
-          {% if s.notations %}
-            –
-            {% for n in s.notations %}<a href="{{ n.rvk_online_url }}" target="_blank" rel="noopener" title="{{ n.label or '' }}"><code>{{ n.notation }}</code></a>{% if not loop.last %}, {% endif %}{% endfor %}
-          {% else %}
-            – <em>keine Systemstelle über diese Bedeutung gefunden</em>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ol>
-    </section>
-  {% elif senses %}
-    <p class="gnd-senses">GND-Begriff: <strong>{{ senses[0].name }}</strong>
-      {% if senses[0].subject_categories %}<small>(Sachgruppe: {{ senses[0].subject_categories | join(', ') }})</small>{% endif %}
-    </p>
-  {% endif %}
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>RVK-Notation</th>
-        <th>Kurzbeschreibung</th>
-        <th>Verwandte Begriffe</th>
-        <th>Relevanz</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in results %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td class="notation-cell">
-          <code>{{ r.notation }}</code>
-          <button
-            type="button"
-            class="icon-btn copy-notation"
-            data-notation="{{ r.notation }}"
-            title="Notation in die Zwischenablage kopieren"
-          >📋</button>
-          <a
-            class="icon-btn rvk-online-link"
-            href="{{ r.rvk_online_url }}"
-            target="_blank"
-            rel="noopener"
-            title="In RVK-Online gegenprüfen"
-          >↗</a>
-        </td>
-        <td>
-          <strong>{{ r.label }}</strong>
-          {% if r.hierarchy_path %}<br><small>{{ r.hierarchy_path }}</small>{% endif %}
-        </td>
-        <td>{{ r.related_terms | join(', ') }}</td>
-        <td class="relevance-cell">
-          <span class="tier tier-{{ r.tier }}" title="Relevanzwert {{ '%.2f' | format(r.score) }}">{{ r.tier }}</span>
-          <span class="score-bar">
-            {%- for c in r.components -%}
-            <span class="seg seg-{{ c.key }}" style="width: {{ c.width }}em" title="{{ c.label }}: {{ '%.2f' | format(c.value) }}"></span>
-            {%- endfor -%}
-          </span>
-        </td>
-      </tr>
+  {% if tree and tree.has_expansion %}{% include "_expansion_tree.html" %}{% endif %}
+  {% if not results %}
+    <p class="empty-state">Keine Vorschläge für „{{ query }}“ gefunden.</p>
+  {% else %}
+    <p class="results-intro"><strong>{{ results | length }} {{ "Vorschlag" if results | length == 1 else "Vorschläge" }}</strong> für „{{ query }}“ – Vorschläge, keine Entscheidung: bitte jede Stelle in RVK-Online prüfen.</p>
+    {% if blocks %}
+      <section class="gnd-senses" aria-labelledby="senses-title">
+        <h3 id="senses-title">Mehrere Bedeutungen gefunden</h3>
+        <p>Laut GND hat „{{ query }}“ mehrere Bedeutungen. Die Vorschläge stehen getrennt je Bedeutung; aufgeklappt ist die, die zum gewählten Fachgebiet passt (sonst die erste).</p>
+        <fieldset class="sense-toggles">
+          <legend>Bedeutungen anzeigen</legend>
+          {% for b in blocks %}
+          <label><input type="checkbox" class="sense-toggle" aria-controls="{{ b.id }}" checked> {{ b.name }}</label>
+          {% endfor %}
+        </fieldset>
+      </section>
+      {% for b in blocks %}
+      <details id="{{ b.id }}" class="sense-block"{% if b.open %} open{% endif %}>
+        <summary>
+          <strong>{{ b.name }}</strong>
+          {%- if b.subject_categories %} – Sachgruppe: {{ b.subject_categories | join(', ') }}{% endif %}
+          – {{ b.count }} {{ "Vorschlag" if b.count == 1 else "Vorschläge" }}
+          {%- if b.kind == "sense" %} <small>({{ b.hit_count }} {{ "Fundstelle" if b.hit_count == 1 else "Fundstellen" }} über diese Bedeutung insgesamt)</small>{% endif %}
+        </summary>
+        {% if b.url %}<p class="sense-link"><a href="{{ b.url }}" target="_blank" rel="noopener">GND-Datensatz bei lobid-gnd ansehen<span class="visually-hidden"> ({{ b.name }})</span></a></p>{% endif %}
+        {% with groups = b.groups %}{% include "_hit_group.html" %}{% endwith %}
+        {% if b.more %}
+        <p class="sense-more">Weitere Stellen über diese Bedeutung, nicht unter den angezeigten Vorschlägen:
+          {% for n in b.more %}<a href="{{ n.rvk_online_url }}" target="_blank" rel="noopener"><code>{{ n.notation }}</code>{% if n.label %} {{ n.label }}{% endif %}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+        </p>
+        {% elif not b.rows %}
+        <p><em>Keine Systemstelle über diese Bedeutung gefunden.</em></p>
+        {% endif %}
+      </details>
       {% endfor %}
-    </tbody>
-  </table>
-  <p class="relevance-note"><small>Relevanz: Stufen aus der Evaluation abgeleitet; Balkenlänge relativ zum ersten Vorschlag; keine Wahrscheinlichkeit. Die Farben im Balken zeigen, über welche Wege ein Vorschlag gefunden wurde (Mauszeiger auf ein Segment).</small></p>
+    {% else %}
+      {% include "_hit_group.html" %}
+    {% endif %}
+  {% endif %}
+  {% if filtered_out %}
+    <p class="filter-note" role="note">{{ filtered_out }} weitere {{ "Fundstelle" if filtered_out == 1 else "Fundstellen" }} außerhalb der gewählten Hauptgruppen ({{ selected_groups | join(', ') }}) nicht angezeigt.</p>
+  {% endif %}
+  {% if results %}
+  <p class="relevance-note"><small>Relevanz: Stufen aus der Evaluation abgeleitet; Balkenlänge relativ zum ersten Vorschlag; keine Wahrscheinlichkeit. Die Bestandteile stehen unter „Warum?“ als Text. Erklärungen auf der <a href="/hilfe">Hilfeseite</a>.</small></p>
+  {% endif %}
 {% endif %}

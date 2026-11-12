@@ -1,0 +1,21 @@
+{% if groups %}
+<p class="main-group-summary">Fachgebiete:
+  {% for g in groups %}<span class="mg">{{ g.code }}{% if g.label %} {{ g.label }}{% endif %} ({{ g.count }})</span>{% if not loop.last %} · {% endif %}{% endfor %}
+</p>
+{% for g in groups %}
+<table class="hits">
+  <caption>{{ g.code }}{% if g.label %} {{ g.label }}{% endif %} – {{ g.count }} {{ "Vorschlag" if g.count == 1 else "Vorschläge" }}</caption>
+  <thead>
+    <tr>
+      <th scope="col">Rang</th>
+      <th scope="col">RVK-Notation</th>
+      <th scope="col">Benennung und Einordnung</th>
+      <th scope="col">Relevanz</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in g.rows %}{% include "_hit_row.html" %}{% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+{% endif %}

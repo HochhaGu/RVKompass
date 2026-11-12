@@ -25,7 +25,8 @@ from urllib.parse import quote
 
 from app.config import Config
 from app.models import Evidence, ExpansionTerm, GndSense, Hit
-from app.services import rvk_repository, scoring
+from app.services import presentation, rvk_repository, scoring
+from app.services.presentation import main_group
 from app.services.query_expansion import normalize_query
 
 MAX_RESULTS = 20
@@ -266,6 +267,8 @@ class SenseResult:
 class SearchResult:
     hits: list[Hit]
     senses: list[SenseResult] = field(default_factory=list)
+    # P6: Zahl der Fundstellen, die der Hauptgruppen-Filter weggelassen hat
+    filtered_out: int = 0
 
 
 def rvk_groups_for_sense(
@@ -473,11 +476,16 @@ def search_result(
     subject_filter: Iterable[str] | None = None,
     mapping: Mapping[str, Iterable[str]] | None = None,
     scoring_settings: scoring.ScoringSettings | None = None,
+    main_group_filter: Iterable[str] | None = None,
 ) -> SearchResult:
     """Trefferliste samt GND-Bedeutungen (P3) und geprüften LLM-Begriffen (P4).
 
     Ohne Bedeutungen identisch mit `search`. `scoring_settings` (P5) wählt Formel und Gewichte;
     Standard ist die Einstellung aus `Config`.
+
+    `main_group_filter` (P6): Nur Vorschläge aus diesen RVK-Hauptgruppen, gefiltert nach dem
+    Sortieren und vor dem Abschneiden auf MAX_RESULTS; die Rangfolge ändert sich nicht. Ohne
+    Filter (Standard) ist das Ergebnis unverändert.
     """
     gnd_senses = list(gnd_senses)
     if mapping is None:
@@ -495,6 +503,10 @@ def search_result(
     # RRF-Lösung). Er ist ein Relevanzmaß, keine Wahrscheinlichkeit.
     scored = score_candidates(candidates.features, scoring_settings)
     retrieval = candidates.retrieval
+    wanted = {g.strip().upper() for g in (main_group_filter or ()) if g and g.strip()}
+    shown = scored
+    if wanted:
+        shown = [item for item in scored if main_group(item[0].notation) in wanted]
     hits = [
         Hit(
             notation=candidates.notations[feature.nid],
@@ -502,7 +514,7 @@ def search_result(
             score=score,
             score_components=components,
         )
-        for feature, score, components in scored[:MAX_RESULTS]
+        for feature, score, components in shown[:MAX_RESULTS]
     ]
     score_by_id = {feature.nid: score for feature, score, _ in scored}
     senses = rank_senses(
@@ -512,7 +524,7 @@ def search_result(
         mapping,
         score_by_id=score_by_id,
     )
-    return SearchResult(hits=hits, senses=senses)
+    return SearchResult(hits=hits, senses=senses, filtered_out=len(scored) - len(shown))
 
 
 def senses_to_rows(
@@ -575,32 +587,57 @@ def score_bar(
     return segments
 
 
+def components_text(segments: Iterable[Mapping[str, object]]) -> str:
+    """Bestandteile als Text („Vektor 0.46, GND 0.04“), damit nichts nur über Farbe läuft."""
+    return ", ".join(f"{s['label']} {float(s['value']):.2f}" for s in segments)
+
+
 def hits_to_rows(
-    conn, hits: list[Hit], scoring_settings: scoring.ScoringSettings | None = None
+    conn,
+    hits: list[Hit],
+    scoring_settings: scoring.ScoringSettings | None = None,
+    query: str | None = None,
+    senses: Iterable[GndSense] = (),
 ) -> list[dict]:
-    """Zeilen für die Ergebnistabelle (_results_table.html).
+    """Zeilen für die Vorschlagsliste (_results_table.html).
 
     Seit P5 statt Prozentwert: Stufe („hoch / mittel / niedrig“), Relevanzwert (nur im Tooltip)
-    und die Bestandteile als Balkensegmente.
+    und die Bestandteile als Balkensegmente. Seit P6 zusätzlich Rang, Hauptgruppe,
+    RVK-Bemerkung, „siehe auch“, die Erklärungsketten („Warum?“, braucht `query`), der
+    Warnhinweis bei reiner Ähnlichkeit und ggf. der RVK-Stand der letzten Änderung.
     """
     if scoring_settings is None:
         scoring_settings = scoring.ScoringSettings.from_config(Config)
     max_score = max((hit.score for hit in hits), default=0.0)
+    sense_ids = {s.display_name: s.gnd_id for s in senses}
+    changes = rvk_repository.get_change_versions(conn, [h.notation.id for h in hits])
     rows = []
-    for hit in hits:
+    for rank, hit in enumerate(hits, start=1):
         notation = hit.notation
+        components = score_bar(hit.score_components, max_score)
         rows.append(
             {
+                "rank": rank,
+                "notation_id": notation.id,
                 "notation": notation.notation,
+                "main_group": main_group(notation.notation),
                 "label": notation.label,
                 "hierarchy_path": notation.hierarchy_path,
+                "note": notation.note,
+                "see_also": notation.see_also,
                 "related_terms": rvk_repository.get_register_terms(
                     conn, notation.id, limit=3
                 ),
                 "tier": scoring.tier_for(hit.score, scoring_settings),
                 "score": round(hit.score, 2),
-                "components": score_bar(hit.score_components, max_score),
+                "components": components,
+                "components_text": components_text(components),
                 "rvk_online_url": build_rvk_online_url(notation.notation),
+                "explanation": presentation.explain_hit(hit, query or "", sense_ids)
+                if query is not None
+                else None,
+                "vector_only": presentation.is_vector_only(hit.evidences, query or ""),
+                "changed_in": changes.get(notation.id),
             }
         )
     return rows

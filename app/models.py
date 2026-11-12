@@ -60,6 +60,17 @@ CREATE TABLE IF NOT EXISTS daily_usage (
     day TEXT PRIMARY KEY,
     claude_calls INTEGER NOT NULL DEFAULT 0
 );
+
+-- P6: RVK-Stand, in dem eine Notation zuletzt geändert wurde (Etikett „geändert in Version …“).
+-- Bleibt leer bis P8: Der monatliche Sync vergleicht dann neuen und bisherigen Gesamtabzug
+-- (neu, geändert, gelöscht) und befüllt die Tabelle. Ohne Eintrag erscheint kein Etikett.
+CREATE TABLE IF NOT EXISTS notation_change (
+    notation_id INTEGER NOT NULL REFERENCES notation(id),
+    version TEXT NOT NULL,
+    change_type TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_notation_change_notation_id ON notation_change(notation_id);
 """
 
 # MARC-Feldtyp -> menschenlesbarer Registerbegriff-Typ (siehe RVK-MarcXML-Doku, Felder 70X-75X)

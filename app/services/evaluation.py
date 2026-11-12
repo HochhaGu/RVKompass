@@ -9,9 +9,12 @@ keine Wahrscheinlichkeiten. Sie werden deshalb als Dezimalzahlen und nie in Proz
 from __future__ import annotations
 
 import csv
-import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+
+# Hauptgruppe einer Notation: seit P6 in app/services/presentation.py (auch für die Oberfläche);
+# hier weiter verfügbar für bestehende Aufrufer.
+from app.services.presentation import main_group
 
 REQUIRED_COLUMNS = ("query", "erwartete_notationen")
 METRIC_KEYS = (
@@ -35,8 +38,6 @@ METRIC_LABELS = {
     "n": "Anzahl Anfragen",
 }
 
-_MAIN_GROUP_RE = re.compile(r"^[A-Z]+")
-
 
 @dataclass
 class GoldEntry:
@@ -53,12 +54,6 @@ class GoldEntry:
 def normalize_notation(notation: str) -> str:
     """Leerraum zusammenfassen und Großschreibung: "zn  8330 " -> "ZN 8330"."""
     return " ".join(str(notation).split()).upper()
-
-
-def main_group(notation: str) -> str:
-    """Hauptgruppe = führende Buchstaben der Notation: "ZN 8330" -> "ZN"."""
-    match = _MAIN_GROUP_RE.match(normalize_notation(notation))
-    return match.group(0) if match else ""
 
 
 def parse_gold(lines: Iterable[str]) -> list[GoldEntry]:
