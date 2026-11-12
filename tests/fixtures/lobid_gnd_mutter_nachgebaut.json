@@ -1,0 +1,53 @@
+{
+  "_hinweis": "NACHGEBAUT, KEINE ECHTE lobid-ANTWORT. Feldnamen aus dem lobid-gnd-Quellcode (conf/context.jsonld, HomeController.java); IDs und Bezeichnungen sind erfunden (0000xxx-x). Bitte durch eine echte, gekürzte Antwort von https://lobid.org/gnd/search?q=Mutter&filter=type:SubjectHeading&format=json ersetzen (siehe docs/phasen/phase-3.md).",
+  "totalItems": 3,
+  "member": [
+    {
+      "id": "https://d-nb.info/gnd/0000001-1",
+      "gndIdentifier": "0000001-1",
+      "type": ["SubjectHeading", "SubjectHeadingSensoStricto"],
+      "preferredName": "Mutter <Technik>",
+      "variantName": ["Schraubenmutter"],
+      "broaderTermGeneric": [
+        {"id": "https://d-nb.info/gnd/0000010-1", "label": "Schraubverbindung"}
+      ],
+      "relatedTerm": [
+        {"id": "https://d-nb.info/gnd/0000011-1", "label": "Schraube"}
+      ],
+      "gndSubjectCategory": [
+        {
+          "id": "https://d-nb.info/standards/vocab/gnd/gnd-sc#31.6",
+          "label": "Maschinenbau"
+        }
+      ]
+    },
+    {
+      "id": "https://d-nb.info/gnd/0000002-1",
+      "gndIdentifier": "0000002-1",
+      "type": ["SubjectHeading", "SubjectHeadingSensoStricto"],
+      "preferredName": "Mutter",
+      "variantName": ["Mama"],
+      "broaderTermGeneral": [
+        {"id": "https://d-nb.info/gnd/0000020-1", "label": "Eltern"}
+      ],
+      "gndSubjectCategory": [
+        {
+          "id": "https://d-nb.info/standards/vocab/gnd/gnd-sc#99.9",
+          "label": "Erfundene Sachgruppe Familie"
+        }
+      ]
+    },
+    {
+      "id": "https://d-nb.info/gnd/0000003-1",
+      "gndIdentifier": "0000003-1",
+      "type": ["SubjectHeading"],
+      "preferredName": "Mutterschutz",
+      "gndSubjectCategory": [
+        {
+          "id": "https://d-nb.info/standards/vocab/gnd/gnd-sc#99.8",
+          "label": "Erfundene Sachgruppe Recht"
+        }
+      ]
+    }
+  ]
+}

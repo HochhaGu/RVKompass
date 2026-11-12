@@ -7,18 +7,24 @@ Privates Projekt von Günther Hochhauser.
 ## Lokales Setup
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements-dev.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-dev.lock
 cp .env.example .env   # Werte anpassen (CLAUDE_API_KEY, SYNC_TOKEN, SECRET_KEY)
 ```
 
-RVK-Daten einmalig laden und Embeddings berechnen:
+`requirements.txt` nennt die direkten Abhängigkeiten. Die Sperrdateien `requirements.lock`
+(Betrieb) und `requirements-dev.lock` (zusätzlich Tests und Lint) legen alle Pakete samt
+Unterabhängigkeiten auf exakte Versionen fest; erzeugt werden sie mit `python scripts/build_lock.py`
+aus der laufenden Umgebung. torch ist die CPU-Variante (daher der zusätzliche Paketindex).
+
+RVK-Daten einmalig laden, Embeddings berechnen und den GND-Abzug aufbauen:
 
 ```bash
 python scripts/fetch_marcxml_dump.py
 python scripts/sync_rvk.py
 python scripts/build_embeddings.py
+python scripts/sync_gnd.py
 ```
 
 App starten:
@@ -28,15 +34,16 @@ export FLASK_ENV=development
 flask --app app:create_app run --debug
 ```
 
-## Deployment (Netcup Webhosting 4000 VIE)
+## Betrieb auf dem VPS mit Docker
 
-Siehe Plan-Dokument. Kurzfassung:
+Live läuft RVKompass als Docker-Container mit gunicorn unter `/srv/rvkompass`, getrennt von der
+Werkstatt; davor steht Caddy mit HTTPS (`rvkompass.ghochhauser.at`). Im Container laufen per Cron
+der monatliche, geprüfte RVK-Abgleich (`scripts/monthly_sync.py`, mit Backup und Info-Mail) und
+die monatliche Aktualisierung des lokalen GND-Abzugs (`scripts/sync_gnd.py`). `GET /health` meldet
+den Zustand.
 
-1. Python-Version im Netcup-Control-Panel wählen, lokal identische Version für das venv nutzen.
-2. `pip install -r requirements.txt` lokal in frischem venv (Ziel-Architektur: Linux x86_64 – ggf. Docker nutzen, um kompatible Wheels für `torch`/`sentence-transformers` zu erhalten).
-3. `site-packages`, App-Code, Modellgewichte (`data/models/`) sowie fertige `data/rvk.sqlite3` und `data/embeddings.npy` per SFTP hochladen.
-4. `passenger_wsgi.py` als Entry-Point, Secrets über Umgebungsvariablen/`.env` außerhalb des Webroots.
-5. Netcup-Cronjob richtet periodischen Aufruf von `/internal/sync?token=...` ein.
+Einrichtung, Live-Schaltung, Abgleich, Backups und die Routine „Update und Backup“:
+[docs/deployment.md](docs/deployment.md).
 
 ## Lizenz
 

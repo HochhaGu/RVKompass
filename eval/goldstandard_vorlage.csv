@@ -1,0 +1,6 @@
+query;erwartete_notationen;quelle;fachgebiet;typ;anmerkung
+# Spalten: Suchbegriff wie ein fachfremder Mensch ihn eingibt;korrekte RVK-Notation(en) mit | getrennt;Herkunft (z. B. Katalog-ID aus offenem Verbundkatalog);grobe Zuordnung;Art der Anfrage;freier Kommentar
+# Erlaubte Werte für typ: Fachbegriff, Spezifisch/Kompositum, Fachfremd umschrieben, Mehrdeutig, Englisch/Jargon
+# Notationen aus offenen Katalog- bzw. Verbunddaten übernehmen und in RVK-Online gegenprüfen. Diese Kommentarzeilen vor dem ersten Lauf löschen.
+BEISPIEL Wärmepumpe;XX 0000;Verbundkatalog-ID …;Technik;Fachbegriff;Platzhalter – echte Notation eintragen
+BEISPIEL Finite-Elemente-Methode;XX 0000|XX 0001;Verbundkatalog-ID …;Technik/Mathematik;Fachbegriff;zwei korrekte Stellen möglich

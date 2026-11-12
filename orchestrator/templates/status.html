@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="60">
+<meta name="robots" content="noindex, nofollow">
+<title>RVKompass – Status des Steuerprogramms</title>
+<style>
+  :root { --ink:#1d1d1b; --muted:#5c5c57; --line:#dcdcd6; --bg:#f4f4f2; --ok:#1e6b34; --warn:#8a5a00; --bad:#a1281b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 Georgia,"Times New Roman",serif; }
+  main { max-width:960px; margin:0 auto; padding:28px 18px 48px; }
+  header { border-bottom:3px solid var(--ink); padding-bottom:10px; margin-bottom:20px; }
+  .kicker { font:12px Arial,Helvetica,sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-weight:normal; font-size:26px; margin:4px 0 0; }
+  h2 { font:600 16px Arial,Helvetica,sans-serif; border-bottom:1px solid var(--line); padding-bottom:4px; margin:28px 0 10px; }
+  .card { background:#fff; border:1px solid var(--line); padding:16px 18px; }
+  .now { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+  .now div span { display:block; font:12px Arial,Helvetica,sans-serif; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .now div strong { font-size:19px; font-weight:normal; }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); font:14px Arial,Helvetica,sans-serif; }
+  th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#eeeeea; font-weight:600; }
+  tr.current td { background:#fffbe8; }
+  .tag { display:inline-block; padding:1px 7px; border:1px solid currentColor; border-radius:3px; font-size:12px; }
+  .s-fertig { color:var(--ok); } .s-pausiert { color:var(--bad); } .s-läuft { color:var(--warn); } .s-offen { color:var(--muted); }
+  .alert { border-left:5px solid var(--bad); }
+  .warn { border-left:5px solid var(--warn); }
+  .warn table { margin-top:10px; }
+  .alert h2 { margin-top:0; color:var(--bad); border:0; }
+  pre { white-space:pre-wrap; word-break:break-word; background:var(--bg); border:1px solid var(--line); padding:10px; font-size:13px; }
+  ol.log { list-style:none; padding:0; margin:0; font:14px Arial,Helvetica,sans-serif; }
+  ol.log li { padding:6px 0; border-bottom:1px solid var(--line); }
+  ol.log time { color:var(--muted); margin-right:8px; white-space:nowrap; }
+  footer { margin-top:28px; font:12px Arial,Helvetica,sans-serif; color:var(--muted); }
+  code { font-size:13px; background:var(--bg); padding:0 3px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="kicker">RVKompass · Steuerprogramm</div>
+  <h1>Status der Phasen P0–P8</h1>
+</header>
+
+<section class="card now" aria-label="Aktueller Stand">
+  <div><span>Zustand</span><strong>{{ status }}</strong></div>
+  <div><span>Phase</span><strong>{{ phase }}</strong></div>
+  <div><span>Schritt</span><strong>{{ step }}</strong></div>
+  <div><span>Aktualisiert</span><strong>{{ updated }}</strong></div>
+</section>
+
+{% if pause %}
+<h2 id="eingreifen">Eingreifen nötig</h2>
+<section class="card alert">
+  <p><strong>{{ pause.reason }}</strong> (seit {{ pause_since }})</p>
+  {% if pause.question %}<pre>{{ pause.question }}</pre>{% endif %}
+  <p>So geht es weiter: Antwort (falls gefragt) in <code>orchestrator/antworten/{{ phase }}.md</code> schreiben, dann
+  <code>.venv/bin/python -m orchestrator --resume</code> ausführen.</p>
+</section>
+{% endif %}
+{% if mail_queue %}
+<h2 id="mails">Mails warten auf Versand ({{ mail_queue|length }})</h2>
+<section class="card warn">
+  <p>Diese Mails konnten nicht zugestellt werden. Das Steuerprogramm arbeitet trotzdem normal weiter
+  und versucht den Versand alle 10 Minuten erneut. Häufige Ursache: Mail-Ports des Servers gesperrt
+  oder SMTP-Angaben in <code>.env</code> falsch – prüfen mit
+  <code>.venv/bin/python -m orchestrator --test-mail</code>.</p>
+  <table>
+    <thead><tr><th scope="col">Betreff</th><th scope="col">Wartet seit</th><th scope="col">Versuche</th><th scope="col">Nächster Versuch</th><th scope="col">Letzter Fehler</th></tr></thead>
+    <tbody>
+    {% for m in mail_queue %}
+    <tr><td>{{ m.subject }}</td><td>{{ m.queued_at }}</td><td>{{ m.attempts }}</td><td>{{ m.next_try }}</td><td>{{ m.last_error }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% if status in ("wartet auf Nutzungslimit", "wartet nach Störung") %}
+<p class="card">Nächster Versuch: {{ wait_until }}</p>
+{% endif %}
+
+<h2>Phasen</h2>
+<table>
+  <thead><tr><th scope="col">Phase</th><th scope="col">Status</th><th scope="col">Hit@1</th><th scope="col">Hit@5</th><th scope="col">Hit@10</th><th scope="col">MRR</th><th scope="col">Fertig</th><th scope="col">Pull Request</th></tr></thead>
+  <tbody>
+  {% for p in phases %}
+  <tr{% if p.current %} class="current"{% endif %}>
+    <td><strong>{{ p.id }}</strong> {{ p.title }}{% if p.current %} <span class="tag">aktuell</span>{% endif %}</td>
+    <td><span class="tag s-{{ p.status }}">{{ p.status }}</span></td>
+    {% for k in ("hit@1", "hit@5", "hit@10", "mrr") %}
+    <td>{% if p.metrics.get(k) is not none %}{{ "%.3f"|format(p.metrics[k]) }}{% else %}–{% endif %}</td>
+    {% endfor %}
+    <td>{{ p.finished }}</td>
+    <td>{% if p.pr %}<a href="{{ p.pr }}">ansehen</a>{% else %}–{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p style="font:13px Arial,Helvetica,sans-serif;color:var(--muted);">Kennzahlen sind Trefferquoten gegen den Goldstandard (Anteil der Anfragen, bei denen eine richtige Systemstelle unter den ersten 1/5/10 Vorschlägen ist; MRR = mittlerer Kehrwert des Rangs). Sie messen Relevanz, keine Wahrscheinlichkeit.</p>
+
+<h2>Letzte Meldungen</h2>
+<section class="card">
+  <ol class="log">
+  {% for m in messages %}<li><time>{{ m.ts }}</time>{{ m.text }}</li>{% else %}<li>Noch keine Meldungen.</li>{% endfor %}
+  </ol>
+</section>
+
+<footer>
+  Claude-Anmeldung gültig bis: {{ auth_expires }}{% if mail_queue %} · {{ mail_queue|length }} Mail(s) warten auf Versand{% endif %}
+  · Seite lädt sich jede Minute neu.
+</footer>
+</main>
+</body>
+</html>

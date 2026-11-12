@@ -2,8 +2,15 @@
 
 Ablauf: MarcXML-Datei (data/raw/rvko_marcxml_*.xml, siehe fetch_marcxml_dump.py) wird
 per Streaming-Parse (lxml.etree.iterparse) gelesen, um bei ~1.3 GB Dateigröße mit wenig
-RAM auszukommen. Aufbau erfolgt in _new-Tabellen, die am Ende atomar eingetauscht werden
-(idempotenter Rebuild statt Delta-Merge, siehe Plan).
+RAM auszukommen. Aufbau erfolgt in _new-Tabellen, die am Ende eingetauscht werden
+(idempotenter Rebuild statt Delta-Merge).
+
+Zwei Wege:
+- Direkt (`python scripts/sync_rvk.py`, Erstinstallation): Import und Tabellentausch in der
+  Live-DB, ohne Vergleich und ohne Prüfungen.
+- Monatlicher Abgleich (`python scripts/monthly_sync.py`, ab P8): `import_into_new_tables` baut
+  die *_new-Tabellen in einer Arbeitskopie unter data/staging/; Vergleich, Prüfungen und Tausch
+  übernimmt app/services/rvk_sync/. Die Live-DB bleibt dabei bis zum Dateitausch unberührt.
 """
 
 from __future__ import annotations
@@ -11,13 +18,14 @@ from __future__ import annotations
 import glob
 import sqlite3
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from lxml import etree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.models import REGISTER_ENTRY_TYPES, SCHEMA_SQL
+from app.services.rvk_sync.diff import migrate_notation_change
 
 RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "rvk.sqlite3"
@@ -76,7 +84,9 @@ def parse_153(datafield):
             pending_notation_parts.append(value)
         elif code == "h":
             ancestor_labels.append(value)
-            ancestor_notations.append(pending_notation_parts[0] if pending_notation_parts else None)
+            ancestor_notations.append(
+                pending_notation_parts[0] if pending_notation_parts else None
+            )
             pending_notation_parts = []
 
     own_notation = f"{own_start} - {own_end}" if own_start and own_end else own_start
@@ -190,11 +200,18 @@ def rebuild_tables(conn: sqlite3.Connection, dump_path: Path) -> tuple[int, int]
                 for entry in parsed["register_entries"]:
                     conn.execute(
                         "INSERT INTO register_entry_new (notation_id, term, entry_type, gnd_id) VALUES (?, ?, ?, ?)",
-                        (notation_id, entry["term"], entry["entry_type"], entry["gnd_id"]),
+                        (
+                            notation_id,
+                            entry["term"],
+                            entry["entry_type"],
+                            entry["gnd_id"],
+                        ),
                     )
                     register_count += 1
 
-                search_text = " ".join(filter(None, [parsed["label"], parsed["hierarchy_path"], *terms]))
+                search_text = " ".join(
+                    filter(None, [parsed["label"], parsed["hierarchy_path"], *terms])
+                )
                 conn.execute(
                     "INSERT INTO search_index_new (notation_id, text) VALUES (?, ?)",
                     (notation_id, search_text),
@@ -211,7 +228,9 @@ def rebuild_tables(conn: sqlite3.Connection, dump_path: Path) -> tuple[int, int]
 
     conn.commit()
     if duplicate_count:
-        print(f"  ({duplicate_count} doppelte Notation+Spannenende-Kombinationen übersprungen)")
+        print(
+            f"  ({duplicate_count} doppelte Notation+Spannenende-Kombinationen übersprungen)"
+        )
     return notation_count, register_count
 
 
@@ -229,9 +248,22 @@ def swap_in_new_tables(conn: sqlite3.Connection):
         CREATE INDEX IF NOT EXISTS idx_notation_notation ON notation(notation);
         CREATE INDEX IF NOT EXISTS idx_register_notation_id ON register_entry(notation_id);
         CREATE INDEX IF NOT EXISTS idx_register_term ON register_entry(term);
+        CREATE INDEX IF NOT EXISTS idx_register_gnd_id ON register_entry(gnd_id);
         """
     )
     conn.commit()
+
+
+def import_into_new_tables(db_path: Path, dump_path: Path) -> tuple[int, int]:
+    """Baut notation_new, register_entry_new und search_index_new in `db_path` auf.
+
+    Die bisherigen Tabellen bleiben unverändert (Vergleich und Tausch macht der Aufrufer).
+    """
+    conn = sqlite3.connect(db_path)
+    try:
+        return rebuild_tables(conn, Path(dump_path))
+    finally:
+        conn.close()
 
 
 def main():
@@ -240,7 +272,9 @@ def main():
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.executescript(SCHEMA_SQL)  # stellt sicher, dass sync_log/expansion_cache existieren
+    # notation_change auf das Schema ab P8 bringen, dann fehlende Tabellen anlegen
+    migrate_notation_change(conn)
+    conn.executescript(SCHEMA_SQL)
 
     try:
         notation_count, register_count = rebuild_tables(conn, dump_path)
@@ -248,15 +282,23 @@ def main():
         swap_in_new_tables(conn)
         conn.execute(
             "INSERT INTO sync_log (run_at, source_file, notation_count, register_count, status) VALUES (?, ?, ?, ?, ?)",
-            (datetime.now(timezone.utc).isoformat(), dump_path.name, notation_count, register_count, "success"),
+            (
+                datetime.now(UTC).isoformat(),
+                dump_path.name,
+                notation_count,
+                register_count,
+                "success",
+            ),
         )
         conn.commit()
-        print(f"Fertig: {notation_count} Notationen, {register_count} Registereinträge.")
+        print(
+            f"Fertig: {notation_count} Notationen, {register_count} Registereinträge."
+        )
     except Exception as exc:
         conn.rollback()
         conn.execute(
             "INSERT INTO sync_log (run_at, source_file, notation_count, register_count, status) VALUES (?, ?, ?, ?, ?)",
-            (datetime.now(timezone.utc).isoformat(), dump_path.name, 0, 0, f"error: {exc}"),
+            (datetime.now(UTC).isoformat(), dump_path.name, 0, 0, f"error: {exc}"),
         )
         conn.commit()
         raise

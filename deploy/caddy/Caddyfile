@@ -1,0 +1,11 @@
+# /etc/caddy/Caddyfile – Hauptdatei von Caddy auf dem VPS.
+# Jede Website liegt als eigene Datei unter /etc/caddy/sites/*.caddy.
+# So kann P8 RVKompass ergänzen, ohne diese Datei anzufassen.
+
+# Bisherige Standardseite auf Port 80 für alle anderen Namen (unverändert übernommen)
+:80 {
+	root * /usr/share/caddy
+	file_server
+}
+
+import /etc/caddy/sites/*.caddy

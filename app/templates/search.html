@@ -2,12 +2,39 @@
 {% block content %}
   <section class="search-section">
     <h2>Schlagwort eingeben</h2>
-    <form hx-post="/search" hx-target="#results" hx-indicator="#spinner">
-      <input type="text" name="q" placeholder="z. B. Klimawandel, Umwelttechnik, Konfliktmanagement ..." autofocus>
+    <form id="search-form" hx-post="/search" hx-target="#results" hx-indicator="#spinner">
+      <label for="q" class="search-label">Suchbegriff</label>
+      <input type="text" id="q" name="q" placeholder="z. B. Klimawandel, Umwelttechnik, Konfliktmanagement ..." autofocus>
+      <input type="hidden" name="hg_form" value="1">
+      <details class="main-group-filter"{% if selected_groups %} open{% endif %}>
+        <summary>Hauptgruppen einschränken{% if selected_groups %} (gewählt: {{ selected_groups | join(', ') }}){% endif %}</summary>
+        <fieldset>
+          <legend>Nur Vorschläge aus diesen RVK-Hauptgruppen anzeigen (Mehrfachauswahl; ohne Häkchen: alle)</legend>
+          {% set options = main_group_options or {"selected": [], "letters": []} %}
+          {% if options.selected %}
+          <div class="mg-letter">
+            <p class="mg-letter-title">Gewählt</p>
+            {% for g in options.selected %}
+            <label class="mg-option"><input type="checkbox" name="hg" value="{{ g.code }}" checked> {{ g.code }}{% if g.label %} – {{ g.label }}{% endif %}</label>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% for letter in options.letters %}
+          <div class="mg-letter">
+            <p class="mg-letter-title">{{ letter.letter }}</p>
+            {% for g in letter.groups %}
+            <label class="mg-option"><input type="checkbox" name="hg" value="{{ g.code }}"> {{ g.code }}{% if g.label %} – {{ g.label }}{% endif %}</label>
+            {% endfor %}
+          </div>
+          {% else %}
+          {% if not options.selected %}<p><small>Keine Hauptgruppen in der Datenbank gefunden.</small></p>{% endif %}
+          {% endfor %}
+        </fieldset>
+      </details>
       <button type="submit" class="btn-primary">Vorschläge anzeigen</button>
     </form>
     <p id="spinner" class="htmx-indicator">Suche läuft ...</p>
-    <div id="results">
+    <div id="results" aria-live="polite">
       <p><em>Noch keine Suche durchgeführt.</em></p>
     </div>
   </section>
@@ -23,11 +50,12 @@
           Bibliothekar*innen häufig schwer, eine passende Systemstelle zu finden.
         </p>
         <p>
-          Die Eingabe erfolgt über einen einfachen Suchschlitz. Das System analysiert den eingegebenen
-          Begriff kontextuell, erweitert ihn gegebenenfalls durch bedeutungsverwandte Termini und
-          durchsucht anschließend den lokal synchronisierten RVK-Bestand per semantischer und
-          Stichwortsuche. Die Treffer werden nach Relevanz sortiert und mit Notation, Kurzbeschreibung,
-          verwandten Begriffen und einer Konfidenzangabe ausgegeben.
+          Die Eingabe erfolgt über einen einfachen Suchschlitz. Das System erweitert den Begriff über
+          die Gemeinsame Normdatei (GND) und gegebenenfalls über geprüfte Vorschläge eines Sprachmodells
+          und durchsucht anschließend den lokal synchronisierten RVK-Bestand per semantischer und
+          Stichwortsuche. Die Vorschläge werden nach Relevanz sortiert und mit Notation, Benennung,
+          Hierarchiepfad, RVK-Bemerkung und einer Relevanzstufe ausgegeben. Unter „Warum?“ steht bei
+          jedem Vorschlag, über welchen Weg er gefunden wurde. Mehr dazu auf der <a href="/hilfe">Hilfeseite</a>.
         </p>
       </div>
     </details>

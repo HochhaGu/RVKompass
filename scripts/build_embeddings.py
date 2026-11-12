@@ -19,7 +19,8 @@ import json
 import sqlite3
 import sys
 import time
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -32,18 +33,24 @@ BATCH_SIZE = 256
 
 
 def load_notation_texts(conn: sqlite3.Connection) -> tuple[list[int], list[str]]:
-    rows = conn.execute("SELECT notation_id, text FROM search_index ORDER BY notation_id").fetchall()
+    rows = conn.execute(
+        "SELECT notation_id, text FROM search_index ORDER BY notation_id"
+    ).fetchall()
     ids = [r[0] for r in rows]
     texts = [r[1] or "" for r in rows]
     return ids, texts
 
 
 def load_distinct_register_terms(conn: sqlite3.Connection) -> list[str]:
-    rows = conn.execute("SELECT DISTINCT term FROM register_entry ORDER BY term").fetchall()
+    rows = conn.execute(
+        "SELECT DISTINCT term FROM register_entry ORDER BY term"
+    ).fetchall()
     return [r[0] for r in rows]
 
 
-def encode_and_save(model: SentenceTransformer, texts: list[str], label: str) -> np.ndarray:
+def encode_and_save(
+    model: SentenceTransformer, texts: list[str], label: str
+) -> np.ndarray:
     print(f"Encoding {len(texts)} Texte ({label}) ...")
     start = time.time()
     embeddings = model.encode(
@@ -57,46 +64,88 @@ def encode_and_save(model: SentenceTransformer, texts: list[str], label: str) ->
     return embeddings
 
 
+@dataclass(frozen=True)
+class EmbeddingPaths:
+    embeddings: Path
+    embeddings_meta: Path
+    register_terms: Path
+    register_terms_meta: Path
+
+    @classmethod
+    def from_config(cls, config) -> EmbeddingPaths:
+        return cls(
+            Path(config.EMBEDDINGS_PATH),
+            Path(config.EMBEDDINGS_META_PATH),
+            Path(config.REGISTER_TERM_EMBEDDINGS_PATH),
+            Path(config.REGISTER_TERM_META_PATH),
+        )
+
+    @classmethod
+    def from_mapping(cls, paths: dict) -> EmbeddingPaths:
+        """Aus dem Dict von app.services.rvk_sync.swap.staging_paths()."""
+        return cls(
+            Path(paths["EMBEDDINGS_PATH"]),
+            Path(paths["EMBEDDINGS_META_PATH"]),
+            Path(paths["REGISTER_TERM_EMBEDDINGS_PATH"]),
+            Path(paths["REGISTER_TERM_META_PATH"]),
+        )
+
+
 def main():
     config = get_config()
-    conn = sqlite3.connect(config.DATABASE_PATH)
+    build(
+        Path(config.DATABASE_PATH),
+        EmbeddingPaths.from_config(config),
+        config.EMBEDDING_MODEL_NAME,
+    )
 
-    model_name = config.EMBEDDING_MODEL_NAME
+
+def build(db_path: Path, paths: EmbeddingPaths, model_name: str) -> None:
+    """Berechnet beide Embedding-Artefakte für die Datenbank `db_path` nach `paths`."""
+    conn = sqlite3.connect(db_path)
+
     print(f"Lade Modell {model_name} ...")
     model = SentenceTransformer(model_name)
     dim = model.get_sentence_embedding_dimension()
 
     notation_ids, notation_texts = load_notation_texts(conn)
     notation_embeddings = encode_and_save(model, notation_texts, "Notationen")
-    np.save(config.EMBEDDINGS_PATH, notation_embeddings)
-    Path(config.EMBEDDINGS_META_PATH).write_text(
+    _save_npy(paths.embeddings, notation_embeddings)
+    paths.embeddings_meta.write_text(
         json.dumps(
             {
                 "model": model_name,
                 "dim": dim,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "notation_ids": notation_ids,
             }
         )
     )
-    print(f"Gespeichert: {config.EMBEDDINGS_PATH} ({notation_embeddings.shape})")
+    print(f"Gespeichert: {paths.embeddings} ({notation_embeddings.shape})")
 
     terms = load_distinct_register_terms(conn)
     term_embeddings = encode_and_save(model, terms, "eindeutige Registerbegriffe")
-    np.save(config.REGISTER_TERM_EMBEDDINGS_PATH, term_embeddings)
-    Path(config.REGISTER_TERM_META_PATH).write_text(
+    _save_npy(paths.register_terms, term_embeddings)
+    paths.register_terms_meta.write_text(
         json.dumps(
             {
                 "model": model_name,
                 "dim": dim,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "terms": terms,
             }
         )
     )
-    print(f"Gespeichert: {config.REGISTER_TERM_EMBEDDINGS_PATH} ({term_embeddings.shape})")
+    print(f"Gespeichert: {paths.register_terms} ({term_embeddings.shape})")
 
     conn.close()
+
+
+def _save_npy(path: Path, array: np.ndarray) -> None:
+    """Schreibt genau nach `path` (np.save hängt sonst bei fremder Endung „.npy“ an)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "wb") as fh:
+        np.save(fh, array)
 
 
 if __name__ == "__main__":

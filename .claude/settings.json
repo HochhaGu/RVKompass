@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+      "Bash(python scripts/evaluate.py *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git switch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "WebFetch(domain:rvk.uni-regensburg.de)",
+      "WebFetch(domain:rvk.ur.de)",
+      "WebFetch(domain:lobid.org)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(pip install *)",
+      "Bash(python scripts/sync_rvk.py *)",
+      "Bash(python scripts/build_embeddings.py *)",
+      "Bash(python scripts/fetch_marcxml_dump.py *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Edit(./data/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path'); case \"$f\" in *.py) ruff format \"$f\" >/dev/null 2>&1 || true ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}
