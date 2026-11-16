@@ -177,10 +177,10 @@ class Engine:
                 raise ValueError(f"{only} ist bereits fertig.")
             if state["phase"] != only:
                 cur = state["phase"]
-                if (
-                    state["step"] != "branch"
-                    and state["phases"][cur].get("status") != "offen"
-                ):
+                # Eine abgeschlossene Phase (z. B. nach "Alles fertig") blockiert nicht.
+                if state["step"] != "branch" and state["phases"][cur].get(
+                    "status"
+                ) not in ("offen", "fertig"):
                     raise ValueError(
                         f"{cur} ist gerade in Arbeit (Schritt {state['step']}). Erst abschließen."
                     )

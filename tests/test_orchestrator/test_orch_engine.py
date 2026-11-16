@@ -1,5 +1,7 @@
 """Tests des Ablaufs: Haltepunkte, Pause, NEEDS_HUMAN, Reparatur, Limit, Neustart."""
 
+import pytest
+
 from orchestrator.claude_runner import AUTH, LIMIT, OK, TRANSIENT, ClaudeResult
 from orchestrator.engine import resume
 from orchestrator.git_ops import SafetyError
@@ -219,6 +221,31 @@ def test_only_runs_one_phase_and_stops(make_engine, settings):
     st = eng.store.load()
     assert st["phases"]["P2"]["status"] == "fertig" and st["phase"] == "P3"
     assert eng.runner.steps() == FULL_PHASE
+
+
+def test_only_starts_new_phase_after_all_done(make_engine, settings):
+    """Neue Phase nach "Alles fertig": --only darf starten, obwohl die letzte Phase "done" ist."""
+    ids = [p.id for p in settings.phases]
+    store = MemoryStore(ids[0], ids)
+    with store.update() as st:
+        for pid in ids[:-1]:
+            st["phases"][pid]["status"] = "fertig"
+        st["phase"], st["step"], st["status"] = ids[-2], "done", FERTIG
+    eng = make_engine(store=store)
+    assert eng.run(only=ids[-1], forever=False) == FERTIG
+    assert eng.store.load()["phases"][ids[-1]]["status"] == "fertig"
+    assert eng.runner.steps() == FULL_PHASE
+
+
+def test_only_still_refuses_while_other_phase_runs(make_engine, settings):
+    ids = [p.id for p in settings.phases]
+    store = MemoryStore(ids[0], ids)
+    with store.update() as st:
+        st["phase"], st["step"] = "P2", "implement"
+        st["phases"]["P2"]["status"] = "läuft"
+    eng = make_engine(store=store)
+    with pytest.raises(ValueError, match="gerade in Arbeit"):
+        eng.run(only="P3", forever=False)
 
 
 def test_safety_error_pauses_before_push(make_engine):
