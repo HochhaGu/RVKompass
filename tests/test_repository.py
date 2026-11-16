@@ -66,6 +66,22 @@ def test_expansion_cache_roundtrip(memory_conn):
     )
 
 
+def test_get_notation_by_code(memory_conn):
+    memory_conn.execute(
+        "INSERT INTO notation (id, notation, label, note) "
+        "VALUES (1, 'ZL 4620', 'Muttern', 'Hier nur Normteile')"
+    )
+    memory_conn.execute(
+        "INSERT INTO notation (id, notation, label) "
+        "VALUES (2, 'ST 300 - ST 310', 'Bereich')"
+    )
+    found = rvk_repository.get_notation_by_code(memory_conn, "ZL 4620")
+    assert (found.id, found.label, found.note) == (1, "Muttern", "Hier nur Normteile")
+    assert rvk_repository.get_notation_by_code(memory_conn, "ST 300 - ST 310").id == 2
+    assert rvk_repository.get_notation_by_code(memory_conn, "ZL 9999") is None
+    assert rvk_repository.get_notation_by_code(memory_conn, "") is None
+
+
 def _insert_register(conn, rows):
     for nid, term, gnd_id in rows:
         conn.execute(

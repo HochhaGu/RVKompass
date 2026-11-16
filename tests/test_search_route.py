@@ -1,5 +1,10 @@
-"""Suchroute mit GND-Bedeutungen – ohne Netz, ohne Modell; Datenbank als temporäre Datei."""
+"""Suchroute mit GND-Bedeutungen – ohne Netz, ohne Modell; Datenbank als temporäre Datei.
 
+P10: Oberfläche nach docs/design.md – Chips, Facette mit Zahlen, Bedeutungs-Tabs,
+Treffer-Karten, Start- und Keine-Treffer-Zustand.
+"""
+
+import html as html_lib
 import re
 import sqlite3
 from pathlib import Path
@@ -64,6 +69,15 @@ def client(tmp_path, monkeypatch):
         "INSERT INTO notation (id, notation, label) VALUES (10, 'ZL', 'Maschinenbau')"
     )
     conn.execute(
+        "INSERT INTO notation (id, notation, label) VALUES (11, 'MS', 'Soziologie')"
+    )
+    conn.execute(
+        "INSERT INTO notation (id, notation, label) VALUES (12, 'AB', 'Allgemeines')"
+    )
+    conn.execute(
+        "INSERT INTO notation (id, notation, label) VALUES (13, 'ZL 4600', 'Schrauben')"
+    )
+    conn.execute(
         "INSERT INTO sync_log (run_at, source_file, status) "
         "VALUES ('2026-11-10T13:37:59', 'rvko_marcxml_2026_1.xml', 'success')"
     )
@@ -86,6 +100,7 @@ def client(tmp_path, monkeypatch):
     def fake_search_result(
         conn, service, query, expanded_terms, gnd_senses=(), subject_filter=None, **kw
     ):
+        seen["query"] = query
         seen["subject_filter"] = subject_filter
         seen["main_group_filter"] = kw.get("main_group_filter")
         seen["llm_terms"] = list(expanded_terms)
@@ -126,6 +141,8 @@ def client(tmp_path, monkeypatch):
             hits=[hit, vector_hit],
             senses=senses,
             filtered_out=3 if kw.get("main_group_filter") else 0,
+            # ungefilterte Zahlen je Hauptgruppe (AB hat keine Fundstelle)
+            main_group_counts={"ZL": 2, "MS": 3},
         )
 
     def fake_llm(conn, config, query, source=None, stats=None):
@@ -183,8 +200,34 @@ def _post(test_client, data):
     return test_client.post("/search", data=data).get_data(as_text=True)
 
 
-def _tree(html):
-    return html.split('id="expansion-tree"', 1)[1].split("</section>", 1)[0]
+def _main(html):
+    """Ergebnisbereich ohne die Out-of-band-Teile (Chips, Facette)."""
+    return html.split('<div id="chips" hx-swap-oob="true">', 1)[0]
+
+
+def _chips(html):
+    return html.split('<div id="chips" hx-swap-oob="true">', 1)[1].split(
+        '<div id="facet-list"', 1
+    )[0]
+
+
+def _facet(html):
+    return html.split('<div id="facet-list" hx-swap-oob="true">', 1)[1].split(
+        '<span id="facet-count"', 1
+    )[0]
+
+
+def _card(html, notation):
+    return html.split(f'<code class="notation">{notation}</code>', 1)[1].split(
+        "</article>", 1
+    )[0]
+
+
+def _unescape(text):
+    return html_lib.unescape(text)
+
+
+# --- Bedeutungen als Tabs -------------------------------------------------------------------
 
 
 def test_several_senses_are_shown(client):
@@ -203,80 +246,175 @@ def test_several_senses_are_shown(client):
     assert seen["config_enabled"] is True
 
 
-def test_sense_blocks_open_matching_filter_and_show_counts(client):
+def _tabs(html):
+    return re.findall(
+        r'<button type="button" role="tab" id="tab-([^"]+)" aria-controls="([^"]+)" '
+        r'aria-selected="(true|false)" tabindex="(0|-1)">([^<]*)</button>',
+        html,
+    )
+
+
+def test_sense_tabs_select_matching_filter_and_show_counts(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Mutter", "hg": "ZL"})
-    blocks = re.findall(
-        r'<details id="(sense-block-[^"]+)" class="sense-block"( open)?>', html
+    assert (
+        '<div class="sense-tabs" role="tablist" aria-label="Bedeutungen" hidden>'
+        in html
     )
-    # Familie kommt in der Quelle zuerst, Technik passt zum Filter -> nur Technik aufgeklappt
-    assert blocks[0] == ("sense-block-1", "")
-    assert blocks[1] == ("sense-block-2", " open")
-    technik = html.split('id="sense-block-2"', 1)[1].split("</details>", 1)[0]
+    tabs = _tabs(html)
+    # Familie kommt in der Quelle zuerst, Technik passt zum Filter -> Technik gewählt
+    assert [(t[1], t[2], t[3]) for t in tabs] == [
+        ("sense-block-1", "false", "-1"),
+        ("sense-block-2", "true", "0"),
+        ("sense-block-rest", "false", "-1"),
+    ]
+    assert [t[0] for t in tabs] == [t[1] for t in tabs]
+    assert html.count('aria-selected="true"') == 1
+    labels = [t[4] for t in tabs]
+    assert labels == [
+        "Mutter (Familie) · 0",
+        "Mutter (Technik) · 1",
+        "Über die Eingabe gefunden · 1",
+    ]
+    technik = html.split('<section id="sense-block-2"', 1)[1].split("</section>", 1)[0]
     assert "ZL 4620" in technik
     assert "4 Fundstellen über diese Bedeutung insgesamt" in technik
-    # Checkboxen zum Ein- und Ausblenden je Bedeutung
-    # (zwei Bedeutungen und der Block „Über die Eingabe gefunden“)
-    assert html.count('class="sense-toggle"') == 3
-    assert 'aria-controls="sense-block-1"' in html
     # Vorschlag ohne Bedeutung kommt in den Rest-Block
-    rest = html.split('id="sense-block-rest"', 1)[1].split("</details>", 1)[0]
+    rest = html.split('<section id="sense-block-rest"', 1)[1].split("</section>", 1)[0]
     assert "ZL 9999" in rest and "Über die Eingabe gefunden" in rest
 
 
-def test_without_filter_first_sense_is_open(client):
+def test_sense_panels_are_all_visible_without_javascript(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Mutter"})
-    assert '<details id="sense-block-1" class="sense-block" open>' in html
-    assert '<details id="sense-block-2" class="sense-block">' in html
+    panels = re.findall(
+        r'<section id="(sense-block-[^"]+)" class="sense-panel"([^>]*)>', html
+    )
+    assert [p[0] for p in panels] == [
+        "sense-block-1",
+        "sense-block-2",
+        "sense-block-rest",
+    ]
+    assert all("hidden" not in attrs for _, attrs in panels)
+    # keine alten Umschalter mehr
+    assert "sense-toggle" not in html
 
 
-def test_single_sense_is_shown_as_gnd_term(client):
+def test_without_filter_first_sense_is_selected(client):
+    test_client, _ = client
+    tabs = _tabs(_post(test_client, {"q": "Mutter"}))
+    assert [t[2] for t in tabs] == ["true", "false", "false"]
+
+
+def test_single_sense_has_no_tabs_and_shows_chips(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Schraubenmutter"})
-    assert "Ihre Suche wurde erweitert" in html
-    assert "GND-Begriff „Mutter &lt;Technik&gt;“" in _tree(html)
+    assert 'role="tablist"' not in html and 'role="tab"' not in html
     assert "Mehrere Bedeutungen gefunden" not in html
+    chips = _chips(html)
+    assert "Deine Suche wurde erweitert um:" in chips
+    assert "Mutter &lt;Technik&gt;" in chips
 
 
-def test_without_senses_no_gnd_block(client):
+def test_without_senses_no_gnd_chips(client):
     test_client, seen = client
     html = _post(test_client, {"q": "Getriebe"})
-    assert "GND-Begriff „" not in _tree(html)
+    assert 'class="chip chip-gnd"' not in _chips(html)
     assert "Mehrere Bedeutungen" not in html
     assert "ZL 4620" in html
     assert seen["subject_filter"] == []
     assert seen["main_group_filter"] == []
 
 
-def test_expansion_tree_with_lobid_links_and_relations(client):
+# --- Chips: entfernen und wiederherstellen ----------------------------------------------------
+
+
+def test_chips_with_type_remove_button_and_lobid_links(client):
     test_client, _ = client
-    tree = _tree(_post(test_client, {"q": "Schraubenmutter"}))
-    assert "Eingabe „Schraubenmutter“" in tree
-    assert 'href="https://lobid.org/gnd/0000001-1"' in tree
-    assert "Oberbegriffe:" in tree and "Schraubenverbindung" in tree
-    assert 'href="https://lobid.org/gnd/4180000-1"' in tree
-    assert 'hx-post="/search"' in tree and 'hx-trigger="change"' in tree
-    assert 'name="baum" value="1"' in tree
+    chips = _chips(_post(test_client, {"q": "Schraubenmutter"}))
+    assert '<input type="hidden" name="chips_q" value="Schraubenmutter">' in chips
+    assert '<input type="hidden" name="baum" value="1">' in chips
+    assert 'aria-label="Schraubenverbindung entfernen"' in chips
+    item = chips.split("Schraubenverbindung", 1)[1].split("</li>", 1)[0]
+    assert '<span class="chip-type">Oberbegriff</span>' in item
+    assert 'hx-post="/search"' in item and 'hx-include="#chips, #facet"' in item
     key = presentation.gnd_term_key(TECHNIK, SCHRAUBE)
-    assert f'value="{key}" checked' in tree.replace("&lt;", "<").replace("&gt;", ">")
+    assert f'"entfernen": "{key}"' in _unescape(item).replace("\\u003c", "<").replace(
+        "\\u003e", ">"
+    )
+    assert 'href="https://lobid.org/gnd/4180000-1"' in chips
+    # gesuchte Begriffe als versteckte Felder
+    assert f'name="begriff" value="{key}"' in _unescape(chips)
 
 
-def test_deselected_gnd_term_is_not_searched(client):
+def test_remove_button_excludes_term_and_lists_it_for_restore(client):
+    test_client, seen = client
+    key = presentation.gnd_term_key(TECHNIK, SCHRAUBE)
+    active = [presentation.gnd_term_key(t_s, t) for t_s in [TECHNIK] for t in t_s.terms]
+    html = _post(
+        test_client,
+        {
+            "chips_q": "Schraubenmutter",
+            "baum": "1",
+            "begriff": active,
+            "entfernen": key,
+            "hg_form": "1",
+        },
+    )
+    # Suchbegriff kommt aus der Chip-Zeile
+    assert seen["query"] == "Schraubenmutter"
+    terms = [t.term for s in seen["gnd_senses"] for t in s.terms]
+    assert terms == ["Mutter <Technik>"]
+    chips = _chips(html)
+    assert 'aria-label="Schraubenverbindung entfernen"' not in chips
+    removed = chips.split('class="chips-removed"', 1)[1]
+    assert "Entfernt" in removed
+    assert "Schraubenverbindung wieder hinzufügen" in removed
+    assert f'"zurueck": "{key}"' in _unescape(removed).replace("\\u003c", "<").replace(
+        "\\u003e", ">"
+    )
+    assert f'name="begriff" value="{key}"' not in _unescape(chips)
+
+
+def test_restore_brings_term_back(client):
+    test_client, seen = client
+    keep = presentation.gnd_term_key(TECHNIK, TECHNIK.terms[0])
+    key = presentation.gnd_term_key(TECHNIK, SCHRAUBE)
+    html = _post(
+        test_client,
+        {"chips_q": "Schraubenmutter", "baum": "1", "begriff": [keep], "zurueck": key},
+    )
+    terms = [t.term for s in seen["gnd_senses"] for t in s.terms]
+    assert terms == ["Mutter <Technik>", "Schraubenverbindung"]
+    chips = _chips(html)
+    assert 'aria-label="Schraubenverbindung entfernen"' in chips
+    assert 'class="chips-removed"' not in chips
+
+
+def test_deselected_gnd_term_via_hidden_fields_is_not_searched(client):
     test_client, seen = client
     keep = presentation.gnd_term_key(TECHNIK, TECHNIK.terms[0])
     html = _post(test_client, {"q": "Schraubenmutter", "baum": "1", "begriff": [keep]})
     terms = [t.term for s in seen["gnd_senses"] for t in s.terms]
     assert terms == ["Mutter <Technik>"]
-    # bleibt im Baum sichtbar, aber ohne Häkchen
-    tree = _tree(html)
-    assert "Schraubenverbindung" in tree
-    assert "abgewählt, nicht gesucht" in tree
+    assert "Schraubenverbindung wieder hinzufügen" in _chips(html)
 
 
-def test_without_tree_marker_nothing_is_deselected(client):
+def test_without_chip_marker_nothing_is_deselected(client):
     test_client, seen = client
     _post(test_client, {"q": "Schraubenmutter"})
+    terms = [t.term for s in seen["gnd_senses"] for t in s.terms]
+    assert terms == ["Mutter <Technik>", "Schraubenverbindung"]
+
+
+def test_chips_of_another_query_are_ignored(client):
+    # neue Eingabe im Suchfeld, Facette ändert sich: alte Abwahl gilt nicht
+    test_client, seen = client
+    keep = presentation.gnd_term_key(TECHNIK, TECHNIK.terms[0])
+    _post(
+        test_client,
+        {"q": "Schraubenmutter", "chips_q": "Getriebe", "baum": "1", "begriff": [keep]},
+    )
     terms = [t.term for s in seen["gnd_senses"] for t in s.terms]
     assert terms == ["Mutter <Technik>", "Schraubenverbindung"]
 
@@ -287,25 +425,32 @@ def test_deselected_llm_term_is_not_searched(client):
     html = _post(test_client, {"q": "Getriebe", "baum": "1", "begriff": [keep]})
     assert [t.term for t in seen["llm_terms"]] == ["Zahnrad"]
     assert "abgewählt, nicht gesucht" in html
+    assert "Welle &lt;Technik&gt; wieder hinzufügen" in _chips(html)
 
 
-def test_llm_block_shows_verified_and_grey_unverified(client):
+def test_llm_chips_show_relation_origin_and_status(client):
     test_client, seen = client
     html = _post(test_client, {"q": "Getriebe"})
+    chips = _chips(html)
 
-    assert "Vorschläge des Sprachmodells" in html
-    assert "Bauteil, das Drehmoment überträgt" in html
-    assert "verifiziert – gefunden im RVK-Register" in html
-    assert "verifiziert – gefunden in GND" in html
-    assert "Welle &lt;Technik&gt;" in html
-    assert 'class="llm-unverified"' in html
-    unverified = html.split('class="llm-unverified"', 1)[1].split("</li>", 1)[0]
+    zahnrad = chips.split('aria-label="Zahnrad entfernen"', 1)[0].rsplit("<li", 1)[1]
+    assert '<span class="chip-type">Unterbegriff · KI, geprüft</span>' in zahnrad
+    welle = chips.split('aria-label="Welle &lt;Technik&gt; entfernen"', 1)[0]
+    assert "verwandt · KI, geprüft" in welle.rsplit("<li", 1)[1]
+
+    assert "Vorschläge des Sprachmodells" in chips
+    assert "Bauteil, das Drehmoment überträgt" in chips
+    assert "verifiziert – gefunden im RVK-Register" in chips
+    assert "verifiziert – gefunden in GND" in chips
+    assert 'class="llm-unverified"' in chips
+    unverified = chips.split('class="llm-unverified"', 1)[1].split("</li>", 1)[0]
     assert "Kraftschlussdings" in unverified and "erfundener Begriff" in unverified
-    # Status als Text, nicht nur als Farbe
+    # Status als Text, nicht nur als Farbe; nicht gesuchte Vorschläge ohne Chip
     assert "nicht verifiziert" in unverified and "nicht gesucht" in unverified
-    assert 'name="begriff"' not in unverified
+    assert "Kraftschlussdings entfernen" not in chips
+    assert "(1 nicht gesucht)" in chips
     # Keine Prozentwerte oder Wahrscheinlichkeiten im LLM-Block
-    block = html.split('class="llm-suggestions"', 1)[1].split("</section>", 1)[0]
+    block = chips.split('class="llm-details"', 1)[1].split("</details>", 1)[0]
     assert "%" not in block and "Konfidenz" not in block
 
     # gesucht werden nur die geprüften Begriffe, unter ihrer Schreibweise im Normvokabular
@@ -317,78 +462,262 @@ def test_llm_block_shows_verified_and_grey_unverified(client):
     assert seen["llm_source"] is seen["gnd_source"] is not None
 
 
-def test_llm_block_without_hits(client, monkeypatch):
+def test_no_llm_block_without_suggestions(client):
     test_client, _ = client
-
-    def no_hits(conn, service, query, expanded_terms, **kwargs):
-        return ranking.SearchResult(hits=[])
-
-    monkeypatch.setattr(search_route.ranking, "search_result", no_hits)
-    html = _post(test_client, {"q": "Getriebe"})
-    assert "Keine Vorschläge für „Getriebe“ gefunden." in html
-    assert "Vorschläge des Sprachmodells" in html
+    html = _post(test_client, {"q": "Mutter"})
+    assert "Vorschläge des Sprachmodells" not in html
 
 
-def test_results_show_relevance_tier_and_bar_without_percent(client):
+def test_chips_grouped_per_sense_with_several_senses(client):
     test_client, _ = client
-    html = _post(test_client, {"q": "Getriebe"})
-    table = html.split('<table class="hits">', 1)[1].split("</table>", 1)[0]
-    assert '<th scope="col">Relevanz</th>' in table
-    assert "Konfidenz" not in html
-    cells = re.findall(r'<td class="relevance-cell">(.*?)</td>', table, re.DOTALL)
-    assert cells
-    assert all("%" not in cell for cell in cells)
-    assert "Wahrscheinlichkeit" not in cells[0]
-    assert re.search(r'class="tier tier-(hoch|mittel|niedrig)"', table)
-    assert 'title="Relevanzwert 0.50"' in table
-    assert 'class="seg seg-cosine"' in table and 'title="Vektor: 0.46"' in table
-    assert 'class="seg seg-gnd_bonus"' in table and 'title="GND: 0.04"' in table
-    # Balken mit Textalternative, Bestandteile auch als Text
-    assert (
-        'role="img" aria-label="Bestandteile der Relevanz: Vektor 0.46, GND 0.04"'
-        in table
+    chips = _chips(_post(test_client, {"q": "Mutter"}))
+    assert chips.count('class="chip-group-name"') == 2
+    assert "Mutter &lt;Familie&gt;:" in chips and "Mutter &lt;Technik&gt;:" in chips
+
+
+# --- Facette ----------------------------------------------------------------------------------
+
+
+def test_facet_is_updated_out_of_band_with_counts(client):
+    test_client, _ = client
+    html = _post(test_client, {"q": "Getriebe", "hg": ["ZL"], "hg_form": "1"})
+    facet = _facet(html)
+    assert "is-inactive" not in facet
+    assert "Trefferzahlen erscheinen" not in facet
+    zl = facet.split('value="ZL"', 1)[1].split("</li>", 1)[0]
+    assert '<span class="facet-num">2<span class="visually-hidden"> Fundstellen' in zl
+    ms = facet.split('value="MS"', 1)[1].split("</li>", 1)[0]
+    assert '<span class="facet-num">3' in ms
+    # Gruppe ohne Fundstelle: abgeschwächt, Zahl trotzdem als Text
+    ab = (
+        facet.split('value="AB"', 1)[0].rsplit("<li>", 1)[1]
+        + facet.split('value="AB"', 1)[1].split("</li>", 1)[0]
     )
+    assert 'class="facet-item is-empty"' in ab
+    assert '<span class="facet-num">0' in ab
+    # gewählte Gruppe angehakt und oben
+    assert '<input type="checkbox" name="hg" value="ZL" checked>' in facet
+    assert facet.index('value="ZL"') < facet.index('value="AB"')
+    assert '<span id="facet-count" hx-swap-oob="true">1</span>' in html
+
+
+def test_index_facet_greyed_out_but_not_disabled(client):
+    test_client, seen = client
+    seen["app"].config["DEFAULT_MAIN_GROUPS"] = ("ZL",)
+    html = test_client.get("/").get_data(as_text=True)
+    facet = html.split('<aside id="facet"', 1)[1].split("</aside>", 1)[0]
+    assert 'class="facet-fieldset is-inactive"' in facet
+    assert "Trefferzahlen erscheinen nach der ersten Suche." in facet
+    assert "disabled" not in facet
+    assert "facet-num" not in facet
+    # Voreinstellung aus .env bleibt angehakt
+    assert '<input type="checkbox" name="hg" value="ZL" checked>' in facet
+    assert '<span class="facet-name">Maschinenbau</span>' in facet
+    assert 'name="hg_form" value="1"' in facet
+    assert 'hx-trigger="change"' in facet
+    assert 'hx-include="#search-form, #facet, #chips"' in facet
+    assert (
+        '<button type="button" class="facet-toggle" aria-expanded="false" '
+        'aria-controls="facet-body">Hauptgruppen filtern · '
+        '<span id="facet-count">1</span> gewählt</button>'
+    ) in facet
+
+
+def test_layout_order_search_facet_results(client):
+    test_client, _ = client
+    html = test_client.get("/").get_data(as_text=True)
+    search = html.index('class="search-card')
+    facet = html.index('<aside id="facet"')
+    results = html.index('<section id="results"')
+    assert search < facet < results
+    # Hinweiszeile exakt nach docs/design.md Abschnitt 7, direkt unter dem Suchschlitz
+    hint = (
+        "Vorschläge sind eine Orientierung, keine geprüfte Klassifikation – bitte die "
+        "Notation vor der Vergabe in RVK-Online prüfen."
+    )
+    assert hint in html
+    assert html.index("</form>") < html.index(hint) < html.index('<div id="chips">')
+    assert ">Vorschläge anzeigen</button>" in html
+    # Chips außerhalb des Formulars: eine neue Eingabe schickt keine alte Abwahl mit
+    form = html.split('<form id="search-form"', 1)[1].split("</form>", 1)[0]
+    assert 'id="chips"' not in form
+    assert 'hx-include="#facet"' in html.split('<form id="search-form"', 1)[1]
+
+
+# --- Startzustand -----------------------------------------------------------------------------
+
+
+def test_start_state_on_index(client):
+    test_client, _ = client
+    html = test_client.get("/").get_data(as_text=True)
+    start = html.split('<section id="results"', 1)[1].split("</section>", 1)[0]
+    assert "So kommst du zur passenden RVK-Stelle" in start
+    assert (
+        start.split('<ol class="steps">', 1)[1].split("</ol>", 1)[0].count("<li>") == 3
+    )
+    examples = re.findall(
+        r'class="btn-secondary example-search" href="([^"]+)" data-query="([^"]+)"',
+        start,
+    )
+    assert [q for _, q in examples] == [
+        "Klimawandel",
+        "Umwelttechnik",
+        "Konfliktmanagement",
+        "Bank",
+    ]
+    assert examples[3][0] == "/?q=Bank"
+    assert "(mehrdeutig)" in start
+    assert "Häufig gesucht" not in html
+    assert 'hx-trigger="load"' not in html
+
+
+def test_empty_query_returns_start_state(client):
+    test_client, _ = client
+    html = _post(test_client, {"q": "   "})
+    assert "So kommst du zur passenden RVK-Stelle" in _main(html)
+    assert "is-inactive" in _facet(html)
+
+
+def test_index_with_query_prefills_and_searches(client):
+    test_client, _ = client
+    html = test_client.get("/?q=ZL%204600").get_data(as_text=True)
+    assert 'id="q" name="q" value="ZL 4600"' in html
+    results = html.split('<section id="results"', 1)[1].split(">", 1)[0]
+    assert 'hx-post="/search"' in results and 'hx-trigger="load"' in results
+    assert 'hx-include="#search-form, #facet"' in results
+
+
+# --- Keine Treffer ----------------------------------------------------------------------------
+
+
+def _no_hits(counts):
+    def search_result(conn, service, query, expanded_terms, **kwargs):
+        return ranking.SearchResult(hits=[], main_group_counts=counts)
+
+    return search_result
+
+
+def test_no_hits_with_filter_offers_reset_with_count(client, monkeypatch):
+    test_client, _ = client
+    monkeypatch.setattr(
+        search_route.ranking, "search_result", _no_hits({"MS": 3, "AB": 2})
+    )
+    html = _post(test_client, {"q": "Getriebe", "hg": ["ZL", "ZM"], "hg_form": "1"})
+    main = _main(html)
+    assert "Keine Vorschläge in den gewählten Hauptgruppen (ZL, ZM)." in main
+    button = main.split('class="btn-primary facet-reset"', 1)[1].split("</button>", 1)[
+        0
+    ]
+    assert "Hauptgruppen-Auswahl zurücksetzen (5 Vorschläge)" in button
+    assert 'hx-include="#chips"' in button
+    assert 'hx-vals=\'{"hg_form": "1"}\'' in button
+    assert "allgemeineren Begriff" in main
+    assert 'href="mailto:rvkompass@ghochhauser.at">Feedback senden</a>' in main
+
+
+def test_reset_clears_filter_and_searches_query_of_chips(client):
+    test_client, seen = client
+    _post(test_client, {"chips_q": "Getriebe", "hg_form": "1"})
+    assert seen["query"] == "Getriebe"
+    assert seen["main_group_filter"] == []
+
+
+def test_no_hits_without_filter_names_cause(client, monkeypatch):
+    test_client, _ = client
+    monkeypatch.setattr(search_route.ranking, "search_result", _no_hits({}))
+    html = _post(test_client, {"q": "Getriebe"})
+    main = _main(html)
+    assert "Für „Getriebe“ wurde nichts gefunden." in main
+    assert "facet-reset" not in main
+    assert "allgemeineren Begriff" in main
+    assert "Feedback senden" in main
+    # Erweiterung bleibt sichtbar, auch ohne Vorschläge
+    assert "Vorschläge des Sprachmodells" in _chips(html)
+
+
+def test_no_hits_mentions_removed_terms(client, monkeypatch):
+    test_client, _ = client
+    monkeypatch.setattr(search_route.ranking, "search_result", _no_hits({}))
+    keep = presentation.gnd_term_key(TECHNIK, TECHNIK.terms[0])
+    html = _post(test_client, {"q": "Schraubenmutter", "baum": "1", "begriff": [keep]})
+    main = _main(html)
+    assert "1 Begriff entfernt – wieder hinzufügen" in main
+
+
+# --- Treffer-Karte ----------------------------------------------------------------------------
+
+
+def test_hit_card_relevance_block_without_percent(client):
+    test_client, _ = client
+    html = _post(test_client, {"q": "Getriebe"})
+    card = _card(html, "ZL 4620")
+    # Score 0.5 liegt unter „mittel“ (0.5754) und über „schwach“ (0.5754 − 0.0797)
+    assert (
+        '<div class="relevance" role="img" aria-label="Relevanz schwach, Stufe 2 von 5" '
+        'title="Relevanzwert 0.50">'
+    ) in card
+    assert len(re.findall(r'<span class="seg( is-on)?" aria-hidden="true">', card)) == 5
+    assert card.count('<span class="seg is-on"') == 2
+    assert '<span class="relevance-word">schwach</span>' in card
+    # kein Prozentzeichen im Text (Links enthalten URL-Kodierung wie %20)
+    assert "%" not in re.sub(r'href="[^"]*"', "", card) and "Konfidenz" not in card
+    vector = _card(html, "ZL 9999")
+    assert 'aria-label="Relevanz gering, Stufe 1 von 5"' in vector
     assert "keine Wahrscheinlichkeit" in html
 
 
 def test_hits_are_grouped_by_main_group_with_label_from_database(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Getriebe"})
-    assert "Fachgebiete:" in html
-    assert "ZL Maschinenbau (2)" in html
-    assert "<caption>ZL Maschinenbau – 2 Vorschläge</caption>" in html
+    assert '<h3 class="hit-group-title">ZL Maschinenbau – 2 Vorschläge</h3>' in html
+    hits = html.split('<ol class="hits">', 1)[1].split('<p class="relevance-note"', 1)[
+        0
+    ]
+    assert hits.count('<article class="hit-card"') == 2
+    assert '<li value="1">' in hits and '<li value="2">' in hits
 
 
-def test_why_chain_and_rvk_note_and_actions(client):
+def test_why_label_rvk_note_links_and_actions(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Getriebe"})
-    row = html.split("<code>ZL 4620</code>", 1)[1].split("</tr>", 1)[0]
-    assert "<summary>Warum?</summary>" in row
-    assert "Eingabe „Getriebe“" in row
-    assert "GND-Begriff" in row and "Registereintrag mit GND-Nummer an" in row
-    assert "RVK-Bemerkung: Hier nur Normteile" in row
-    assert "siehe auch: ZL 4600" in row
-    assert "Hierarchie: Technik &gt; Maschinenelemente" in row
+    card = _card(html, "ZL 4620")
+    assert "<summary>Warum? · RVK-Bemerkung</summary>" in card
+    assert "Eingabe „Getriebe“" in card
+    assert "GND-Begriff" in card and "Registereintrag mit GND-Nummer an" in card
+    assert "<strong>RVK-Bemerkung:</strong> Hier nur Normteile" in card
+    assert (
+        '<strong>siehe auch:</strong> <a class="notation-link" href="/?q=ZL%204600" '
+        'data-query="ZL 4600">→ ZL 4600 anzeigen</a>'
+    ) in card
+    assert (
+        "Bestandteile der Relevanz (Relevanzwert 0.50, keine Wahrscheinlichkeit)"
+        in card
+    )
+    assert "<li>Vektor: 0.46</li>" in card and "<li>GND: 0.04</li>" in card
+    assert '<p class="hierarchy">Hierarchie: Technik &gt; Maschinenelemente</p>' in card
+    assert '<p class="hit-title">Muttern</p>' in card
     # gleichrangige Textknöpfe statt Symbolen
     assert re.search(
         r'<button type="button" class="action copy-notation"[^>]*>kopieren</button>',
-        row,
+        card,
     )
     assert re.search(
-        r'<a class="action rvk-online-link"[^>]*>in RVK-Online prüfen', row
+        r'<a class="action rvk-online-link"[^>]*>in RVK-Online prüfen', card
     )
     assert "📋" not in html and "↗" not in html
+    other = _card(html, "ZL 9999")
+    assert "<summary>Warum dieser Vorschlag?</summary>" in other
+    assert "RVK-Bemerkung" not in other
 
 
 def test_warning_only_for_pure_vector_evidence(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Getriebe"})
-    gnd_row = html.split("<code>ZL 4620</code>", 1)[1].split("</tr>", 1)[0]
-    vector_row = html.split("<code>ZL 9999</code>", 1)[1].split("</tr>", 1)[0]
     warning = "Nur über Ähnlichkeit gefunden – bitte im Register prüfen"
-    assert warning not in gnd_row
-    assert warning in vector_row
-    assert 'role="note"' in vector_row
+    assert warning not in _card(html, "ZL 4620")
+    vector_card = _card(html, "ZL 9999")
+    assert warning in vector_card
+    assert 'role="note"' in vector_card
 
 
 def test_changed_label_only_with_data(client):
@@ -403,8 +732,36 @@ def test_changed_label_only_with_data(client):
     conn.commit()
     conn.close()
     html = _post(test_client, {"q": "Getriebe"})
-    row = html.split("<code>ZL 4620</code>", 1)[1].split("</tr>", 1)[0]
-    assert "geändert in Version 2026/1" in row
+    assert "geändert in Version 2026/1" in _card(html, "ZL 4620")
+
+
+# --- Notation als Eingabe ---------------------------------------------------------------------
+
+
+def test_entered_notation_card_is_separate_from_suggestions(client):
+    test_client, seen = client
+    html = _post(test_client, {"q": "zl 4620"})
+    main = _main(html)
+    card = main.split('<article class="entered-notation card"', 1)[1].split(
+        "</article>", 1
+    )[0]
+    assert "Eingegebene Notation" in card
+    assert '<code class="notation">ZL 4620</code>' in card
+    assert "Herkunft: Direkt: Notation eingegeben" in card
+    assert "→ ZL 4600 anzeigen" in card
+    assert "Hierarchie: Technik &gt; Maschinenelemente" in card
+    # die Vorschlagsliste kommt unverändert darunter
+    assert main.index("entered-notation") < main.index('class="results-intro"')
+    assert seen["query"] == "zl 4620"
+
+
+def test_no_entered_notation_card_for_unknown_or_plain_query(client):
+    test_client, _ = client
+    assert "entered-notation" not in _post(test_client, {"q": "ZL 1234"})
+    assert "entered-notation" not in _post(test_client, {"q": "Getriebe"})
+
+
+# --- Filter, Voreinstellung, Wortwahl, Grundgerüst --------------------------------------------
 
 
 def test_main_group_filter_hint(client):
@@ -425,7 +782,7 @@ def test_default_main_groups_apply_without_form_selection(client):
     seen["app"].config["DEFAULT_MAIN_GROUPS"] = ("ZL",)
     _post(test_client, {"q": "Getriebe"})
     assert seen["main_group_filter"] == ["ZL"]
-    # Kommt die Anfrage aus dem Formular ohne Häkchen, gilt „kein Filter“
+    # Kommt die Anfrage aus der Facette ohne Häkchen, gilt „kein Filter“
     _post(test_client, {"q": "Getriebe", "hg_form": "1"})
     assert seen["main_group_filter"] == []
 
@@ -441,24 +798,21 @@ def test_wording_uses_vorschlaege(client):
         assert "Vorschläge" in html
 
 
-def test_no_llm_block_without_suggestions(client):
+def test_index_footer_header_and_navigation(client):
     test_client, _ = client
-    html = _post(test_client, {"q": "Mutter"})
-    assert "Vorschläge des Sprachmodells" not in html
-
-
-def test_index_footer_shows_rvk_version_and_main_groups(client):
-    test_client, seen = client
-    seen["app"].config["DEFAULT_MAIN_GROUPS"] = ("ZL",)
     html = test_client.get("/").get_data(as_text=True)
     assert "RVK-Stand: 2026/1" in html
     assert '<label for="q"' in html and 'id="q"' in html
-    assert "Hauptgruppen einschränken" in html
-    assert (
-        '<input type="checkbox" name="hg" value="ZL" checked> ZL – Maschinenbau' in html
-    )
     assert 'id="results" aria-live="polite"' in html
     assert 'href="#inhalt"' in html and 'href="/hilfe"' in html
+    assert '<a href="/" aria-current="page">Suche</a>' in html
+    assert '<a href="/hilfe">Hilfe</a>' in html
+    assert '<a href="mailto:rvkompass@ghochhauser.at">Feedback</a>' in html
+    assert html.count('href="https://ghochhauser.at') == 1
+    assert (
+        '<a href="https://ghochhauser.at/">Ein Projekt von ghochhauser.at</a>' in html
+    )
+    assert 'alt="RVKompass"' in html and "Klassifizieren mit Richtung" in html
     assert "Konfidenz" not in html and "Ergebnis" not in html
 
 

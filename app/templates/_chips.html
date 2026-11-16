@@ -1,0 +1,52 @@
+{% if query %}<input type="hidden" name="chips_q" value="{{ query }}">{% endif %}
+{% if chips and chips.has_expansion %}
+<input type="hidden" name="baum" value="1">
+{% for key in chips.active_keys %}<input type="hidden" name="begriff" value="{{ key }}">
+{% endfor %}
+<div class="chips" role="group" aria-labelledby="chips-title">
+  {% if chips.groups %}
+  <p id="chips-title" class="chips-title">Deine Suche wurde erweitert um:</p>
+  {% for g in chips.groups %}
+  <div class="chip-group">
+    {% if g.sense_name %}<p class="chip-group-name">{{ g.sense_name }}:</p>{% endif %}
+    <ul class="chip-list">
+      {% for c in g.chips %}
+      <li class="chip chip-{{ c.origin }}">
+        <span class="chip-term">{% if c.url %}<a class="chip-link" href="{{ c.url }}" target="_blank" rel="noopener">{{ c.term }}<span class="visually-hidden"> (bei lobid-gnd, neues Fenster)</span></a>{% else %}{{ c.term }}{% endif %}</span>
+        <span class="chip-type">{{ c.type_label }}{% if c.origin == "llm" %} · {{ c.origin_label }}{% endif %}</span>
+        <button type="button" class="chip-remove" aria-label="{{ c.term }} entfernen" data-key="{{ c.key }}" hx-post="/search" hx-target="#results" hx-include="#chips, #facet" hx-indicator="#spinner" hx-vals='{{ {"entfernen": c.key} | tojson }}'><span class="chip-x" aria-hidden="true">×</span></button>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p id="chips-title" class="chips-title">Gesucht wird nur mit deiner Eingabe.</p>
+  {% endif %}
+  {% if chips.removed %}
+  <div class="chips-removed">
+    <p class="chips-removed-title">Entfernt (nicht gesucht):</p>
+    <ul class="chip-list">
+      {% for c in chips.removed %}
+      <li><button type="button" class="chip-restore" data-key="{{ c.key }}" hx-post="/search" hx-target="#results" hx-include="#chips, #facet" hx-indicator="#spinner" hx-vals='{{ {"zurueck": c.key} | tojson }}'>{{ c.term }} wieder hinzufügen</button>{% if c.origin == "llm" %} <span class="chip-origin">(KI, geprüft)</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if chips.llm %}
+  <details class="llm-details">
+    <summary>Vorschläge des Sprachmodells: Prüfung und Begründung{% if chips.unverified %} ({{ chips.unverified | length }} nicht gesucht){% endif %}</summary>
+    <p class="llm-intro">Gesucht wird nur, was im Normvokabular (RVK-Register oder GND) steht.</p>
+    <ul class="llm-suggestions">
+      {% for s in chips.llm %}
+      {% if s.key %}
+      <li class="llm-verified"><strong>{{ s.term }}</strong>{% if s.matched_term and s.matched_term != s.term %} (als „{{ s.matched_term }}“){% endif %} – {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.status }}{% if not s.checked %} – abgewählt, nicht gesucht{% endif %}</li>
+      {% else %}
+      <li class="llm-unverified">{{ s.term }} – {{ s.relation }}{% if s.rationale %}: {{ s.rationale }}{% endif %} – {{ s.status }}</li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+</div>
+{% endif %}

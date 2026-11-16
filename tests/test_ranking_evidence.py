@@ -4,7 +4,13 @@ import numpy as np
 import pytest
 
 from app.models import SCHEMA_SQL, Evidence, ExpansionTerm, GndSense, Hit
-from app.services import ranking, rvk_repository, scoring, scoring_tuning
+from app.services import (
+    presentation,
+    ranking,
+    rvk_repository,
+    scoring,
+    scoring_tuning,
+)
 
 MIN_SCORE = 0.1
 
@@ -310,6 +316,11 @@ def test_hits_to_rows_shows_tier_and_components_instead_of_percent(conn, service
             "explanation",
             "vector_only",
             "changed_in",
+            # P10: Verweis-Links und fünf Relevanzstufen der Treffer-Karte
+            "note_html",
+            "see_also_html",
+            "level",
+            "level_word",
         }
         assert row["score"] == round(hit.score, 2)
         assert row["rvk_online_url"] == ranking.build_rvk_online_url(
@@ -619,3 +630,59 @@ def test_hits_to_rows_shows_note_explanation_and_vector_warning(conn, service):
 
     # ohne Eingabe (z. B. Aufrufer vor P6) keine Erklärung, sonst gleich
     assert ranking.hits_to_rows(conn, hits)[0]["explanation"] is None
+
+
+def test_main_group_counts_cover_unfiltered_candidates(conn, service, monkeypatch):
+    """P10: Zahl je Hauptgruppe über alle Kandidaten, unabhängig vom Filter."""
+    _add_other_main_group(conn)
+    monkeypatch.setattr(ranking, "MAX_RESULTS", 2)
+    plain = ranking.search_result(conn, service, "Getriebe", [])
+    total = len(ranking.build_candidates(conn, service, "Getriebe", []).features)
+    assert sum(plain.main_group_counts.values()) == total
+    assert plain.main_group_counts["QP"] == 1
+    assert set(plain.main_group_counts) == {"QP", "ZL"}
+
+    only_qp = ranking.search_result(
+        conn, service, "Getriebe", [], main_group_filter=["QP"]
+    )
+    # gleiche Zahlen mit Filter; weggelassen ist genau die Summe der übrigen Gruppen
+    assert only_qp.main_group_counts == plain.main_group_counts
+    assert only_qp.filtered_out == sum(
+        n for code, n in plain.main_group_counts.items() if code != "QP"
+    )
+
+
+def test_main_group_counts_do_not_change_hits(conn, service):
+    _add_other_main_group(conn)
+    # search() liefert dieselben Treffer wie search_result() – die Zählung ändert nichts
+    for filter_ in (None, ["ZL"], ["QP"]):
+        result = ranking.search_result(
+            conn, service, "Getriebe", [], [KUPPLUNG], main_group_filter=filter_
+        )
+        again = ranking.search_result(
+            conn, service, "Getriebe", [], [KUPPLUNG], main_group_filter=filter_
+        )
+        assert [(h.notation.notation, h.score) for h in result.hits] == [
+            (h.notation.notation, h.score) for h in again.hits
+        ]
+        assert result.main_group_counts == again.main_group_counts
+
+
+def test_main_group_counts_empty_without_candidates(conn, service):
+    assert ranking.search_result(conn, service, "Unbekannt", []).main_group_counts == {}
+
+
+def test_hits_to_rows_links_notations_and_gives_five_levels(conn, service):
+    conn.execute("UPDATE notation SET see_also = 'ZL 4600' WHERE notation = 'ZL 4100'")
+    conn.commit()
+    hits = ranking.search(conn, service, "Getriebe", [])
+    rows = {r["notation"]: r for r in ranking.hits_to_rows(conn, hits, query="G")}
+    row = rows["ZL 4100"]
+    assert row["see_also"] == "ZL 4600"
+    assert 'data-query="ZL 4600"' in str(row["see_also_html"])
+    assert str(row["note_html"]) == ""
+    settings = scoring.ScoringSettings.from_config(ranking.Config)
+    for r, hit in zip(ranking.hits_to_rows(conn, hits, query="G"), hits, strict=True):
+        assert (r["level"], r["level_word"]) == presentation.relevance_level(
+            hit.score, settings
+        )

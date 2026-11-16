@@ -1,0 +1,48 @@
+<article class="hit-card" aria-label="Vorschlag {{ r.rank }}: {{ r.notation }}">
+  <div class="hit-head">
+    <div class="hit-ident">
+      <p class="hit-notation"><code class="notation">{{ r.notation }}</code></p>
+      <p class="hit-title">{{ r.label }}{% if r.changed_in %} <span class="badge-changed">geändert in Version {{ r.changed_in }}</span>{% endif %}</p>
+      {% if r.hierarchy_path %}<p class="hierarchy">Hierarchie: {{ r.hierarchy_path }}</p>{% endif %}
+    </div>
+    <div class="relevance" role="img" aria-label="Relevanz {{ r.level_word }}, Stufe {{ r.level }} von 5" title="Relevanzwert {{ '%.2f' | format(r.score) }}">
+      <span class="segs">{% for i in range(1, 6) %}<span class="seg{% if i <= r.level %} is-on{% endif %}" aria-hidden="true"></span>{% endfor %}</span>
+      <span class="relevance-word">{{ r.level_word }}</span>
+    </div>
+  </div>
+  {% if r.vector_only %}<p class="warn" role="note"><span aria-hidden="true">⚠ </span>Nur über Ähnlichkeit gefunden – bitte im Register prüfen</p>{% endif %}
+  <div class="hit-actions">
+    <button type="button" class="action copy-notation" data-notation="{{ r.notation }}" aria-label="Notation {{ r.notation }} kopieren">kopieren</button>
+    <a class="action rvk-online-link" href="{{ r.rvk_online_url }}" target="_blank" rel="noopener">in RVK-Online prüfen<span class="visually-hidden"> ({{ r.notation }}, neues Fenster)</span></a>
+  </div>
+  <details class="why">
+    <summary>{% if r.note %}Warum? · RVK-Bemerkung{% else %}Warum dieser Vorschlag?{% endif %}</summary>
+    <div class="why-body">
+      {% if r.explanation %}
+      {% for c in r.explanation.shown %}
+      <div class="chain-block">
+        <span class="path-label">{{ c.path_label }}:</span>
+        <ol class="chain">
+          {%- for s in c.steps -%}
+          <li>{% if not loop.first %}<span class="arrow">→ </span>{% endif %}{{ s.label }}
+            {%- if s.term %} {% if loop.last %}<code>{{ s.term }}</code>{% elif s.url %}<a href="{{ s.url }}" target="_blank" rel="noopener">„{{ s.term }}“</a>{% else %}„{{ s.term }}“{% endif %}{% endif -%}
+          </li>
+          {%- endfor -%}
+        </ol>
+      </div>
+      {% endfor %}
+      {% if r.explanation.more %}<p class="chain-more">+{{ r.explanation.more }} weitere Fundwege</p>{% endif %}
+      {% endif %}
+      {% if r.components %}
+      <p class="components-title">Bestandteile der Relevanz (Relevanzwert {{ '%.2f' | format(r.score) }}, keine Wahrscheinlichkeit):</p>
+      <ul class="components">
+        {% for c in r.components %}<li>{{ c.label }}: {{ '%.2f' | format(c.value) }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if r.note %}<p class="rvk-note"><strong>RVK-Bemerkung:</strong> {{ r.note_html }}</p>{% endif %}
+      {% if r.see_also %}<p class="see-also"><strong>siehe auch:</strong> {{ r.see_also_html }}</p>{% endif %}
+      {% if r.related_terms %}<p class="register-terms">Registerbegriffe: {{ r.related_terms | join(', ') }}</p>{% endif %}
+    </div>
+  </details>
+</article>

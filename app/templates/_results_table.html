@@ -1,49 +1,81 @@
 {% if not query %}
-  <p><em>Noch keine Suche durchgeführt.</em></p>
+  {% include "_start_state.html" %}
 {% else %}
-  {% if tree and tree.has_expansion %}{% include "_expansion_tree.html" %}{% endif %}
-  {% if not results %}
-    <p class="empty-state">Keine Vorschläge für „{{ query }}“ gefunden.</p>
-  {% else %}
-    <p class="results-intro"><strong>{{ results | length }} {{ "Vorschlag" if results | length == 1 else "Vorschläge" }}</strong> für „{{ query }}“ – Vorschläge, keine Entscheidung: bitte jede Stelle in RVK-Online prüfen.</p>
-    {% if blocks %}
-      <section class="gnd-senses" aria-labelledby="senses-title">
-        <h3 id="senses-title">Mehrere Bedeutungen gefunden</h3>
-        <p>Laut GND hat „{{ query }}“ mehrere Bedeutungen. Die Vorschläge stehen getrennt je Bedeutung; aufgeklappt ist die, die zum gewählten Fachgebiet passt (sonst die erste).</p>
-        <fieldset class="sense-toggles">
-          <legend>Bedeutungen anzeigen</legend>
-          {% for b in blocks %}
-          <label><input type="checkbox" class="sense-toggle" aria-controls="{{ b.id }}" checked> {{ b.name }}</label>
-          {% endfor %}
-        </fieldset>
-      </section>
-      {% for b in blocks %}
-      <details id="{{ b.id }}" class="sense-block"{% if b.open %} open{% endif %}>
-        <summary>
-          <strong>{{ b.name }}</strong>
-          {%- if b.subject_categories %} – Sachgruppe: {{ b.subject_categories | join(', ') }}{% endif %}
-          – {{ b.count }} {{ "Vorschlag" if b.count == 1 else "Vorschläge" }}
-          {%- if b.kind == "sense" %} <small>({{ b.hit_count }} {{ "Fundstelle" if b.hit_count == 1 else "Fundstellen" }} über diese Bedeutung insgesamt)</small>{% endif %}
-        </summary>
-        {% if b.url %}<p class="sense-link"><a href="{{ b.url }}" target="_blank" rel="noopener">GND-Datensatz bei lobid-gnd ansehen<span class="visually-hidden"> ({{ b.name }})</span></a></p>{% endif %}
-        {% with groups = b.groups %}{% include "_hit_group.html" %}{% endwith %}
-        {% if b.more %}
-        <p class="sense-more">Weitere Stellen über diese Bedeutung, nicht unter den angezeigten Vorschlägen:
-          {% for n in b.more %}<a href="{{ n.rvk_online_url }}" target="_blank" rel="noopener"><code>{{ n.notation }}</code>{% if n.label %} {{ n.label }}{% endif %}</a>{% if not loop.last %}, {% endif %}{% endfor %}
-        </p>
-        {% elif not b.rows %}
-        <p><em>Keine Systemstelle über diese Bedeutung gefunden.</em></p>
-        {% endif %}
-      </details>
-      {% endfor %}
-    {% else %}
-      {% include "_hit_group.html" %}
-    {% endif %}
+  {% if entered %}
+  <article class="entered-notation card" aria-labelledby="entered-title">
+    <p class="card-kicker" id="entered-title">Eingegebene Notation</p>
+    <div class="hit-ident">
+      <p class="hit-notation"><code class="notation">{{ entered.notation }}</code></p>
+      <p class="hit-title">{{ entered.label }}</p>
+      {% if entered.hierarchy_path %}<p class="hierarchy">Hierarchie: {{ entered.hierarchy_path }}</p>{% endif %}
+      <p class="origin">Herkunft: {{ entered.origin }}</p>
+    </div>
+    {% if entered.has_note %}<p class="rvk-note"><strong>RVK-Bemerkung:</strong> {{ entered.note_html }}</p>{% endif %}
+    {% if entered.see_also_html %}<p class="see-also"><strong>siehe auch:</strong> {{ entered.see_also_html }}</p>{% endif %}
+    <div class="hit-actions">
+      <button type="button" class="action copy-notation" data-notation="{{ entered.notation }}" aria-label="Notation {{ entered.notation }} kopieren">kopieren</button>
+      <a class="action rvk-online-link" href="{{ entered.rvk_online_url }}" target="_blank" rel="noopener">in RVK-Online prüfen<span class="visually-hidden"> ({{ entered.notation }}, neues Fenster)</span></a>
+    </div>
+    <p class="entered-note">Diese Stelle steht hier, weil du ihre Notation eingegeben hast. Darunter folgen wie immer die Vorschläge zu deiner Eingabe.</p>
+  </article>
   {% endif %}
-  {% if filtered_out %}
-    <p class="filter-note" role="note">{{ filtered_out }} weitere {{ "Fundstelle" if filtered_out == 1 else "Fundstellen" }} außerhalb der gewählten Hauptgruppen ({{ selected_groups | join(', ') }}) nicht angezeigt.</p>
+
+  {% if not results %}
+  <div class="empty-state card" role="status">
+    {% if empty and empty.cause == "filter" %}
+    <h2 class="empty-title">Keine Vorschläge in den gewählten Hauptgruppen ({{ empty.selected | join(', ') }}).</h2>
+    <p><button type="button" class="btn-primary facet-reset" hx-post="/search" hx-target="#results" hx-include="#chips" hx-indicator="#spinner" hx-vals='{"hg_form": "1"}'>Hauptgruppen-Auswahl zurücksetzen ({{ empty.reset_count }} {{ "Vorschlag" if empty.reset_count == 1 else "Vorschläge" }})</button></p>
+    {% else %}
+    <h2 class="empty-title">Für „{{ query }}“ wurde nichts gefunden.</h2>
+    {% endif %}
+    <p>Was du tun kannst:</p>
+    <ul class="ways">
+      <li>Versuche einen allgemeineren Begriff, zum Beispiel den Oberbegriff statt eines Fachworts.</li>
+      {% if empty and empty.removed_count %}
+      <li><button type="button" class="btn-secondary restore-all" hx-post="/search" hx-target="#results" hx-include="#facet" hx-indicator="#spinner" hx-vals='{{ {"q": query} | tojson }}'>{{ empty.removed_count }} {{ "Begriff" if empty.removed_count == 1 else "Begriffe" }} entfernt – wieder hinzufügen</button></li>
+      {% endif %}
+      <li>Fehlt eine Stelle, die du erwartet hättest? <a href="mailto:rvkompass@ghochhauser.at">Feedback senden</a></li>
+    </ul>
+  </div>
+  {% else %}
+  <h2 class="results-intro">{{ results | length }} {{ "Vorschlag" if results | length == 1 else "Vorschläge" }} für „{{ query }}“</h2>
+  {% if blocks %}
+  <p class="senses-intro"><strong>Mehrere Bedeutungen gefunden:</strong> Laut GND hat „{{ query }}“ mehrere Bedeutungen. Die Vorschläge stehen getrennt je Bedeutung; gewählt ist die, die zum gewählten Fachgebiet passt (sonst die erste).</p>
+  <div class="sense-tabs" role="tablist" aria-label="Bedeutungen" hidden>
+    {% for b in blocks %}<button type="button" role="tab" id="tab-{{ b.id }}" aria-controls="{{ b.id }}" aria-selected="{{ 'true' if b.selected else 'false' }}" tabindex="{{ '0' if b.selected else '-1' }}">{{ b.tab_label }} · {{ b.count }}</button>
+    {% endfor %}
+  </div>
+  {% for b in blocks %}
+  <section id="{{ b.id }}" class="sense-panel" aria-labelledby="{{ b.id }}-title">
+    <h3 id="{{ b.id }}-title" class="sense-title">{{ b.name }}</h3>
+    <p class="sense-meta">
+      {%- if b.subject_categories %}Sachgruppe: {{ b.subject_categories | join(', ') }} · {% endif -%}
+      {{ b.count }} {{ "Vorschlag" if b.count == 1 else "Vorschläge" }}
+      {%- if b.kind == "sense" %} ({{ b.hit_count }} {{ "Fundstelle" if b.hit_count == 1 else "Fundstellen" }} über diese Bedeutung insgesamt){% endif %}
+      {%- if b.url %} · <a href="{{ b.url }}" target="_blank" rel="noopener">GND-Datensatz bei lobid-gnd ansehen<span class="visually-hidden"> ({{ b.name }})</span></a>{% endif %}
+    </p>
+    {% with groups = b.groups, heading_level = 4 %}{% include "_hit_list.html" %}{% endwith %}
+    {% if b.more %}
+    <p class="sense-more">Weitere Stellen über diese Bedeutung, nicht unter den angezeigten Vorschlägen:
+      {% for n in b.more %}<a href="{{ n.rvk_online_url }}" target="_blank" rel="noopener"><code>{{ n.notation }}</code>{% if n.label %} {{ n.label }}{% endif %}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% elif not b.rows %}
+    <p class="sense-more">Keine Systemstelle über diese Bedeutung gefunden.</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+  {% else %}
+  {% with heading_level = 3 %}{% include "_hit_list.html" %}{% endwith %}
+  {% endif %}
+  {% endif %}
+
+  {% if filtered_out and results %}
+  <p class="filter-note" role="note">{{ filtered_out }} weitere {{ "Fundstelle" if filtered_out == 1 else "Fundstellen" }} außerhalb der gewählten Hauptgruppen ({{ selected_groups | join(', ') }}) nicht angezeigt.</p>
   {% endif %}
   {% if results %}
-  <p class="relevance-note"><small>Relevanz: Stufen aus der Evaluation abgeleitet; Balkenlänge relativ zum ersten Vorschlag; keine Wahrscheinlichkeit. Die Bestandteile stehen unter „Warum?“ als Text. Erklärungen auf der <a href="/hilfe">Hilfeseite</a>.</small></p>
+  <p class="relevance-note">Relevanz in fünf Stufen von „gering“ bis „sehr hoch“: ein Maß für die Passung zur Eingabe, keine Wahrscheinlichkeit. Die Bestandteile stehen unter „Warum?“ als Text. Erklärungen auf der <a href="/hilfe">Hilfeseite</a>.</p>
   {% endif %}
 {% endif %}
+<div id="chips" hx-swap-oob="true">{% include "_chips.html" %}</div>
+<div id="facet-list" hx-swap-oob="true">{% include "_facet_list.html" %}</div>
+<span id="facet-count" hx-swap-oob="true">{{ (selected_groups or []) | length }}</span>

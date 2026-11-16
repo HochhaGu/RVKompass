@@ -55,6 +55,20 @@ def get_notations_by_ids(
     return {row["id"]: _row_to_notation(row) for row in rows}
 
 
+def get_notation_by_code(conn: sqlite3.Connection, code: str) -> Notation | None:
+    """Eine Notation über ihren Code („ZL 4620“ oder Bereich „ST 300 - ST 310“), nur lesend.
+
+    Der Code wird wie in der RVK geschrieben erwartet (Großbuchstaben, ein Leerzeichen,
+    Bereiche mit „ - “); siehe `presentation.parse_notation_query`. Fehlt sie: None.
+    """
+    if not code:
+        return None
+    row = conn.execute(
+        "SELECT * FROM notation WHERE notation = ? LIMIT 1", (code,)
+    ).fetchone()
+    return _row_to_notation(row) if row else None
+
+
 def keyword_search(
     conn: sqlite3.Connection, query: str, limit: int = 50
 ) -> list[tuple[int, float]]:
