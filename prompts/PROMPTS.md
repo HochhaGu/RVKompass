@@ -12,6 +12,7 @@
 - P7 Embedding-Modellvergleich
 - P8 Betrieb: Container, Sync, Monitoring
 - P9 (optional) Fremddaten per ISBN und Nutzer-Feedback
+- P10 Design Variante A „Klar“ (Umstellung der Oberfläche nach docs/design.md)
 
 Verbindliche Projektentscheidungen (10.11.2026): Hosting auf VPS mit Docker · Lizenz EUPL 1.2,
 privates Projekt ohne Institutionsbezug · GND erst live mit Cache, ab P8 lokaler Abzug ·
@@ -244,4 +245,83 @@ Die Domain richte ich selbst ein – frag mich nach dem Namen.
    Evidenzart „fremddaten“.
 2. Feedback-Buttons pro Treffer („übernommen“ / „passt nicht“), gespeichert ohne Personenbezug.
    Export als CSV, der den Goldstandard laufend erweitert.
+```
+
+---
+
+## P10 – Design Variante A „Klar“
+```
+Ziel: Die Oberfläche folgt vollständig docs/design.md (Variante A „Klar“). Ranking, Erweiterung
+und Scoring bleiben unverändert – die Evaluation muss dieselben Kennzahlen liefern wie vorher.
+
+Verbindliche Quelle ist docs/design.md (Farben, Typografie, Layout, Komponenten,
+Barrierefreiheit, Abschnitt 7 „Design-Punkte“, Abschnitt 8 „Logo & Icons“). Bei Widerspruch
+zwischen diesem Auftrag und docs/design.md gilt docs/design.md; Unklarheiten als Rückfrage.
+
+Bereits im Repo (nicht neu erzeugen, nicht verändern):
+- app/static/img/: logo-rvkompass.svg, logo-mark.svg, logo-wordmark.svg, favicon.svg,
+  apple-touch-icon.png; app/static/favicon.ico
+- app/static/fonts/: Montserrat-SemiBold.woff2, Montserrat-Bold.woff2,
+  SourceSans3-Variable.woff2 (Latin-Teilmenge) samt OFL-Lizenztexten
+Keine externen Ressourcen: keine Google Fonts, kein CDN, keine Dritt-Requests (RVKompass bleibt
+ohne Cookies und Dritte). Schriften per @font-face aus /static/fonts, font-display: swap.
+
+A. Backend-Voraussetzungen (zuerst, mit Tests ohne Netz)
+1. Trefferzahl je Hauptgruppe: Für die Facette braucht jede RVK-Hauptgruppe die Zahl der
+   Vorschläge über die UNGEFILTERTE Vorschlagsmenge derselben Suche (gleiche Erweiterung,
+   ohne main_group_filter). Heute gibt es nur result.filtered_out als Summe. Möglichst ohne
+   zweite vollständige Suche umsetzen (z. B. Zählung im Ranking vor dem Filtern).
+   Gleiche Zahl liefert den Auswegs-Knopf „Hauptgruppen-Auswahl zurücksetzen (n Vorschläge)“
+   im Keine-Treffer-Zustand.
+2. Verweise als Links: In RVK-Bemerkung (note) und Verweis (see_also) Notationen erkennen
+   (Muster wie „ST 301“, „ZN 8330“, Bereiche „ST 300 - ST 310“) und als Link ausgeben, der eine
+   Suche nach dieser Notation auslöst: „→ ST 301 anzeigen“. Reine Funktion in
+   app/services/presentation.py, Text bleibt sonst unverändert und wird korrekt escaped.
+3. Wiederherstellen abgewählter Erweiterungsbegriffe: die bestehende Abwahl-Logik
+   (tree_keys/apply_exclusions) so nutzen, dass entfernte Begriffe gelistet und einzeln
+   wieder hinzugefügt werden können.
+
+B. Oberfläche (danach)
+1. Tokens: alle Farben aus docs/design.md Abschnitt 2 als CSS-Variablen in :root; im übrigen CSS
+   keine festen Farbwerte (Vorbereitung für einen späteren Dunkelmodus, aber keinen bauen).
+2. base.html: Skip-Link „Zum Inhalt“; weißer Header mit 3 px Goldlinie, Logo
+   (logo-rvkompass.svg, 44 px hoch, alt="RVKompass") + Claim „Klassifizieren mit Richtung“;
+   Navigation Suche · Hilfe · Feedback (mailto:rvkompass@ghochhauser.at); Favicon-Links
+   (favicon.svg, favicon.ico, apple-touch-icon.png); Footer navy-900 mit genau einem Link
+   „Ein Projekt von ghochhauser.at“, dazu Impressum, Datenschutz und „RVK-Stand: <Version>“.
+3. Layout: Container max. 1280 px. DOM- und Tab-Reihenfolge Suche → Facette → Ergebnisse.
+   Desktop: Facette links (250–300 px), rechts Suche über Ergebnissen. ≤ 860 px: Suche oben,
+   dann eingeklappte Facette (Knopf „Hauptgruppen filtern · n gewählt“), dann Ergebnisse.
+4. Suchkarte: Label, Eingabe 52 px, Knopf „Vorschläge anzeigen“, direkt darunter die feste
+   Hinweiszeile aus Abschnitt 7 (Wortlaut exakt übernehmen), darunter die Chip-Zeile.
+5. Chips statt Erweiterungsbaum: je Begriff Pille mit Typ (Synonym, Oberbegriff, Unterbegriff,
+   verwandt) und ×-Knopf (aria-label „<Begriff> entfernen“, Klickfläche ≥ 44 px); entfernte
+   Begriffe wiederherstellbar (A3). HTMX-Neusuche wie bisher.
+6. Facette: Checkbox · Buchstabe · Name · Trefferzahl (A1); Gruppen ohne Treffer abgeschwächt;
+   vor der ersten Suche ausgegraut. Bestehende .env-Voreinstellung der Hauptgruppen bleibt.
+7. Startzustand: „So kommst du zur passenden RVK-Stelle“ (3 Schritte) + 4 Beispielsuchen als
+   Knöpfe, darunter „Bank“ (mehrdeutig). Kein „Häufig gesucht“.
+8. Homonyme: Bedeutungs-Tabs über der Ergebnisliste („Begriff (Bedeutung) · Trefferzahl“),
+   Fachkontext-Bedeutung vorgewählt, immer nur ein Block sichtbar, nur ab 2 Bedeutungen.
+   ARIA-Tabs-Muster mit Pfeiltasten; ohne JavaScript alle Blöcke untereinander sichtbar.
+9. Treffer-Karte: Notation (Montserrat 22 px) · Benennung · Hierarchiepfad · Relevanzblock
+   rechts (5 Segmente + Stufenwort gering/schwach/mittel/hoch/sehr hoch, aria-label „Relevanz
+   hoch, Stufe 4 von 5“; nie Prozent oder „Konfidenz“) · Aufklapper: Label „Warum? ·
+   RVK-Bemerkung“ wenn eine Bemerkung existiert, sonst „Warum dieser Vorschlag?“; darin
+   Evidenzkette, Bemerkung und Verweise mit Links (A2). Vektor-Warnhinweis, „in RVK-Online
+   prüfen“ und „kopieren“ bleiben erhalten.
+10. Keine Treffer: Ursache benennen + Auswege (Hauptgruppen-Auswahl zurücksetzen mit Zahl aus
+    A1, allgemeinere Begriffe, Feedback-Link).
+11. Hilfe, Impressum, Datenschutz im neuen Layout; Hilfeseite an die neue Bedienung anpassen
+    (Chips, Facette, Tabs). Inhalte der Rechtstexte nicht ändern.
+
+C. Qualität
+- Barrierefreiheit: WCAG AA-Kontraste (Gold nie als Text auf Weiß, dafür gold-700),
+  Fokusrahmen 3 px gold-500, Touch-Ziele ≥ 44 px, keine Information nur über Farbe.
+  tests/test_accessibility.py entsprechend erweitern.
+- Bestehende Template-Tests an das neue Markup anpassen, ohne Prüfungen abzuschwächen;
+  neue Tests für A1–A3, Chips, Tabs, Facettenzahlen, Startzustand, Keine-Treffer-Zustand.
+- Evaluation: Hit@1/5/10 und MRR identisch zum Stand vor P10 (reine Darstellungsänderung).
+- Bericht docs/phasen/phase-10.md: was umgesetzt wurde, Abweichungen von docs/design.md mit
+  Begründung, offene Punkte.
 ```

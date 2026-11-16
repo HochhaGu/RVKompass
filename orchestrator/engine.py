@@ -805,7 +805,7 @@ class Engine:
                 0, {"heading": "Live-Schaltung", "paragraphs": [last.halt_message]}
             )
         return render_mail(
-            "Alles fertig – P0 bis P8 abgeschlossen",
+            f"Alles fertig – P0 bis {last.id} abgeschlossen",
             "Das Steuerprogramm hat alle Phasen umgesetzt, geprüft und nach "
             f"{self.s.base_branch} gemergt. main wurde nicht verändert.",
             sections,
