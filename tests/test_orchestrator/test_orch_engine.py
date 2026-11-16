@@ -199,7 +199,7 @@ def test_last_phase_sends_all_done(make_engine, settings):
     ids = [p.id for p in settings.phases]
     store = MemoryStore(ids[0], ids)
     with store.update() as st:
-        st["phase"] = "P8"
+        st["phase"] = ids[-1]
         for pid in ids[:-1]:
             st["phases"][pid]["status"] = "fertig"
     eng = make_engine(store=store)

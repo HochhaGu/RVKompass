@@ -30,7 +30,7 @@ def test_all_phases_finish_although_every_mail_fails(make_engine, settings):
     ids = [p.id for p in settings.phases]
     store = MemoryStore(ids[0], ids)
     with store.update() as st:
-        st["phase"] = "P8"
+        st["phase"] = ids[-1]
     eng = make_engine(
         store=store, mailer=FakeMailer(fail=True, exc=ConnectionResetError("weg"))
     )
