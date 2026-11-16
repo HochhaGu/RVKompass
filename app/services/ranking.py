@@ -19,6 +19,7 @@ frühere Reciprocal-Rank-Fusion hatte genau dieses Problem).
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from urllib.parse import quote
@@ -269,6 +270,9 @@ class SearchResult:
     senses: list[SenseResult] = field(default_factory=list)
     # P6: Zahl der Fundstellen, die der Hauptgruppen-Filter weggelassen hat
     filtered_out: int = 0
+    # P10: Zahl der Fundstellen je RVK-Hauptgruppe über die UNGEFILTERTE Kandidatenmenge
+    # (dieselbe Basis wie `filtered_out`, für die Facette und „Auswahl zurücksetzen (n)“)
+    main_group_counts: dict[str, int] = field(default_factory=dict)
 
 
 def rvk_groups_for_sense(
@@ -524,7 +528,14 @@ def search_result(
         mapping,
         score_by_id=score_by_id,
     )
-    return SearchResult(hits=hits, senses=senses, filtered_out=len(scored) - len(shown))
+    # Nur gezählt, nicht gefiltert: ändert weder Rangfolge noch Trefferliste
+    counts = Counter(main_group(feature.notation) for feature, _, _ in scored)
+    return SearchResult(
+        hits=hits,
+        senses=senses,
+        filtered_out=len(scored) - len(shown),
+        main_group_counts=dict(counts),
+    )
 
 
 def senses_to_rows(
@@ -615,6 +626,7 @@ def hits_to_rows(
     for rank, hit in enumerate(hits, start=1):
         notation = hit.notation
         components = score_bar(hit.score_components, max_score)
+        level, level_word = presentation.relevance_level(hit.score, scoring_settings)
         rows.append(
             {
                 "rank": rank,
@@ -625,10 +637,16 @@ def hits_to_rows(
                 "hierarchy_path": notation.hierarchy_path,
                 "note": notation.note,
                 "see_also": notation.see_also,
+                # P10: Notationen in Bemerkung und Verweis als Such-Links („→ ST 301 anzeigen“)
+                "note_html": presentation.link_notations(notation.note),
+                "see_also_html": presentation.link_notations(notation.see_also),
                 "related_terms": rvk_repository.get_register_terms(
                     conn, notation.id, limit=3
                 ),
                 "tier": scoring.tier_for(hit.score, scoring_settings),
+                # P10: fünf Stufen für den Relevanzblock (Segmente + Stufenwort)
+                "level": level,
+                "level_word": level_word,
                 "score": round(hit.score, 2),
                 "components": components,
                 "components_text": components_text(components),

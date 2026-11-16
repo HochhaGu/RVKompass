@@ -1,0 +1,14 @@
+<div class="start-state card">
+  <h2 class="start-title">So kommst du zur passenden RVK-Stelle</h2>
+  <ol class="steps">
+    <li><strong>Begriff eingeben</strong> – ein Schlagwort oder Thema, so wie du es formulieren würdest.</li>
+    <li><strong>Erweiterung und Hauptgruppen prüfen</strong> – unpassende Begriffe mit × entfernen, bei Bedarf links die Hauptgruppen wählen.</li>
+    <li><strong>Notation in RVK-Online prüfen</strong> – die Vorschläge sind eine Orientierung, die Entscheidung triffst du.</li>
+  </ol>
+  <p class="examples-title" id="examples-title">Beispielsuchen:</p>
+  <ul class="examples" aria-labelledby="examples-title">
+    {% for term, hint in [("Klimawandel", ""), ("Umwelttechnik", ""), ("Konfliktmanagement", ""), ("Bank", "mehrdeutig")] %}
+    <li><a class="btn-secondary example-search" href="/?q={{ term | urlencode }}" data-query="{{ term }}">{{ term }}{% if hint %} <span class="example-hint">({{ hint }})</span>{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+</div>

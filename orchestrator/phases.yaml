@@ -164,3 +164,16 @@ phasen:
       Alle Phasen P0 bis P8 sind fertig und nach develop gemergt. Die Live-Schaltung wartet auf
       deine Freigabe: bitte docs/deployment.md lesen, develop prüfen und die Schritte zur
       Live-Schaltung selbst ausführen.
+  # P9 (Fremddaten und Feedback) ist in PROMPTS.md reserviert, aber noch nicht eingeplant.
+  - id: P10
+    stichwort: design
+    titel: Design Variante A „Klar“
+    evaluation: true
+    web:
+      - htmx.org
+      - www.w3.org
+      - developer.mozilla.org
+    haltepunkt: >-
+      P10 (Design Variante A) ist fertig und nach develop gemergt. Bitte die neue Oberfläche
+      prüfen (Desktop und Handy) und danach die Live-Schaltung laut docs/deployment.md selbst
+      ausführen.

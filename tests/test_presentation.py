@@ -3,7 +3,7 @@
 import pytest
 
 from app.models import Evidence, ExpansionTerm, GndSense, Hit, LlmSuggestion, Notation
-from app.services import evaluation, presentation, ranking
+from app.services import evaluation, presentation, ranking, scoring
 
 QUERY = "Wärmepumpe"
 SENSE_NAME = "Wärmepumpe"
@@ -231,7 +231,7 @@ def test_assign_to_senses_each_row_once_and_rest_block():
     # ZL 1 gehört zu beiden Bedeutungen, kommt aber nur in die höherrangige
     assert [r["notation"] for r in blocks[0]["rows"]] == ["ZL 1", "MS 1"]
     assert [r["notation"] for r in blocks[1]["rows"]] == ["ZL 2"]
-    assert blocks[0]["open"] is True and blocks[1]["open"] is False
+    assert blocks[0]["selected"] is True and blocks[1]["selected"] is False
 
     rows.append(_row(4, "AB 1", 4))
     blocks = presentation.assign_to_senses(rows, results)
@@ -251,10 +251,30 @@ def test_assign_to_senses_opens_matching_sense_and_lists_more():
         {"name": "Mutter <Familie>", "notations": [{"notation": "MS 8"}]},
     ]
     blocks = presentation.assign_to_senses(rows, results, sense_rows)
-    assert blocks[0]["open"] is True and blocks[1]["open"] is False
+    assert blocks[0]["selected"] is True and blocks[1]["selected"] is False
     assert blocks[0]["hit_count"] == 2 and blocks[0]["count"] == 1
     assert [n["notation"] for n in blocks[0]["more"]] == ["ZL 9"]
     assert [n["notation"] for n in blocks[1]["more"]] == ["MS 8"]
+
+
+def test_assign_to_senses_tab_labels_and_exactly_one_selected():
+    familie = GndSense(gnd_id="1", preferred_name="Mutter", qualifier="Familie")
+    technik = GndSense(gnd_id="2", preferred_name="Mutter", qualifier="Technik")
+    rows = [_row(1, "ZL 1", 1), _row(2, "AB 1", 2)]
+    # Familie zuerst, Technik passt zum Filter -> Technik gewählt
+    results = [_sense_result(familie, []), _sense_result(technik, [1], matches=True)]
+    blocks = presentation.assign_to_senses(rows, results)
+    assert [b["tab_label"] for b in blocks] == [
+        "Mutter (Familie)",
+        "Mutter (Technik)",
+        "Über die Eingabe gefunden",
+    ]
+    assert [b["selected"] for b in blocks] == [False, True, False]
+    # ohne passenden Filter: der erste Block
+    results = [_sense_result(familie, []), _sense_result(technik, [1])]
+    blocks = presentation.assign_to_senses(rows, results)
+    assert [b["selected"] for b in blocks] == [True, False, False]
+    assert presentation.sense_tab_label(GndSense("3", "Bank")) == "Bank"
 
 
 def test_assign_to_senses_needs_two_senses():
@@ -275,22 +295,37 @@ SUGGESTIONS = [
 ]
 
 
-def test_expansion_tree_structure_keys_and_llm_status():
-    tree = presentation.expansion_tree(QUERY, [SENSE], SUGGESTIONS)
-    assert tree["query"] == QUERY and tree["has_expansion"] is True
-    sense = tree["senses"][0]
-    assert sense["url"] == f"https://lobid.org/gnd/{SENSE_ID}"
-    assert sense["subject_categories"] == ["Energietechnik"]
-    assert sense["own"]["key"] == f"gnd|{SENSE_ID}|synonym|wärmepumpe"
-    assert [(g["label"], [t["term"] for t in g["terms"]]) for g in sense["groups"]] == [
-        ("Synonyme", ["Heizpumpe"]),
-        ("Oberbegriffe", ["Heiztechnik"]),
-        ("Unterbegriffe", ["Erdwärmepumpe"]),
-        ("verwandte Begriffe", ["Kältetechnik"]),
+def _chip_rows(chips):
+    return [
+        (c["term"], c["type_label"], c["origin"])
+        for g in chips["groups"]
+        for c in g["chips"]
     ]
-    broader = sense["groups"][1]["terms"][0]
-    assert broader["url"] == "https://lobid.org/gnd/4024356-4" and broader["checked"]
-    status = [(n["term"], n["status"], n["key"]) for n in tree["llm"]]
+
+
+def test_expansion_chips_types_keys_and_llm_status():
+    chips = presentation.expansion_chips(QUERY, [SENSE], SUGGESTIONS)
+    assert chips["query"] == QUERY and chips["has_expansion"] is True
+    # eine Bedeutung: keine Gruppenüberschrift
+    assert [g["sense_name"] for g in chips["groups"]] == [None, None]
+    assert _chip_rows(chips) == [
+        ("Wärmepumpe", "Synonym", "gnd"),
+        ("Heizpumpe", "Synonym", "gnd"),
+        ("Heiztechnik", "Oberbegriff", "gnd"),
+        ("Erdwärmepumpe", "Unterbegriff", "gnd"),
+        ("Kältetechnik", "verwandt", "gnd"),
+        ("Kältemittel", "verwandt", "llm"),
+        ("Heizstab", "verwandt", "llm"),
+    ]
+    first = chips["groups"][0]["chips"][0]
+    assert first["key"] == f"gnd|{SENSE_ID}|synonym|wärmepumpe"
+    broader = chips["groups"][0]["chips"][2]
+    assert broader["url"] == "https://lobid.org/gnd/4024356-4"
+    assert broader["key"] == presentation.gnd_term_key(SENSE, BROADER)
+    llm_chip = chips["groups"][1]["chips"][0]
+    assert llm_chip["origin_label"] == "KI, geprüft"
+    assert llm_chip["status"] == "verifiziert – gefunden im RVK-Register"
+    status = [(n["term"], n["status"], n["key"]) for n in chips["llm"]]
     assert status == [
         ("Kältemittel", "verifiziert – gefunden im RVK-Register", "llm|kältemittel"),
         ("Heizstab", "verifiziert – gefunden in GND", "llm|heizstab"),
@@ -300,19 +335,61 @@ def test_expansion_tree_structure_keys_and_llm_status():
             None,
         ),
     ]
+    assert [n["term"] for n in chips["unverified"]] == ["Wärmewunder"]
+    assert chips["removed"] == []
+    # versteckte Formularfelder: alle Schlüssel, die gesucht werden
+    assert set(chips["active_keys"]) == presentation.tree_keys([SENSE], SUGGESTIONS)
 
 
-def test_expansion_tree_marks_excluded_terms():
+def test_expansion_chips_lists_removed_terms_for_restore():
     key = presentation.gnd_term_key(SENSE, BROADER)
-    tree = presentation.expansion_tree(
+    chips = presentation.expansion_chips(
         QUERY, [SENSE], SUGGESTIONS, {key, "llm|heizstab"}
     )
-    assert tree["senses"][0]["groups"][1]["terms"][0]["checked"] is False
-    assert [n["checked"] for n in tree["llm"]] == [True, False, False]
+    assert [(c["term"], c["key"]) for c in chips["removed"]] == [
+        ("Heiztechnik", key),
+        ("Heizstab", "llm|heizstab"),
+    ]
+    assert "Heiztechnik" not in [t for t, _, _ in _chip_rows(chips)]
+    assert key not in chips["active_keys"]
+    assert [n["checked"] for n in chips["llm"]] == [True, False, False]
 
 
-def test_expansion_tree_without_expansion():
-    assert presentation.expansion_tree(QUERY, [], [])["has_expansion"] is False
+def test_expansion_chips_grouped_per_sense_with_several_senses():
+    other = GndSense(
+        gnd_id="9",
+        preferred_name="Pumpe",
+        qualifier="Herz",
+        terms=(ExpansionTerm("Herz", "gnd", "related", "8", "Pumpe <Herz>"),),
+    )
+    chips = presentation.expansion_chips(QUERY, [SENSE, other], SUGGESTIONS[:1])
+    assert [g["sense_name"] for g in chips["groups"]] == [
+        SENSE_NAME,
+        "Pumpe <Herz>",
+        "Sprachmodell, geprüft",
+    ]
+
+
+@pytest.mark.parametrize(
+    "relation,label",
+    [
+        ("synonym", "Synonym"),
+        ("oberbegriff", "Oberbegriff"),
+        ("unterbegriff", "Unterbegriff"),
+        ("verwandt", "verwandt"),
+        ("fachkontext", "Fachkontext"),
+    ],
+)
+def test_expansion_chips_llm_relation_labels(relation, label):
+    suggestion = LlmSuggestion("X", relation, "", True, "gnd", "X")
+    chips = presentation.expansion_chips(QUERY, [], [suggestion])
+    assert chips["groups"][0]["chips"][0]["type_label"] == label
+
+
+def test_expansion_chips_without_expansion():
+    chips = presentation.expansion_chips(QUERY, [], [])
+    assert chips["has_expansion"] is False
+    assert chips["groups"] == [] and chips["active_keys"] == []
 
 
 def test_tree_keys_cover_all_selectable_terms():
@@ -351,3 +428,151 @@ def test_parse_main_groups_and_options():
         ("A", ["AA"]),
         ("Z", ["ZL"]),
     ]
+    # vor der ersten Suche: keine Zahlen, nichts abgeschwächt
+    assert options["has_counts"] is False
+    assert all(
+        g["count"] is None and g["has_hits"]
+        for g in options["selected"] + options["letters"][0]["groups"]
+    )
+
+
+def test_main_group_options_with_counts():
+    options = presentation.main_group_options(
+        [("AA", "Allgemeines"), ("ZL", "Maschinenbau")], ["ZL"], {"ZL": 3, "MS": 2}
+    )
+    assert options["has_counts"] is True
+    zl = options["selected"][0]
+    assert (zl["code"], zl["count"], zl["has_hits"], zl["checked"]) == (
+        "ZL",
+        3,
+        True,
+        True,
+    )
+    aa = options["letters"][0]["groups"][0]
+    assert (aa["code"], aa["count"], aa["has_hits"]) == ("AA", 0, False)
+
+
+# --- P10: Verweise als Links ---------------------------------------------------------------
+
+
+def test_link_notations_single_notation():
+    html = str(presentation.link_notations("siehe ST 301 und mehr"))
+    assert html == (
+        'siehe <a class="notation-link" href="/?q=ST%20301" data-query="ST 301">'
+        "→ ST 301 anzeigen</a> und mehr"
+    )
+
+
+@pytest.mark.parametrize("dash", ["-", "–"])
+def test_link_notations_range_is_one_link(dash):
+    html = str(presentation.link_notations(f"vgl. ST 300 {dash} ST 310."))
+    assert html.count("<a ") == 1
+    assert 'data-query="ST 300 - ST 310"' in html
+    assert 'href="/?q=ST%20300%20-%20ST%20310"' in html
+    assert "→ ST 300 - ST 310 anzeigen</a>." in html
+    assert html.startswith("vgl. <a ")
+
+
+def test_link_notations_several_and_decimal():
+    html = str(presentation.link_notations("ZN 8330, ZL 4600 und AB 12.5"))
+    assert html.count('class="notation-link"') == 3
+    assert 'data-query="AB 12.5"' in html
+    assert ", <a " in html and " und <a " in html
+
+
+def test_link_notations_escapes_text():
+    html = str(presentation.link_notations('<script>alert("x")</script> & ZL 4600'))
+    assert "<script>" not in html
+    assert "&lt;script&gt;" in html and "&amp;" in html
+    assert 'data-query="ZL 4600"' in html
+
+
+def test_link_notations_leaves_plain_text_and_empty():
+    assert (
+        str(presentation.link_notations("Hier nur Normteile")) == "Hier nur Normteile"
+    )
+    assert str(presentation.link_notations("kleine st 301")) == "kleine st 301"
+    assert str(presentation.link_notations(None)) == ""
+    assert str(presentation.link_notations("")) == ""
+
+
+def test_parse_notation_query():
+    assert presentation.parse_notation_query("ZL 4620") == "ZL 4620"
+    assert presentation.parse_notation_query("  zl   4620 ") == "ZL 4620"
+    assert presentation.parse_notation_query("ST 300–ST 310") == "ST 300 - ST 310"
+    assert presentation.parse_notation_query("ST 300 - ST 310") == "ST 300 - ST 310"
+    assert presentation.parse_notation_query("Getriebe") is None
+    assert presentation.parse_notation_query("ZL 4620 Muttern") is None
+    assert presentation.parse_notation_query("") is None
+    assert presentation.parse_notation_query(None) is None
+
+
+# --- P10: fünf Relevanzstufen ----------------------------------------------------------------
+
+TIERS = scoring.ScoringSettings(tier_high=0.75, tier_medium=0.55)
+
+
+@pytest.mark.parametrize(
+    "score,level,word",
+    [
+        (1.2, 5, "sehr hoch"),
+        (0.95, 5, "sehr hoch"),
+        (0.9499, 4, "hoch"),
+        (0.75, 4, "hoch"),
+        (0.7499, 3, "mittel"),
+        (0.55, 3, "mittel"),
+        (0.5499, 2, "schwach"),
+        (0.35, 2, "schwach"),
+        (0.3499, 1, "gering"),
+        (0.0, 1, "gering"),
+    ],
+)
+def test_relevance_level_boundaries(score, level, word):
+    assert presentation.relevance_level(score, TIERS) == (level, word)
+
+
+def test_relevance_level_keeps_calibrated_tiers():
+    # Stufen 3 und 4 beginnen genau an den Schwellen von scoring.tier_for
+    for score in (0.2, 0.5, 0.55, 0.6, 0.75, 0.8, 1.0):
+        level, _ = presentation.relevance_level(score, TIERS)
+        tier = scoring.tier_for(score, TIERS)
+        assert (level >= 4) == (tier == "hoch")
+        assert (level == 3) == (tier == "mittel")
+
+
+def test_relevance_words_never_percent():
+    assert presentation.RELEVANCE_WORDS == (
+        "gering",
+        "schwach",
+        "mittel",
+        "hoch",
+        "sehr hoch",
+    )
+    assert all("%" not in w for w in presentation.RELEVANCE_WORDS)
+
+
+# --- P10: keine Vorschläge, eingegebene Notation -----------------------------------------------
+
+
+def test_empty_state_filter_cause_with_reset_count():
+    state = presentation.empty_state("Getriebe", ["ZL", "ZM"], {"MS": 3, "AB": 2}, 1)
+    assert state["cause"] == "filter"
+    assert state["reset_count"] == 5
+    assert state["selected"] == ["ZL", "ZM"]
+    assert state["removed_count"] == 1
+
+
+def test_empty_state_nothing_found():
+    assert presentation.empty_state("X", [], {"MS": 3})["cause"] == "nothing"
+    state = presentation.empty_state("X", ["ZL"], {})
+    assert state["cause"] == "nothing" and state["reset_count"] == 0
+    assert presentation.empty_state("X", ["ZL"], None)["cause"] == "nothing"
+
+
+def test_entered_notation_card():
+    notation = Notation(1, "ZL 4620", "Muttern", "Technik", None, None, "ZL 4600", "N")
+    card = presentation.entered_notation(notation, "https://example.invalid/x")
+    assert card["notation"] == "ZL 4620" and card["label"] == "Muttern"
+    assert card["origin"] == "Direkt: Notation eingegeben"
+    assert "→ ZL 4600 anzeigen" in str(card["see_also_html"])
+    assert card["has_note"] is True

@@ -177,10 +177,10 @@ class Engine:
                 raise ValueError(f"{only} ist bereits fertig.")
             if state["phase"] != only:
                 cur = state["phase"]
-                if (
-                    state["step"] != "branch"
-                    and state["phases"][cur].get("status") != "offen"
-                ):
+                # Eine abgeschlossene Phase (z. B. nach "Alles fertig") blockiert nicht.
+                if state["step"] != "branch" and state["phases"][cur].get(
+                    "status"
+                ) not in ("offen", "fertig"):
                     raise ValueError(
                         f"{cur} ist gerade in Arbeit (Schritt {state['step']}). Erst abschließen."
                     )
@@ -805,7 +805,7 @@ class Engine:
                 0, {"heading": "Live-Schaltung", "paragraphs": [last.halt_message]}
             )
         return render_mail(
-            "Alles fertig – P0 bis P8 abgeschlossen",
+            f"Alles fertig – P0 bis {last.id} abgeschlossen",
             "Das Steuerprogramm hat alle Phasen umgesetzt, geprüft und nach "
             f"{self.s.base_branch} gemergt. main wurde nicht verändert.",
             sections,

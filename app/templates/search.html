@@ -1,63 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-  <section class="search-section">
-    <h2>Schlagwort eingeben</h2>
-    <form id="search-form" hx-post="/search" hx-target="#results" hx-indicator="#spinner">
-      <label for="q" class="search-label">Suchbegriff</label>
-      <input type="text" id="q" name="q" placeholder="z. B. Klimawandel, Umwelttechnik, Konfliktmanagement ..." autofocus>
-      <input type="hidden" name="hg_form" value="1">
-      <details class="main-group-filter"{% if selected_groups %} open{% endif %}>
-        <summary>Hauptgruppen einschränken{% if selected_groups %} (gewählt: {{ selected_groups | join(', ') }}){% endif %}</summary>
-        <fieldset>
-          <legend>Nur Vorschläge aus diesen RVK-Hauptgruppen anzeigen (Mehrfachauswahl; ohne Häkchen: alle)</legend>
-          {% set options = main_group_options or {"selected": [], "letters": []} %}
-          {% if options.selected %}
-          <div class="mg-letter">
-            <p class="mg-letter-title">Gewählt</p>
-            {% for g in options.selected %}
-            <label class="mg-option"><input type="checkbox" name="hg" value="{{ g.code }}" checked> {{ g.code }}{% if g.label %} – {{ g.label }}{% endif %}</label>
-            {% endfor %}
-          </div>
-          {% endif %}
-          {% for letter in options.letters %}
-          <div class="mg-letter">
-            <p class="mg-letter-title">{{ letter.letter }}</p>
-            {% for g in letter.groups %}
-            <label class="mg-option"><input type="checkbox" name="hg" value="{{ g.code }}"> {{ g.code }}{% if g.label %} – {{ g.label }}{% endif %}</label>
-            {% endfor %}
-          </div>
-          {% else %}
-          {% if not options.selected %}<p><small>Keine Hauptgruppen in der Datenbank gefunden.</small></p>{% endif %}
-          {% endfor %}
-        </fieldset>
-      </details>
-      <button type="submit" class="btn-primary">Vorschläge anzeigen</button>
-    </form>
-    <p id="spinner" class="htmx-indicator">Suche läuft ...</p>
-    <div id="results" aria-live="polite">
-      <p><em>Noch keine Suche durchgeführt.</em></p>
-    </div>
-  </section>
+  <div class="layout">
+    <section class="search-card card" aria-labelledby="search-title">
+      <h2 id="search-title" class="visually-hidden">Suche</h2>
+      <form id="search-form" role="search" hx-post="/search" hx-target="#results" hx-include="#facet" hx-indicator="#spinner">
+        <label for="q" class="search-label">Suchbegriff</label>
+        <div class="search-row">
+          <input type="text" id="q" name="q" value="{{ initial_query or '' }}" placeholder="z. B. Klimawandel, Umwelttechnik, Konfliktmanagement …" autocomplete="off" autofocus>
+          <button type="submit" class="btn-primary">Vorschläge anzeigen</button>
+        </div>
+      </form>
+      <p class="search-hint"><svg class="info-icon" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="7.25" y="7" width="1.5" height="5" fill="currentColor"/><rect x="7.25" y="4" width="1.5" height="1.5" fill="currentColor"/></svg> Vorschläge sind eine Orientierung, keine geprüfte Klassifikation – bitte die Notation vor der Vergabe in RVK-Online prüfen.</p>
+      <p id="spinner" class="htmx-indicator">Suche läuft …</p>
+      <div id="chips">{% include "_chips.html" %}</div>
+    </section>
 
-  <section>
-    <details>
-      <summary><strong>Was ist der RVKompass?</strong></summary>
-      <div class="rvk-einleitung">
-        <p>
-          Der <strong>RVKompass</strong> ist ein digitales Werkzeug zur Unterstützung bei der Klassifikation
-          bibliographischer Ressourcen mit der <abbr title="Regensburger Verbundklassifikation">RVK</abbr>.
-          Gerade bei Themengebieten, die nicht zur eigenen fachlichen Expertise zählen, fällt es
-          Bibliothekar*innen häufig schwer, eine passende Systemstelle zu finden.
-        </p>
-        <p>
-          Die Eingabe erfolgt über einen einfachen Suchschlitz. Das System erweitert den Begriff über
-          die Gemeinsame Normdatei (GND) und gegebenenfalls über geprüfte Vorschläge eines Sprachmodells
-          und durchsucht anschließend den lokal synchronisierten RVK-Bestand per semantischer und
-          Stichwortsuche. Die Vorschläge werden nach Relevanz sortiert und mit Notation, Benennung,
-          Hierarchiepfad, RVK-Bemerkung und einer Relevanzstufe ausgegeben. Unter „Warum?“ steht bei
-          jedem Vorschlag, über welchen Weg er gefunden wurde. Mehr dazu auf der <a href="/hilfe">Hilfeseite</a>.
-        </p>
+    <aside id="facet" class="facet card" aria-labelledby="facet-title" hx-post="/search" hx-trigger="change" hx-target="#results" hx-include="#search-form, #facet, #chips" hx-indicator="#spinner">
+      <button type="button" class="facet-toggle" aria-expanded="false" aria-controls="facet-body">Hauptgruppen filtern · <span id="facet-count">{{ selected_groups | length }}</span> gewählt</button>
+      <div id="facet-body" class="facet-body">
+        <h2 id="facet-title" class="facet-title">Hauptgruppen</h2>
+        <input type="hidden" name="hg_form" value="1">
+        <div id="facet-list">{% with facet_options = main_group_options %}{% include "_facet_list.html" %}{% endwith %}</div>
       </div>
-    </details>
-  </section>
+    </aside>
+
+    <section id="results" aria-live="polite" class="results"{% if initial_query %} hx-post="/search" hx-trigger="load" hx-include="#search-form, #facet" hx-indicator="#spinner"{% endif %}>
+      {% include "_start_state.html" %}
+    </section>
+  </div>
 {% endblock %}

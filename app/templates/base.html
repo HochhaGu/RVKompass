@@ -4,30 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RVKompass – Klassifizieren mit Richtung</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="48x48">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="{{ url_for('static', filename='vendor/htmx.min.js') }}"></script>
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#inhalt">Zum Inhalt</a>
-  <header>
-    <h1 class="tool-title">RVKompass</h1>
-    <p class="tool-slogan">Klassifizieren mit Richtung – semantische Unterstützung mit KI</p>
-    <nav aria-label="Hauptnavigation">
-      <a href="/">Suche</a>
-      <a href="/hilfe">Hilfe</a>
-      <a href="https://ghochhauser.at/index.html">Start</a>
-      <a href="https://ghochhauser.at/tools/overview.html">Projekte &amp; Tools</a>
-      <a href="https://ghochhauser.at/ueber-mich.html">Über mich</a>
-      <a href="https://ghochhauser.at/kontakt.html">Kontakt</a>
-    </nav>
+  {% set path = request.path %}
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-block">
+        <h1 class="brand"><a href="/"><img src="{{ url_for('static', filename='img/logo-rvkompass.svg') }}" alt="RVKompass" width="227" height="44"></a></h1>
+        <p class="claim">Klassifizieren mit Richtung</p>
+      </div>
+      <nav class="main-nav" aria-label="Hauptnavigation">
+        <ul>
+          <li><a href="/"{% if path == "/" %} aria-current="page"{% endif %}>Suche</a></li>
+          <li><a href="/hilfe"{% if path == "/hilfe" %} aria-current="page"{% endif %}>Hilfe</a></li>
+          <li><a href="mailto:rvkompass@ghochhauser.at">Feedback</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
-  <main id="inhalt" tabindex="-1">
+  <main id="inhalt" tabindex="-1" class="container">
     {% block content %}{% endblock %}
   </main>
-  <footer>
-    <p><a href="/hilfe">Hilfe</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
-    <p class="rvk-version">RVK-Stand: {{ rvk_version or "unbekannt" }}</p>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-project"><a href="https://ghochhauser.at/">Ein Projekt von ghochhauser.at</a></p>
+      <p class="footer-legal"><a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></p>
+      <p class="rvk-version">RVK-Stand: {{ rvk_version or "unbekannt" }}</p>
+    </div>
   </footer>
   <div id="live-status" class="visually-hidden" aria-live="polite"></div>
 </body>

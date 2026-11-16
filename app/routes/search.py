@@ -16,7 +16,7 @@ bp = Blueprint("search", __name__)
 def selected_main_groups(form, config) -> list[str]:
     """Gewählte RVK-Hauptgruppen: Feld `hg` (mehrfach) und altes Feld `fach` (kommagetrennt).
 
-    Das Startformular schickt `hg_form=1` mit; dann gilt genau seine Auswahl (auch „keine“).
+    Die Facette schickt `hg_form=1` mit; dann gilt genau ihre Auswahl (auch „keine“).
     Fehlt das Feld und ist nichts gewählt, gilt die Voreinstellung DEFAULT_MAIN_GROUPS.
     """
     groups = presentation.parse_main_groups([*form.getlist("hg"), form.get("fach", "")])
@@ -25,37 +25,71 @@ def selected_main_groups(form, config) -> list[str]:
     return groups
 
 
+def excluded_keys(form, query: str, all_keys: set[str]) -> set[str]:
+    """Abgewählte Erweiterungsbegriffe (P6/P10).
+
+    Die Chip-Zeile schickt `baum=1`, `chips_q` (die Suche, zu der sie gehört) und je gesuchtem
+    Begriff `begriff=<Schlüssel>`; abgewählt ist, was zur Erweiterung gehört, aber nicht
+    mitkommt. Dazu kommen `entfernen` (×-Knopf) und, wieder hinzugefügt, `zurueck`.
+    Gehört die Chip-Zeile zu einer anderen Suche, gilt nichts als abgewählt.
+    """
+    if form.get("baum") != "1":
+        return set()
+    chips_query = form.get("chips_q")
+    if chips_query is not None and chips_query.strip() != query:
+        return set()
+    excluded = all_keys - set(form.getlist("begriff"))
+    excluded |= set(form.getlist("entfernen")) & all_keys
+    excluded -= set(form.getlist("zurueck"))
+    return excluded
+
+
+def _main_groups(db_path: str) -> list[tuple[str, str]]:
+    conn = rvk_repository.get_readonly_connection(db_path)
+    if conn is None:
+        return []
+    try:
+        return rvk_repository.list_main_groups(conn)
+    finally:
+        conn.close()
+
+
 @bp.get("/")
 def index():
     selected = list(current_app.config.get("DEFAULT_MAIN_GROUPS", ()) or ())
-    groups: list[tuple[str, str]] = []
-    conn = rvk_repository.get_readonly_connection(current_app.config["DATABASE_PATH"])
-    if conn is not None:
-        try:
-            groups = rvk_repository.list_main_groups(conn)
-        finally:
-            conn.close()
+    groups = _main_groups(current_app.config["DATABASE_PATH"])
+    # P10: /?q=… (Verweis-Link ohne JavaScript, neuer Tab) füllt das Feld und sucht sofort
+    initial_query = request.args.get("q", "").strip()
     return render_template(
         "search.html",
         main_group_options=presentation.main_group_options(groups, selected),
         selected_groups=selected,
+        initial_query=initial_query,
     )
 
 
 @bp.post("/search")
 @limiter.limit("20 per minute")
 def search():
-    query = request.form.get("q", "").strip()
+    form = request.form
+    # Der ×-Knopf eines Chips schickt nur die Chip-Zeile mit (Suchbegriff in `chips_q`)
+    query = (form.get("q") if "q" in form else form.get("chips_q", "")).strip()
     config = current_app.config
-    selected = selected_main_groups(request.form, config)
+    selected = selected_main_groups(form, config)
     if not query:
+        groups = _main_groups(config["DATABASE_PATH"])
         return render_template(
-            "_results_table.html", results=[], query=query, selected_groups=selected
+            "_results_table.html",
+            results=[],
+            query=query,
+            selected_groups=selected,
+            facet_options=presentation.main_group_options(groups, selected),
         )
 
     conn = rvk_repository.get_connection(config["DATABASE_PATH"])
     source = None
     llm_stats: dict = {}
+    entered = None
     try:
         # Eine GND-Quelle für GND-Erweiterung und Prüfung der LLM-Vorschläge zusammen
         source = gnd.build_gnd_source(conn, config)
@@ -68,13 +102,10 @@ def search():
         )
         all_llm_terms = llm.verified_terms(suggestions, query)
 
-        # P6: Abwahl im Erweiterungsbaum. Der Baum schickt baum=1 und die Schlüssel der
-        # angehakten Begriffe; abgewählt ist, was im Baum steht, aber nicht mitkommt.
-        excluded: set[str] = set()
-        if request.form.get("baum") == "1":
-            excluded = presentation.tree_keys(all_senses, suggestions) - set(
-                request.form.getlist("begriff")
-            )
+        # P6/P10: Abwahl über die Chip-Zeile
+        excluded = excluded_keys(
+            form, query, presentation.tree_keys(all_senses, suggestions)
+        )
         gnd_senses, llm_terms = presentation.apply_exclusions(
             all_senses, all_llm_terms, excluded
         )
@@ -96,6 +127,15 @@ def search():
         labels = rvk_repository.get_main_group_labels(
             conn, {row["main_group"] for row in results}
         )
+        groups = rvk_repository.list_main_groups(conn)
+
+        # P10: Eingabe ist selbst eine Notation („ZL 4620“) – Karte getrennt von den Vorschlägen
+        code = presentation.parse_notation_query(query)
+        notation = rvk_repository.get_notation_by_code(conn, code) if code else None
+        if notation is not None:
+            entered = presentation.entered_notation(
+                notation, ranking.build_rvk_online_url(notation.notation)
+            )
     finally:
         close_source = getattr(source, "close", None)
         if callable(close_source):
@@ -112,15 +152,20 @@ def search():
             llm=int(llm_stats.get("cache_hits", 0) or 0),
         )
 
+    counts = dict(getattr(result, "main_group_counts", {}) or {})
+    chips = presentation.expansion_chips(query, all_senses, suggestions, excluded)
     blocks = presentation.assign_to_senses(results, result.senses, senses, labels)
     return render_template(
         "_results_table.html",
         results=results,
         query=query,
-        tree=presentation.expansion_tree(query, all_senses, suggestions, excluded),
+        chips=chips,
         senses=senses,
         blocks=blocks,
         groups=[] if blocks else presentation.group_by_main_group(results, labels),
         filtered_out=getattr(result, "filtered_out", 0),
         selected_groups=selected,
+        facet_options=presentation.main_group_options(groups, selected, counts),
+        empty=presentation.empty_state(query, selected, counts, len(chips["removed"])),
+        entered=entered,
     )

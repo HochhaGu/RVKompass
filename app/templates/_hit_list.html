@@ -1,0 +1,10 @@
+{% set hl = heading_level or 3 %}
+{% for g in groups %}
+<div class="hit-group">
+  <h{{ hl }} class="hit-group-title">{{ g.code }}{% if g.label %} {{ g.label }}{% endif %} – {{ g.count }} {{ "Vorschlag" if g.count == 1 else "Vorschläge" }}</h{{ hl }}>
+  <ol class="hits">
+    {% for r in g.rows %}<li value="{{ r.rank }}">{% include "_hit_card.html" %}</li>
+    {% endfor %}
+  </ol>
+</div>
+{% endfor %}
