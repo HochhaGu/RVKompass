@@ -1,0 +1,25 @@
+{% set options = facet_options or {"selected": [], "letters": [], "has_counts": False} %}
+{% macro facet_item(g) -%}
+<li><label class="facet-item{% if not g.has_hits %} is-empty{% endif %}"><input type="checkbox" name="hg" value="{{ g.code }}"{% if g.checked %} checked{% endif %}> <span class="facet-code">{{ g.code }}</span> <span class="facet-name">{{ g.label }}</span>
+  {%- if g.count is not none %} <span class="facet-num">{{ g.count }}<span class="visually-hidden"> {{ "Fundstelle" if g.count == 1 else "Fundstellen" }}</span></span>{% endif %}</label></li>
+{%- endmacro %}
+<fieldset class="facet-fieldset{% if not options.has_counts %} is-inactive{% endif %}">
+  <legend class="facet-legend">Nur Vorschläge aus diesen RVK-Hauptgruppen (ohne Häkchen: alle)</legend>
+  {% if not options.has_counts %}<p class="facet-note">Trefferzahlen erscheinen nach der ersten Suche.</p>{% endif %}
+  <div class="facet-scroll">
+    {% if options.selected %}
+    <p class="facet-letter">Gewählt</p>
+    <ul class="facet-items">
+      {% for g in options.selected %}{{ facet_item(g) }}{% endfor %}
+    </ul>
+    {% endif %}
+    {% for letter in options.letters %}
+    <p class="facet-letter">{{ letter.letter }}</p>
+    <ul class="facet-items">
+      {% for g in letter.groups %}{{ facet_item(g) }}{% endfor %}
+    </ul>
+    {% else %}
+    {% if not options.selected %}<p class="facet-note">Keine Hauptgruppen in der Datenbank gefunden.</p>{% endif %}
+    {% endfor %}
+  </div>
+</fieldset>

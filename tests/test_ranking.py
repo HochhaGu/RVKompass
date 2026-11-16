@@ -115,18 +115,22 @@ class TestSearchIntegration:
         client = app.test_client()
 
         html = client.post("/search", data={"q": "Wärmepumpe"}).get_data(as_text=True)
-        assert "<summary>Warum?</summary>" in html
-        assert "Fachgebiete:" in html
+        assert re.search(
+            r"<summary>Warum(\? · RVK-Bemerkung| dieser Vorschlag\?)", html
+        )
         assert "in RVK-Online prüfen" in html
-        # Hauptgruppen tragen ihre Bezeichnung aus der Datenbank
-        assert re.search(r"<caption>[A-Z]{2} [^<]+ – \d+ Vorschl", html)
+        # Hauptgruppen tragen ihre Bezeichnung aus der Datenbank (P10: Überschrift statt caption)
+        title = r'<h3 class="hit-group-title">([A-Z]{2}) [^<]+ – \d+ Vorschl'
+        assert re.search(title, html)
+        # Facette mit Trefferzahlen aus derselben Suche
+        assert '<span class="facet-num">' in html
         assert "Konfidenz" not in html and "Ergebnis" not in html
 
         filtered = client.post(
             "/search", data={"q": "Wärmepumpe", "hg": "ZP", "hg_form": "1"}
         ).get_data(as_text=True)
-        captions = re.findall(r"<caption>([A-Z]+) ", filtered)
-        assert captions and set(captions) == {"ZP"}
+        groups = re.findall(title, filtered)
+        assert groups and set(groups) == {"ZP"}
 
         start = client.get("/").get_data(as_text=True)
         assert re.search(r"RVK-Stand: \d{4}/\d+", start)
