@@ -89,6 +89,9 @@ def setup(tmp_path, monkeypatch):
 
     def fake_llm(conn, config, query, source=None, stats=None):
         calls["expand"] += 1
+        calls.setdefault("origin", set()).add(
+            getattr(config, "CLAUDE_CALL_ORIGIN", None)
+        )
         if stats is not None:
             stats["api_calls"] = stats.get("api_calls", 0) + 1
         if query != "Getriebe":
@@ -200,6 +203,12 @@ def test_report_has_four_variants_and_llm_block(setup):
     assert "## Varianten" in md
     assert "| Kennzahl | ohne Erweiterung | nur GND | nur LLM | GND+LLM |" in md
     assert "## Sprachmodell-Echttest" in md
+
+
+def test_llm_calls_of_evaluation_count_as_eval(setup):
+    gold, out, calls = setup
+    evaluate.main(["--gold", str(gold), "--out", str(out)])
+    assert calls["origin"] == {"eval"}
 
 
 def test_second_run_does_not_overwrite(setup):

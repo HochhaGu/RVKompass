@@ -297,3 +297,40 @@ def test_main_groups_in_real_database_read_only():
             connection.execute("CREATE TABLE schreibtest (x)")
     finally:
         connection.close()
+
+
+# --- Claude-Tageszähler: echte Suchen und Evaluation getrennt ---------------------------------
+
+
+def _calls(conn):
+    return conn.execute(
+        "SELECT claude_calls, claude_calls_eval FROM daily_usage"
+    ).fetchone()
+
+
+def test_claude_calls_counted_by_origin_limit_on_sum(memory_conn):
+    assert rvk_repository.get_and_increment_daily_claude_calls(memory_conn) == 1
+    assert rvk_repository.get_and_increment_daily_claude_calls(memory_conn, "eval") == 2
+    assert rvk_repository.get_and_increment_daily_claude_calls(memory_conn, "eval") == 3
+    assert tuple(_calls(memory_conn)) == (1, 2)
+
+
+def test_claude_calls_unknown_origin(memory_conn):
+    with pytest.raises(ValueError):
+        rvk_repository.get_and_increment_daily_claude_calls(memory_conn, "test")
+
+
+def test_old_daily_usage_gets_eval_column(tmp_path):
+    path = tmp_path / "alt.sqlite3"
+    conn = sqlite3.connect(path)
+    conn.execute(
+        "CREATE TABLE daily_usage (day TEXT PRIMARY KEY, "
+        "claude_calls INTEGER NOT NULL DEFAULT 0)"
+    )
+    today = datetime.now(UTC).date().isoformat()
+    conn.execute("INSERT INTO daily_usage VALUES (?, 7)", (today,))
+    conn.commit()
+    assert rvk_repository.get_and_increment_daily_claude_calls(conn, "eval") == 8
+    rvk_repository.ensure_daily_usage_columns(conn)  # zweites Mal: nichts
+    assert tuple(_calls(conn)) == (7, 1)
+    conn.close()

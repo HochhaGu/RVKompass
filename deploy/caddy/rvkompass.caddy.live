@@ -10,6 +10,15 @@ rvkompass.ghochhauser.at {
 
 	# Kein Zugriffsprotokoll: Ohne "log"-Anweisung schreibt Caddy keine Zugriffe mit.
 
+	# Nutzungsstatistik der App – gleicher Passwortschutz wie die Statusseite. Steht vor
+	# dem Statusordner unten; Caddy wählt bei handle-Blöcken den längeren Pfad zuerst.
+	handle /status/statistik* {
+		import /etc/caddy/rvkompass-status.auth
+		header Cache-Control "no-store"
+		header X-Robots-Tag "noindex, nofollow"
+		reverse_proxy 127.0.0.1:8000
+	}
+
 	# Statusseite des Steuerprogramms – passwortgeschützt (unverändert)
 	redir /status /status/
 	handle_path /status/* {

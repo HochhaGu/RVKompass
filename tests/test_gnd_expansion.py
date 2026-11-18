@@ -190,6 +190,15 @@ def test_lobid_cache_hit_avoids_http(conn):
     assert len(records) == 3
     assert second.calls == []
     assert cached_source.cache_hits == 1
+    assert cached_source.lookups == 1
+
+
+def test_lobid_counts_every_lookup(conn):
+    http = FakeHttp(FakeResponse(load_fixture()))
+    source = gnd.LobidGndSource(conn, http_get=http)
+    source.search_subject_headings("Mutter", 10)  # live
+    source.search_subject_headings("Mutter", 10)  # aus dem Cache
+    assert (source.lookups, source.cache_hits) == (2, 1)
 
 
 def test_build_gnd_source_follows_config(tmp_path, conn):

@@ -83,12 +83,14 @@ def create_app():
     from app.routes.internal import bp as internal_bp
     from app.routes.legal import bp as legal_bp
     from app.routes.search import bp as search_bp
+    from app.routes.stats import bp as stats_bp
 
     app.register_blueprint(health_bp)
     app.register_blueprint(search_bp)
     app.register_blueprint(internal_bp)
     app.register_blueprint(legal_bp)
     app.register_blueprint(help_bp)
+    app.register_blueprint(stats_bp)
     register_template_context(app)
 
     return app

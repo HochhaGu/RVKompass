@@ -100,3 +100,33 @@ def test_deployment_doc_starts_with_overview():
     ):
         assert needle in doc, needle
     assert "<DOMAIN>" not in doc
+
+
+def test_caddy_protects_statistics_page_like_status():
+    live = read("deploy/caddy/rvkompass.caddy.live")
+    match = re.search(r"handle /status/statistik\* \{(.*?)\n\t\}", live, re.DOTALL)
+    assert match, "Block für /status/statistik fehlt"
+    block = match.group(1)
+    assert "import /etc/caddy/rvkompass-status.auth" in block
+    assert "reverse_proxy 127.0.0.1:8000" in block
+    assert 'Cache-Control "no-store"' in block
+    # vor dem statischen Statusordner
+    assert live.index("handle /status/statistik*") < live.index("handle_path /status/*")
+
+
+def test_monthly_report_timer_and_service():
+    timer = read("deploy/systemd/rvkompass-monthly-report.timer")
+    assert "OnCalendar=*-*-01 07:00:00" in timer
+    assert "Persistent=true" in timer
+    assert "WantedBy=timers.target" in timer
+    service = read("deploy/systemd/rvkompass-monthly-report.service")
+    assert "Type=oneshot" in service
+    assert "WorkingDirectory=/srv/rvkompass/app" in service
+    assert re.search(
+        r"ExecStart=/usr/bin/docker compose exec -T --user rvkompass rvkompass "
+        r"python /app/scripts/monthly_report\.py$",
+        service,
+        re.MULTILINE,
+    )
+    # Standard ist der Vormonat; kein Probelauf im Timer
+    assert "--dry-run" not in service and "--month" not in service

@@ -1071,3 +1071,61 @@ main:focus-visible {
     align-items: flex-start;
   }
 }
+
+/* === Nutzungsstatistik (/status/statistik) === */
+.stats-intro,
+.stats-downloads {
+  color: var(--muted);
+  max-width: 860px;
+}
+
+.stats-scroll {
+  overflow-x: auto;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.stats-table thead th {
+  color: var(--navy-700);
+  border-bottom: 2px solid var(--navy-700);
+}
+
+.stats-table .num {
+  text-align: right;
+}
+
+.stats-month th[scope="row"] {
+  color: var(--navy-900);
+}
+
+.stats-days-row > td {
+  padding-top: 0;
+  background: var(--bg);
+}
+
+.stats-days summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--navy-700);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stats-table-days {
+  margin-bottom: 12px;
+  background: var(--surface);
+  font-size: 14px;
+}

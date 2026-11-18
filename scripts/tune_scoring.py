@@ -30,6 +30,7 @@ from app.services import scoring_tuning as tuning
 from app.services.expansion import gnd, llm
 from scripts.evaluate import (
     build_embedding_service,
+    config_with_overrides,
     git_info,
     gnd_enabled,
     llm_enabled,
@@ -273,7 +274,8 @@ def parse_args(argv=None):
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    config = get_config()
+    # Claude-Aufrufe der Abstimmung zählen getrennt von echten Suchen (daily_usage)
+    config = config_with_overrides(get_config(), {"CLAUDE_CALL_ORIGIN": "eval"})
     gold_path = Path(args.gold)
     if not gold_path.is_file():
         print(f"Fehler: Goldstandard {gold_path} nicht gefunden.", file=sys.stderr)

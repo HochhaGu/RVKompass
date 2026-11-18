@@ -12,7 +12,8 @@ Aufruf:
     python scripts/evaluate.py --gold eval/goldstandard.csv --compare reports/eval-....json
 
 Die Datenbank wird nur über App-Code berührt: Mit API-Schlüssel schreibt die
-Begriffserweiterung wie im Betrieb in expansion_cache und daily_usage; die GND-Erweiterung (P3)
+Begriffserweiterung wie im Betrieb in expansion_cache und daily_usage (Spalte claude_calls_eval,
+getrennt von echten Suchen); die GND-Erweiterung (P3)
 schreibt erfolgreiche lobid-Antworten in die Laufzeit-Tabelle gnd_cache.
 """
 
@@ -254,7 +255,10 @@ def evaluate_database(
     Für den monatlichen RVK-Abgleich (P8): `config_overrides` setzt DATABASE_PATH und die
     Embedding-Pfade auf den Live- oder den Staging-Stand. Ergebnis wie evaluation.aggregate.
     """
-    config = config_with_overrides(base_config or get_config(), config_overrides)
+    config = config_with_overrides(
+        base_config or get_config(),
+        {**(config_overrides or {}), "CLAUDE_CALL_ORIGIN": "eval"},
+    )
     service = (service_factory or build_embedding_service)(config)
     conn = rvk_repository.get_connection(config.DATABASE_PATH)
     try:
@@ -302,7 +306,8 @@ def parse_args(argv=None):
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    config = get_config()
+    # Claude-Aufrufe der Evaluation zählen getrennt von echten Suchen (daily_usage)
+    config = config_with_overrides(get_config(), {"CLAUDE_CALL_ORIGIN": "eval"})
 
     gold_path = Path(args.gold)
     if not gold_path.is_file():

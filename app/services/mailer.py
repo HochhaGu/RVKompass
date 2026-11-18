@@ -1,11 +1,13 @@
-"""Info-Mail zum RVK-Abgleich (P8): HTML direkt im Mailtext, dazu eine Textfassung.
+"""Info-Mails (P8): RVK-Abgleich und Monatsstatistik, HTML direkt im Mailtext, dazu Textfassung.
 
-Kein Anhang, kein Link. Zugangsdaten ausschließlich aus der Konfiguration (.env); sie werden nie
-protokolliert. Ohne SMTP-Konfiguration oder bei einem Sendefehler landet das HTML in
-<MAIL_FALLBACK_DIR>/sync-mail-<zeit>.html und im Log steht eine Warnung – der Abgleich selbst
-scheitert daran nicht.
+Kein Anhang, keine Bilder; die Monatsstatistik enthält genau einen Link („Alle Daten“).
+Zugangsdaten ausschließlich aus der Konfiguration (.env); sie werden nie protokolliert. Ohne
+SMTP-Konfiguration oder bei einem Sendefehler landet das HTML in
+<MAIL_FALLBACK_DIR>/<präfix>-<zeit>.html (sync-mail bzw. usage-mail) und im Log steht eine
+Warnung – der Abgleich selbst scheitert daran nicht.
 
-Kennzahlen heißen „Relevanzmaß“ (Dezimalzahlen 0–1), nie Prozent.
+Evaluationskennzahlen heißen „Relevanzmaß“ (Dezimalzahlen 0–1), nie Prozent. Prozent gibt es nur
+in der Monatsstatistik für Nutzungsanteile (z. B. Suchen ohne Treffer), nie für Konfidenz.
 """
 
 from __future__ import annotations
@@ -82,6 +84,14 @@ def render_sync_report(result: dict) -> tuple[str, str, str]:
     return subject, html, text
 
 
+def render_usage_report(context: dict) -> tuple[str, str]:
+    """(HTML, Text) der Monatsstatistik; Kontext aus usage_report.mail_context."""
+    env = _environment()
+    html = env.get_template("mail/usage_report.html").render(**context)
+    text = env.get_template("mail/usage_report.txt").render(**context)
+    return html, text
+
+
 def build_message(config, subject: str, html: str, text: str) -> EmailMessage:
     message = EmailMessage()
     message["Subject"] = subject
@@ -100,35 +110,71 @@ def smtp_configured(config) -> bool:
     )
 
 
+def security_mode(config) -> str:
+    """Verbindungsart: "ssl" (direkt verschlüsselt), "starttls" oder "none".
+
+    Gleiche Variable wie beim Steuerprogramm (orchestrator/notify.py): SMTP_SECURITY=ssl|starttls.
+    Ohne Angabe: Port 465 → ssl, sonst starttls; SMTP_STARTTLS=false heißt dann unverschlüsselt.
+    """
+    port = int(_setting(config, "SMTP_PORT", 587))
+    value = str(_setting(config, "SMTP_SECURITY", "") or "").strip().lower()
+    if value in ("ssl", "smtps", "implicit", "ssl/tls"):
+        return "ssl"
+    if value in ("starttls", "start_tls"):
+        return "starttls"
+    if value:
+        logger.warning("Unbekannter Wert für SMTP_SECURITY – Voreinstellung nach Port")
+    if port == 465:
+        return "ssl"
+    return "starttls" if _setting(config, "SMTP_STARTTLS", True) else "none"
+
+
 def send_mail(
-    config, subject: str, html: str, text: str, smtp_factory: Callable = smtplib.SMTP
+    config, subject: str, html: str, text: str, smtp_factory: Callable | None = None
 ) -> None:
-    """Sendet multipart/alternative (Text + HTML im Mailtext). Fehler gehen an den Aufrufer."""
+    """Sendet multipart/alternative (Text + HTML im Mailtext). Fehler gehen an den Aufrufer.
+
+    `smtp_factory` (für Tests) ersetzt smtplib.SMTP bzw. smtplib.SMTP_SSL.
+    """
     message = build_message(config, subject, html, text)
-    with smtp_factory(
-        _setting(config, "SMTP_HOST"),
-        int(_setting(config, "SMTP_PORT", 587)),
-        timeout=int(_setting(config, "SMTP_TIMEOUT_SECONDS", 30)),
-    ) as smtp:
-        if _setting(config, "SMTP_STARTTLS", True):
-            smtp.starttls(context=ssl.create_default_context())
+    mode = security_mode(config)
+    context = ssl.create_default_context()
+    host = _setting(config, "SMTP_HOST")
+    port = int(_setting(config, "SMTP_PORT", 587))
+    timeout = int(_setting(config, "SMTP_TIMEOUT_SECONDS", 30))
+    if mode == "ssl":
+        smtp = (smtp_factory or smtplib.SMTP_SSL)(
+            host, port, timeout=timeout, context=context
+        )
+    else:
+        smtp = (smtp_factory or smtplib.SMTP)(host, port, timeout=timeout)
+    with smtp:
+        if mode == "starttls":
+            smtp.starttls(context=context)
         user = _setting(config, "SMTP_USER")
         if user:
             smtp.login(user, _setting(config, "SMTP_PASSWORD", ""))
         smtp.send_message(message)
 
 
-def write_fallback(config, html: str, now: datetime | None = None) -> Path:
+def write_fallback(
+    config, html: str, now: datetime | None = None, prefix: str = "sync-mail"
+) -> Path:
     directory = Path(_setting(config, "MAIL_FALLBACK_DIR", "logs"))
     directory.mkdir(parents=True, exist_ok=True)
     stamp = (now or datetime.now(UTC)).strftime("%Y%m%dT%H%M%SZ")
-    path = directory / f"sync-mail-{stamp}.html"
+    path = directory / f"{prefix}-{stamp}.html"
     path.write_text(html, encoding="utf-8")
     return path
 
 
 def deliver(
-    config, subject: str, html: str, text: str, smtp_factory: Callable = smtplib.SMTP
+    config,
+    subject: str,
+    html: str,
+    text: str,
+    smtp_factory: Callable | None = None,
+    fallback_prefix: str = "sync-mail",
 ) -> str:
     """Sendet oder schreibt ersatzweise eine Datei. Liefert "sent" oder "file:<pfad>"."""
     if smtp_configured(config):
@@ -141,14 +187,12 @@ def deliver(
             logger.warning("Info-Mail nicht gesendet (%s: %s)", type(exc).__name__, exc)
     else:
         logger.warning("Kein SMTP konfiguriert (SMTP_HOST, MAIL_FROM, MAIL_TO).")
-    path = write_fallback(config, html)
+    path = write_fallback(config, html, prefix=fallback_prefix)
     logger.warning("Info-Mail ersatzweise gespeichert: %s", path)
     return f"file:{path}"
 
 
-def notify_gnd_error(
-    config, message: str, smtp_factory: Callable = smtplib.SMTP
-) -> str:
+def notify_gnd_error(config, message: str, smtp_factory: Callable | None = None) -> str:
     """Mail bei Fehlern der GND-Aktualisierung (ein normaler Wechsel steht nur im Log)."""
     result = {
         "status": "error",

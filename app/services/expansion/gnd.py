@@ -186,12 +186,15 @@ class LobidGndSource:
         self.consecutive_failures = 0
         # Antworten aus gnd_cache (für /health und die Nutzungsstatistik)
         self.cache_hits = 0
+        # Alle GND-Abfragen dieser Quelle, aus dem Cache oder live (Nenner der Cache-Quote)
+        self.lookups = 0
 
     def _request_key(self, params: dict) -> str:
         return f"{self.base_url}?{urlencode(sorted(params.items()))}"
 
     def _fetch(self, params: dict):
         key = self._request_key(params)
+        self.lookups += 1
         try:
             cached = rvk_repository.get_gnd_cache(self.conn, key, self.cache_days)
         except sqlite3.Error as exc:
@@ -277,6 +280,11 @@ class LocalGndSource:
     @property
     def cache_hits(self) -> int:
         return int(getattr(self.fallback, "cache_hits", 0) or 0)
+
+    @property
+    def lookups(self) -> int:
+        # Der lokale Abzug hat keinen Cache; gezählt werden nur Abfragen der Rückfallebene
+        return int(getattr(self.fallback, "lookups", 0) or 0)
 
     def _connection(self) -> sqlite3.Connection | None:
         if self._checked:

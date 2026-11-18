@@ -175,7 +175,7 @@ def test_copy_database_and_carry_over_runtime_tables(tmp_path):
 def test_carry_over_creates_missing_table(tmp_path):
     live_path, staging_path = tmp_path / "live.sqlite3", tmp_path / "staging.sqlite3"
     live = _db(live_path)
-    live.execute("INSERT INTO daily_usage VALUES ('2026-12-01', 4)")
+    live.execute("INSERT INTO daily_usage (day, claude_calls) VALUES ('2026-12-01', 4)")
     live.commit()
     live.close()
     sqlite3.connect(staging_path).close()  # leere DB ohne Tabellen

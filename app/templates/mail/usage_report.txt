@@ -1,0 +1,32 @@
+RVKompass · Nutzung {{ current.label }}
+
+{{ current.label }} im Vergleich zu {{ previous.label }}
+{% if not current.has_data %}
+Für {{ current.label }} liegen keine Daten vor.
+{% endif %}
+- Suchen gesamt: {{ fmt_int(current.searches) }} (Vormonat {{ fmt_int(previous.searches) }}; Δ {{ fmt_signed_int(delta.searches.abs) }}, {{ fmt_rel(delta.searches.rel) }})
+- Ø Suchen pro Tag: {{ fmt_decimal(current.avg_per_day) }} (Vormonat {{ fmt_decimal(previous.avg_per_day) }}; Δ {{ fmt_signed_decimal(delta.avg_per_day.abs) }}, {{ fmt_rel(delta.avg_per_day.rel) }})
+- Stärkster Tag: {{ fmt_day(current.peak_day) }} mit {{ fmt_int(current.peak_count) }} (Vormonat {{ fmt_day(previous.peak_day) }} mit {{ fmt_int(previous.peak_count) }})
+- Anteil Suchen ohne Treffer: {{ fmt_share(current.zero_hit_share) }} (Vormonat {{ fmt_share(previous.zero_hit_share) }}; Δ {{ fmt_pp(delta.zero_hit_share.pp) }})
+- Rückgriffe auf lobid: {{ fmt_int(current.lobid_fallbacks) }} (Vormonat {{ fmt_int(previous.lobid_fallbacks) }}; Δ {{ fmt_signed_int(delta.lobid_fallbacks.abs) }}, {{ fmt_rel(delta.lobid_fallbacks.rel) }})
+- Cache-Quote Sprachmodell: {{ fmt_share(current.cache_quote_llm) }} (Vormonat {{ fmt_share(previous.cache_quote_llm) }}; Δ {{ fmt_pp(delta.cache_quote_llm.pp) }})
+- Claude-API-Aufrufe (nur echte Suchen): {{ fmt_int(current.claude_calls) }} (Vormonat {{ fmt_int(previous.claude_calls) }}; Δ {{ fmt_signed_int(delta.claude_calls.abs) }})
+
+{% if daily %}
+Tagesverlauf {{ current.label }}
+{% for d in daily %}
+{{ fmt_day(d.day, with_year=False) }}  {{ fmt_int(d.requests) }}
+{% endfor %}
+
+{% endif %}
+Jahresüberblick: {{ year.months[0].label }} bis {{ year.months[-1].label }}
+{% for m in year.months %}
+{{ m.label }}: {{ fmt_int(m.searches) }}
+{% endfor %}
+Summe: {{ fmt_int(year.total) }} ({{ year.months_with_data }} von 12 Monaten mit Daten)
+Ø pro Monat: {{ fmt_decimal(year.average) }} (nur Monate mit Daten)
+
+Alle Daten: {{ stats_url }}
+
+RVK-Stand: {{ rvk_version or "unbekannt" }} · Erstellt am {{ created }} · Zählung nach UTC-Tagen.
+Anonyme Tageszähler: keine Suchbegriffe, keine IP-Adressen.
