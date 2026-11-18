@@ -847,6 +847,8 @@ def test_usage_statistics_are_recorded(client):
     assert stats["requests"] == 1
     assert stats["zero_hit_requests"] == 0
     assert stats["llm_cache_hits"] == 1
+    # Abfragen insgesamt (Nenner der Cache-Quote): hier ein Cache-Treffer, kein API-Aufruf
+    assert stats["llm_lookups"] == 1
 
 
 def test_usage_statistics_count_zero_hits(client, monkeypatch):

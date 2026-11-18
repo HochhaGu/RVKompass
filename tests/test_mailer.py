@@ -159,6 +159,16 @@ def test_fallback_file_without_smtp(tmp_path, caplog):
     assert "Kein SMTP" in caplog.text
 
 
+def test_fallback_file_prefix_for_usage_mail(tmp_path):
+    config = {"MAIL_FALLBACK_DIR": str(tmp_path)}
+    outcome = mailer.deliver(
+        config, "Betreff", "<p>x</p>", "x", fallback_prefix="usage-mail"
+    )
+    assert outcome.startswith("file:")
+    assert len(list(tmp_path.glob("usage-mail-*.html"))) == 1
+    assert list(tmp_path.glob("sync-mail-*.html")) == []
+
+
 def test_send_error_falls_back_and_hides_password(tmp_path, caplog):
     config = dict(CONFIG, MAIL_FALLBACK_DIR=str(tmp_path))
     with caplog.at_level(logging.DEBUG):

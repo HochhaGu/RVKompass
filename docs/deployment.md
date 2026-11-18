@@ -247,6 +247,56 @@ mit Status 503; Docker zeigt den Container dann als „unhealthy“.
 Die Nutzungsstatistik liegt in `data/usage.sqlite3`: nur Tageszähler, keine IP-Adressen, keine
 Suchtexte. Weder gunicorn noch Caddy schreiben ein Zugriffsprotokoll.
 
+### 7.1 Monatsstatistik per Mail und Statistikseite
+
+**Mail:** am 1. jedes Monats um 07:00 Uhr (Ortszeit des Servers) per systemd-Timer
+`rvkompass-monthly-report.timer`. Der Timer führt `scripts/monthly_report.py` im laufenden
+Container aus. Inhalt der Mail:
+- Vormonat im Vergleich zum Monat davor, mit Tagesverlauf
+- Überblick über 12 Monate
+- Link „Alle Daten“
+
+Die Datenbanken werden nur lesend geöffnet. Ohne SMTP landet die Mail als
+`logs/usage-mail-<zeit>.html`.
+
+**Seite:** `https://rvkompass.ghochhauser.at/status/statistik` zeigt alle Monate, je Monat
+aufklappbar mit Tageswerten. CSV-Download unter `/status/statistik.csv?ebene=monat` bzw.
+`?ebene=tag`. Den Passwortschutz übernimmt Caddy mit derselben Datei wie für `/status/`
+(Block `handle /status/statistik*` in `deploy/caddy/rvkompass.caddy.live`).
+
+Einrichten (einmalig; vorher das Image neu bauen, damit das Skript im Container liegt):
+
+```bash
+cd /srv/rvkompass/app && git pull && docker compose up -d --build
+sudo cp deploy/systemd/rvkompass-monthly-report.service deploy/systemd/rvkompass-monthly-report.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now rvkompass-monthly-report.timer
+systemctl list-timers rvkompass-monthly-report.timer      # nächster Lauf
+sudo cp /etc/caddy/sites/rvkompass.caddy /etc/caddy/sites/rvkompass.caddy.vorher
+sudo cp deploy/caddy/rvkompass.caddy.live /etc/caddy/sites/rvkompass.caddy
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+Probelauf ohne Mail (schreibt `reports/monatsstatistik-<JJJJ-MM>.html` im Container):
+
+```bash
+docker compose exec -T --user rvkompass rvkompass python /app/scripts/monthly_report.py --month 2026-11 --dry-run
+```
+
+Mail sofort auslösen: `sudo systemctl start rvkompass-monthly-report.service`; Protokoll:
+`journalctl -u rvkompass-monthly-report.service`.
+
+**Kennzahlen:**
+- Ø pro Tag: über die Kalendertage, im Startmonat ab dem ersten Datensatz, im laufenden Monat
+  bis heute.
+- Monate vor dem ersten Datensatz zeigen „–“.
+- Cache-Quote: Anteil der GND- bzw. Sprachmodell-Abfragen aus dem Zwischenspeicher.
+  - GND zählt nur die lobid-Rückfallebene, weil der lokale Abzug keinen Cache hat.
+  - Die GND-Abfragen werden erst seit der Monatsstatistik gezählt; ältere Tage haben deshalb
+    keinen GND-Wert.
+  - Beim Sprachmodell werden ältere Tage aus Cache-Treffern und Claude-Aufrufen berechnet.
+
 ## 8. Routine „Update und Backup“
 
 Empfehlung: einmal im Monat, nach dem RVK-Abgleich (z. B. am 5.), dazu Sicherheitsupdates
@@ -369,6 +419,7 @@ Nur Namen; Werte gehören nie ins Repo. Fehlt ein Eintrag, gilt der Standard.
 | `SMTP_HOST`, `SMTP_PORT` (`587`), `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_STARTTLS` (`true`), `SMTP_TIMEOUT_SECONDS` (`30`) | | Mailversand |
 | `MAIL_FROM`, `MAIL_TO` | leer | Absender und Empfänger der Info-Mail |
 | `MAIL_FALLBACK_DIR` | `logs/` | Ablage der Mail, wenn Versand nicht möglich |
+| `USAGE_STATS_URL` | `https://rvkompass.ghochhauser.at/status/statistik` | Link „Alle Daten“ in der Monatsmail |
 | `GUNICORN_PID_PATH` | `/tmp/gunicorn.pid` | für den Neustart der Worker |
 | `PROXY_FIX_X_FOR` | `0` (im Container `1`) | Zahl der Reverse-Proxys vor der App |
 | `DEFAULT_MAIN_GROUPS`, `SCORING_FORMULA`, `EMBEDDING_MODEL_NAME` | | wie bisher |

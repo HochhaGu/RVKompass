@@ -126,6 +126,7 @@ class FakeFallback:
     def __init__(self):
         self.calls = []
         self.cache_hits = 7
+        self.lookups = 9
 
     def search_subject_headings(self, query, size):
         self.calls.append(("search", query))
@@ -180,6 +181,8 @@ def test_empty_result_does_not_fall_back(gnd_db):
     assert source.search_subject_headings("Gibtesnicht", 5) == []
     assert fallback.calls == []
     assert source.cache_hits == 7
+    # Der lokale Abzug hat keinen Cache: gezählt werden nur Abfragen der Rückfallebene
+    assert source.lookups == 9
 
 
 @pytest.mark.parametrize("kind", ["missing", "empty", "broken"])

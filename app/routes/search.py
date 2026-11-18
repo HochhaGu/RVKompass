@@ -150,6 +150,9 @@ def search():
             usage_path,
             gnd=int(getattr(source, "cache_hits", 0) or 0),
             llm=int(llm_stats.get("cache_hits", 0) or 0),
+            gnd_lookups=int(getattr(source, "lookups", 0) or 0),
+            llm_lookups=int(llm_stats.get("cache_hits", 0) or 0)
+            + int(llm_stats.get("api_calls", 0) or 0),
         )
 
     counts = dict(getattr(result, "main_group_counts", {}) or {})

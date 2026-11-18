@@ -1,7 +1,8 @@
 """Anonyme Nutzungsstatistik (P8): nur Tageszähler, eigene Datei data/usage.sqlite3.
 
-Gespeichert werden je Tag: Zahl der Suchanfragen, Zahl der Anfragen ohne Treffer und die
-Cache-Treffer von GND und Sprachmodell. Keine IP-Adressen, keine Suchtexte, kein User-Agent,
+Gespeichert werden je Tag: Zahl der Suchanfragen, Zahl der Anfragen ohne Treffer, die
+Cache-Treffer von GND und Sprachmodell und (seit der Monatsstatistik) die Zahl der GND- und
+Sprachmodell-Abfragen insgesamt als Nenner der Cache-Quote. Keine IP-Adressen, keine Suchtexte, kein User-Agent,
 keine Cookies. Die Datei liegt getrennt von der RVK-Datenbank, damit sie den monatlichen Tausch
 übersteht und nicht in die RVK-Backups gerät.
 
@@ -26,11 +27,22 @@ CREATE TABLE IF NOT EXISTS usage_daily (
     requests INTEGER NOT NULL DEFAULT 0,
     zero_hit_requests INTEGER NOT NULL DEFAULT 0,
     gnd_cache_hits INTEGER NOT NULL DEFAULT 0,
-    llm_cache_hits INTEGER NOT NULL DEFAULT 0
+    llm_cache_hits INTEGER NOT NULL DEFAULT 0,
+    gnd_lookups INTEGER NOT NULL DEFAULT 0,
+    llm_lookups INTEGER NOT NULL DEFAULT 0
 )
 """
 
-COUNTERS = ("requests", "zero_hit_requests", "gnd_cache_hits", "llm_cache_hits")
+COUNTERS = (
+    "requests",
+    "zero_hit_requests",
+    "gnd_cache_hits",
+    "llm_cache_hits",
+    "gnd_lookups",
+    "llm_lookups",
+)
+# Spalten, die nach P8 dazukamen: ältere Dateien bekommen sie beim ersten Schreiben
+ADDED_COLUMNS = ("gnd_lookups", "llm_lookups")
 
 
 def today() -> str:
@@ -41,7 +53,20 @@ def _connect(path: str) -> sqlite3.Connection:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path, timeout=5)
     conn.execute(SCHEMA)
+    _migrate(conn)
     return conn
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Ergänzt fehlende Zählerspalten (idempotent, bestehende Werte bleiben)."""
+    present = existing_columns(conn)
+    for column in ADDED_COLUMNS:
+        if column not in present:
+            conn.execute(
+                f"ALTER TABLE usage_daily ADD COLUMN {column} "
+                "INTEGER NOT NULL DEFAULT 0"
+            )
+    conn.commit()
 
 
 def _add(path: str, day: str, increments: dict[str, int]) -> None:
@@ -50,13 +75,12 @@ def _add(path: str, day: str, increments: dict[str, int]) -> None:
         return
     conn = _connect(path)
     try:
+        columns = ", ".join(COUNTERS)
+        placeholders = ", ".join("?" for _ in COUNTERS)
+        updates = ", ".join(f"{k} = {k} + excluded.{k}" for k in COUNTERS)
         conn.execute(
-            "INSERT INTO usage_daily (day, requests, zero_hit_requests, gnd_cache_hits, "
-            "llm_cache_hits) VALUES (?, ?, ?, ?, ?) ON CONFLICT(day) DO UPDATE SET "
-            "requests = requests + excluded.requests, "
-            "zero_hit_requests = zero_hit_requests + excluded.zero_hit_requests, "
-            "gnd_cache_hits = gnd_cache_hits + excluded.gnd_cache_hits, "
-            "llm_cache_hits = llm_cache_hits + excluded.llm_cache_hits",
+            f"INSERT INTO usage_daily (day, {columns}) VALUES (?, {placeholders}) "
+            f"ON CONFLICT(day) DO UPDATE SET {updates}",
             (day, *(values[k] for k in COUNTERS)),
         )
         conn.commit()
@@ -77,12 +101,32 @@ def record_search(path: str, hit_count: int, day: str | None = None) -> None:
 
 
 def record_cache_hits(
-    path: str, gnd: int = 0, llm: int = 0, day: str | None = None
+    path: str,
+    gnd: int = 0,
+    llm: int = 0,
+    day: str | None = None,
+    gnd_lookups: int = 0,
+    llm_lookups: int = 0,
 ) -> None:
+    """Cache-Treffer und Abfragen insgesamt (Nenner der Cache-Quote) eines Suchlaufs."""
     try:
-        _add(path, day or today(), {"gnd_cache_hits": gnd, "llm_cache_hits": llm})
+        _add(
+            path,
+            day or today(),
+            {
+                "gnd_cache_hits": gnd,
+                "llm_cache_hits": llm,
+                "gnd_lookups": gnd_lookups,
+                "llm_lookups": llm_lookups,
+            },
+        )
     except (sqlite3.Error, OSError) as exc:
         logger.warning("Nutzungsstatistik nicht beschreibbar: %s", exc)
+
+
+def existing_columns(conn: sqlite3.Connection) -> set[str]:
+    """Spalten von usage_daily; leer, wenn die Tabelle fehlt."""
+    return {row[1] for row in conn.execute("PRAGMA table_info(usage_daily)")}
 
 
 def _row_to_dict(day: str, row) -> dict:
@@ -106,9 +150,18 @@ def stats_for_day(path: str, day: str | None = None) -> dict:
     try:
         conn = sqlite3.connect(f"{Path(path).resolve().as_uri()}?mode=ro", uri=True)
         try:
-            row = conn.execute(
-                f"SELECT {', '.join(COUNTERS)} FROM usage_daily WHERE day = ?", (day,)
+            # Ältere Datei ohne die neuen Spalten: nur lesen, fehlende Zähler gelten als 0
+            present = [c for c in COUNTERS if c in existing_columns(conn)]
+            found = conn.execute(
+                f"SELECT {', '.join(present)} FROM usage_daily WHERE day = ?", (day,)
             ).fetchone()
+            row = (
+                tuple(
+                    dict(zip(present, found, strict=True)).get(c, 0) for c in COUNTERS
+                )
+                if found
+                else None
+            )
         finally:
             conn.close()
     except sqlite3.Error as exc:

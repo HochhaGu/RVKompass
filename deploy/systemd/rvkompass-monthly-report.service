@@ -1,0 +1,18 @@
+# /etc/systemd/system/rvkompass-monthly-report.service
+# Monatsstatistik per Info-Mail (scripts/monthly_report.py, Betrachtungsmonat = Vormonat).
+# Läuft im laufenden Container als Nutzer rvkompass; liest usage.sqlite3 und rvk.sqlite3 nur.
+# Gestartet vom Timer rvkompass-monthly-report.timer.
+
+[Unit]
+Description=RVKompass: Monatsstatistik per Mail senden
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=guenther
+Group=guenther
+WorkingDirectory=/srv/rvkompass/app
+ExecStart=/usr/bin/docker compose exec -T --user rvkompass rvkompass python /app/scripts/monthly_report.py
+NoNewPrivileges=true

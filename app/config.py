@@ -152,6 +152,11 @@ class Config:
         "USAGE_DATABASE_PATH", str(BASE_DIR / "data" / "usage.sqlite3")
     )
 
+    # Monatsstatistik (scripts/monthly_report.py): Link „Alle Daten“ in der Mail
+    USAGE_STATS_URL = os.environ.get(
+        "USAGE_STATS_URL", "https://rvkompass.ghochhauser.at/status/statistik"
+    )
+
     # Monatlicher RVK-Abgleich
     SYNC_WORK_DIR = os.environ.get("SYNC_WORK_DIR", str(BASE_DIR / "data" / "staging"))
     SYNC_BACKUP_DIR = os.environ.get(
