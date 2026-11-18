@@ -8,9 +8,9 @@ Für {{ current.label }} liegen keine Daten vor.
 - Ø Suchen pro Tag: {{ fmt_decimal(current.avg_per_day) }} (Vormonat {{ fmt_decimal(previous.avg_per_day) }}; Δ {{ fmt_signed_decimal(delta.avg_per_day.abs) }}, {{ fmt_rel(delta.avg_per_day.rel) }})
 - Stärkster Tag: {{ fmt_day(current.peak_day) }} mit {{ fmt_int(current.peak_count) }} (Vormonat {{ fmt_day(previous.peak_day) }} mit {{ fmt_int(previous.peak_count) }})
 - Anteil Suchen ohne Treffer: {{ fmt_share(current.zero_hit_share) }} (Vormonat {{ fmt_share(previous.zero_hit_share) }}; Δ {{ fmt_pp(delta.zero_hit_share.pp) }})
-- Cache-Quote GND: {{ fmt_share(current.cache_quote_gnd) }} (Vormonat {{ fmt_share(previous.cache_quote_gnd) }}; Δ {{ fmt_pp(delta.cache_quote_gnd.pp) }})
+- Rückgriffe auf lobid: {{ fmt_int(current.lobid_fallbacks) }} (Vormonat {{ fmt_int(previous.lobid_fallbacks) }}; Δ {{ fmt_signed_int(delta.lobid_fallbacks.abs) }}, {{ fmt_rel(delta.lobid_fallbacks.rel) }})
 - Cache-Quote Sprachmodell: {{ fmt_share(current.cache_quote_llm) }} (Vormonat {{ fmt_share(previous.cache_quote_llm) }}; Δ {{ fmt_pp(delta.cache_quote_llm.pp) }})
-- Claude-API-Aufrufe: {{ fmt_int(current.claude_calls) }} (Vormonat {{ fmt_int(previous.claude_calls) }}; Δ {{ fmt_signed_int(delta.claude_calls.abs) }})
+- Claude-API-Aufrufe (nur echte Suchen): {{ fmt_int(current.claude_calls) }} (Vormonat {{ fmt_int(previous.claude_calls) }}; Δ {{ fmt_signed_int(delta.claude_calls.abs) }})
 
 {% if daily %}
 Tagesverlauf {{ current.label }}

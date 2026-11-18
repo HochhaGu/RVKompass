@@ -3,16 +3,22 @@
 Quellen, ausschließlich lesend geöffnet (sqlite-URI `mode=ro`, keine Migration, keine neue Datei):
 - `usage_daily` in data/usage.sqlite3 (app/services/usage_stats.py): Suchen, Suchen ohne Treffer,
   Cache-Treffer und Abfragen von GND und Sprachmodell
-- `daily_usage` in rvk.sqlite3: Aufrufe der Claude-API je Tag (Kostenbremse)
+- `daily_usage` in rvk.sqlite3: Aufrufe der Claude-API je Tag (Kostenbremse). Gezählt wird nur
+  die Spalte `claude_calls` (echte Suchen); Evaluationsläufe stehen in `claude_calls_eval`.
 
 `load_days` liest beide Tabellen in ein dict {Tag: Zähler}. Alle übrigen Funktionen rechnen nur auf
 diesem dict und sind ohne Dateien testbar. Tage sind UTC-Tage wie bei der Zählung.
 
-Werte ohne Grundlage sind `None` und werden als „–“ ausgegeben:
-- Monate vor dem ersten Datensatz (nicht 0)
+Die Statistik beginnt mit dem ersten Tag mit Suchen. Werte ohne Grundlage sind `None` und
+werden als „–“ ausgegeben:
+- Monate vor dem ersten Tag mit Suchen (nicht 0)
 - Anteile und Quoten ohne Nenner (keine Division durch 0)
 - relative Veränderung, wenn der Vormonat keine Daten oder den Wert 0 hat
 Anteile sind Dezimalzahlen 0–1; Unterschiede von Anteilen werden in Prozentpunkten angegeben.
+
+GND: Der lokale Abzug hat keinen Cache, daher keine Cache-Quote. Gezeigt wird stattdessen die
+Zahl der Rückgriffe auf lobid (`gnd_lookups`: Abfragen der lobid-Rückfallebene, gezählt seit der
+Monatsstatistik; ältere Tage zählen als 0).
 """
 
 from __future__ import annotations
@@ -52,13 +58,13 @@ MONTH_NAMES = (
 )
 
 # Kennzahlen eines Monats, die als Anteil (0–1) verglichen werden: Unterschied in Prozentpunkten
-SHARE_KEYS = ("zero_hit_share", "cache_quote_gnd", "cache_quote_llm")
+SHARE_KEYS = ("zero_hit_share", "cache_quote_llm")
 COMPARE_KEYS = (
     "searches",
     "avg_per_day",
     "peak_count",
     "zero_hit_share",
-    "cache_quote_gnd",
+    "lobid_fallbacks",
     "cache_quote_llm",
     "claude_calls",
 )
@@ -168,7 +174,9 @@ def monatsname(month: str) -> str:
 
 
 def first_day(days: dict[str, dict]) -> str | None:
-    return min(days) if days else None
+    """Erster Tag mit mindestens einer Suche (Tage nur mit Claude-Aufrufen zählen nicht)."""
+    with_searches = [day for day, entry in days.items() if entry.get("requests", 0)]
+    return min(with_searches) if with_searches else None
 
 
 def _month_bounds(month: str) -> tuple[date, date]:
@@ -181,7 +189,7 @@ def _month_bounds(month: str) -> tuple[date, date]:
 def _counted_span(
     month: str, days: dict[str, dict], today: date
 ) -> tuple[date, date] | None:
-    """Tage des Monats, die zählen: ab erstem Datensatz, bis heute. None vor dem Start."""
+    """Tage des Monats, die zählen: ab erstem Tag mit Suchen, bis heute. None vor dem Start."""
     start_text = first_day(days)
     if start_text is None:
         return None
@@ -208,7 +216,7 @@ def _llm_parts(entry: dict) -> tuple[int, int]:
 
 
 def monatswerte(month: str, days: dict[str, dict], today: date | None = None) -> dict:
-    """Kennzahlen eines Monats; vor dem ersten Datensatz oder in der Zukunft alles None."""
+    """Kennzahlen eines Monats; vor dem ersten Tag mit Suchen oder in der Zukunft alles None."""
     today = today or utc_today()
     values = {
         "month": month,
@@ -221,7 +229,7 @@ def monatswerte(month: str, days: dict[str, dict], today: date | None = None) ->
         "peak_count": None,
         "zero_hit_requests": None,
         "zero_hit_share": None,
-        "cache_quote_gnd": None,
+        "lobid_fallbacks": None,
         "cache_quote_llm": None,
         "claude_calls": None,
     }
@@ -235,8 +243,6 @@ def monatswerte(month: str, days: dict[str, dict], today: date | None = None) ->
     ]
     searches = sum(entry["requests"] for _, entry in rows)
     zero = sum(entry["zero_hit_requests"] for _, entry in rows)
-    # GND: nur Tage, an denen Abfragen gezählt wurden (ältere Tage haben keinen Nenner)
-    gnd_rows = [entry for _, entry in rows if entry.get("gnd_lookups", 0)]
     llm_parts = [_llm_parts(entry) for _, entry in rows]
     peak = max(rows, key=lambda item: (item[1]["requests"], item[0]), default=None)
     days_counted = (span[1] - span[0]).days + 1
@@ -247,10 +253,7 @@ def monatswerte(month: str, days: dict[str, dict], today: date | None = None) ->
         avg_per_day=searches / days_counted,
         zero_hit_requests=zero,
         zero_hit_share=_ratio(zero, searches),
-        cache_quote_gnd=_ratio(
-            sum(e["gnd_cache_hits"] for e in gnd_rows),
-            sum(e["gnd_lookups"] for e in gnd_rows),
-        ),
+        lobid_fallbacks=sum(entry.get("gnd_lookups", 0) for _, entry in rows),
         cache_quote_llm=_ratio(
             sum(h for h, _ in llm_parts), sum(n for _, n in llm_parts)
         ),
@@ -284,7 +287,7 @@ def vergleich(aktuell: dict, vorher: dict) -> dict:
 def zwoelf_monate(month: str, days: dict[str, dict], today: date | None = None) -> dict:
     """Betrachtungsmonat und die 11 Monate davor (älteste zuerst), mit Summe und Ø.
 
-    Summe und Ø der Suchen nur über Monate mit Daten; ohne solche Monate beide None.
+    Summe und Ø der Suchen nur über Monate mit Daten (ab dem ersten Tag mit Suchen); ohne solche Monate beide None.
     """
     months = [
         monatswerte(shift_month(month, offset), days, today) for offset in range(-11, 1)
@@ -301,7 +304,7 @@ def zwoelf_monate(month: str, days: dict[str, dict], today: date | None = None) 
 
 
 def alle_monate(days: dict[str, dict], today: date | None = None) -> list[dict]:
-    """Alle Monate vom ersten Datensatz bis heute, neuester zuerst; Lücken zählen als 0."""
+    """Alle Monate vom ersten Tag mit Suchen bis heute, neuester zuerst; Lücken zählen als 0."""
     today = today or utc_today()
     start = first_day(days)
     if start is None:
@@ -318,7 +321,7 @@ def alle_monate(days: dict[str, dict], today: date | None = None) -> list[dict]:
 def alle_tage(
     days: dict[str, dict], month: str | None = None, today: date | None = None
 ) -> list[dict]:
-    """Tageswerte (älteste zuerst) ab erstem Datensatz bis heute; fehlende Tage mit 0.
+    """Tageswerte (älteste zuerst) ab erstem Tag mit Suchen bis heute; fehlende Tage mit 0.
 
     Mit `month` nur die Tage dieses Monats.
     """
@@ -453,7 +456,7 @@ MONTH_CSV_FIELDS = (
     "staerkster_tag",
     "staerkster_tag_suchen",
     "anteil_ohne_treffer",
-    "cache_quote_gnd",
+    "lobid_rueckgriffe",
     "cache_quote_llm",
     "claude_aufrufe",
 )
@@ -461,8 +464,7 @@ DAY_CSV_FIELDS = (
     "tag",
     "suchen",
     "ohne_treffer",
-    "gnd_abfragen",
-    "gnd_cache_treffer",
+    "lobid_rueckgriffe",
     "llm_abfragen",
     "llm_cache_treffer",
     "claude_aufrufe",
@@ -486,7 +488,7 @@ def month_csv_rows(months: list[dict]) -> list[list[str]]:
             m["peak_day"] or "",
             _csv_number(m["peak_count"]),
             _csv_number(m["zero_hit_share"]),
-            _csv_number(m["cache_quote_gnd"]),
+            _csv_number(m["lobid_fallbacks"]),
             _csv_number(m["cache_quote_llm"]),
             _csv_number(m["claude_calls"]),
         ]
@@ -501,7 +503,6 @@ def day_csv_rows(day_rows: list[dict]) -> list[list[str]]:
             str(d["requests"]),
             str(d["zero_hit_requests"]),
             str(d["gnd_lookups"]),
-            str(d["gnd_cache_hits"]),
             str(d["llm_lookups"]),
             str(d["llm_cache_hits"]),
             str(d["claude_calls"]),

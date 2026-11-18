@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import ClassVar
 
+import pytest
+
 from app.services import mailer
 
 PASSWORD = "streng-geheimes-passwort-123"
@@ -61,8 +63,9 @@ RESULT = {
 class FakeSMTP:
     instances: ClassVar[list] = []
 
-    def __init__(self, host, port, timeout):
+    def __init__(self, host, port, timeout, context=None):
         self.host, self.port, self.timeout = host, port, timeout
+        self.ssl_context = context
         self.messages, self.logged_in, self.tls = [], None, False
         FakeSMTP.instances.append(self)
 
@@ -147,6 +150,43 @@ def test_send_is_multipart_alternative_without_attachment():
     assert not any(p.get_content_disposition() == "attachment" for p in message.walk())
     assert "0.5567" in message.get_body(("html",)).get_content()
     assert "http" not in message.get_body(("html",)).get_content()
+
+
+@pytest.mark.parametrize(
+    ("security", "port", "starttls", "expected"),
+    [
+        ("ssl", 587, True, "ssl"),
+        ("SSL", 25, False, "ssl"),
+        ("starttls", 465, True, "starttls"),
+        ("", 465, True, "ssl"),
+        ("", 587, True, "starttls"),
+        ("", 25, False, "none"),
+        ("quatsch", 465, True, "ssl"),
+    ],
+)
+def test_security_mode(security, port, starttls, expected):
+    config = {"SMTP_SECURITY": security, "SMTP_PORT": port, "SMTP_STARTTLS": starttls}
+    assert mailer.security_mode(config) == expected
+
+
+def test_ssl_mode_connects_encrypted_without_starttls():
+    FakeSMTP.instances.clear()
+    config = dict(CONFIG, SMTP_PORT=465, SMTP_SECURITY="")
+    assert mailer.deliver(config, "B", "<p>x</p>", "x", smtp_factory=FakeSMTP) == "sent"
+    smtp = FakeSMTP.instances[0]
+    assert smtp.port == 465
+    assert smtp.ssl_context is not None
+    assert smtp.tls is False
+    assert smtp.logged_in == ("absender", PASSWORD)
+    assert len(smtp.messages) == 1
+
+
+def test_starttls_mode_has_no_ssl_context():
+    FakeSMTP.instances.clear()
+    config = dict(CONFIG, SMTP_SECURITY="starttls")
+    assert mailer.deliver(config, "B", "<p>x</p>", "x", smtp_factory=FakeSMTP) == "sent"
+    smtp = FakeSMTP.instances[0]
+    assert smtp.tls is True and smtp.ssl_context is None
 
 
 def test_fallback_file_without_smtp(tmp_path, caplog):

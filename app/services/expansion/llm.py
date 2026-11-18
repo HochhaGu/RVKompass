@@ -181,6 +181,8 @@ def llm_suggestions_for_query(
             ),
             client_factory=client_factory,
             stats=stats,
+            # Evaluationsläufe setzen CLAUDE_CALL_ORIGIN="eval" (eigene Zählspalte)
+            call_origin=_setting(config, "CLAUDE_CALL_ORIGIN", "search"),
         )
         if not raw:
             return []

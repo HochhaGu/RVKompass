@@ -288,14 +288,53 @@ Mail sofort auslösen: `sudo systemctl start rvkompass-monthly-report.service`; 
 `journalctl -u rvkompass-monthly-report.service`.
 
 **Kennzahlen:**
-- Ø pro Tag: über die Kalendertage, im Startmonat ab dem ersten Datensatz, im laufenden Monat
-  bis heute.
-- Monate vor dem ersten Datensatz zeigen „–“.
-- Cache-Quote: Anteil der GND- bzw. Sprachmodell-Abfragen aus dem Zwischenspeicher.
-  - GND zählt nur die lobid-Rückfallebene, weil der lokale Abzug keinen Cache hat.
-  - Die GND-Abfragen werden erst seit der Monatsstatistik gezählt; ältere Tage haben deshalb
-    keinen GND-Wert.
-  - Beim Sprachmodell werden ältere Tage aus Cache-Treffern und Claude-Aufrufen berechnet.
+- Die Statistik beginnt mit dem ersten Tag mit Suchen. Monate davor zeigen „–“.
+- Ø pro Tag: über die Kalendertage, im Startmonat ab dem ersten Tag mit Suchen, im laufenden
+  Monat bis heute.
+- Rückgriffe auf lobid: Zahl der Abfragen an lobid-gnd (Rückfallebene, wenn der lokale
+  GND-Abzug fehlt oder unlesbar ist). Gezählt wird erst seit der Monatsstatistik, ältere Tage
+  zählen als 0.
+- Cache-Quote Sprachmodell: Anteil der Abfragen aus dem Zwischenspeicher. Ältere Tage werden
+  aus Cache-Treffern und Claude-Aufrufen berechnet.
+- Claude-API-Aufrufe: nur aus echten Suchen (Spalte `claude_calls` in `daily_usage`).
+  Evaluationsläufe (`scripts/evaluate.py`, `scripts/tune_scoring.py`, Prüfung im monatlichen
+  Abgleich) zählen in `claude_calls_eval`. Das Tageslimit `CLAUDE_DAILY_LIMIT` gilt für die Summe.
+
+**Einmalige Korrektur beim Ausrollen:** Die 391 Aufrufe vom 11.11.2026 stammen aus einem
+Evaluationslauf. Sie stehen noch in `claude_calls` und gehören nach `claude_calls_eval`.
+Die SQL-Anweisungen:
+
+```sql
+-- nur falls die Spalte noch fehlt
+ALTER TABLE daily_usage ADD COLUMN claude_calls_eval INTEGER NOT NULL DEFAULT 0;
+-- verschieben; durch die Bedingung claude_calls = 391 ändert ein zweiter Lauf nichts
+UPDATE daily_usage
+   SET claude_calls_eval = claude_calls_eval + claude_calls, claude_calls = 0
+ WHERE day = '2026-11-11' AND claude_calls = 391;
+```
+
+Ausführen im Container (auf dem VPS ist kein `sqlite3`-Programm nötig), nach dem Neubau des
+Images:
+
+```bash
+cd /srv/rvkompass/app
+docker compose exec -T --user rvkompass rvkompass python - <<'PY'
+import sqlite3
+conn = sqlite3.connect("/app/data/rvk.sqlite3")
+columns = {row[1] for row in conn.execute("PRAGMA table_info(daily_usage)")}
+if "claude_calls_eval" not in columns:
+    conn.execute("ALTER TABLE daily_usage ADD COLUMN claude_calls_eval INTEGER NOT NULL DEFAULT 0")
+conn.execute(
+    "UPDATE daily_usage SET claude_calls_eval = claude_calls_eval + claude_calls, claude_calls = 0 "
+    "WHERE day = '2026-11-11' AND claude_calls = 391"
+)
+conn.commit()
+print(conn.execute("SELECT day, claude_calls, claude_calls_eval FROM daily_usage WHERE day = '2026-11-11'").fetchone())
+conn.close()
+PY
+```
+
+Erwartete Ausgabe: `('2026-11-11', 0, 391)`.
 
 ## 8. Routine „Update und Backup“
 
@@ -417,6 +456,7 @@ Nur Namen; Werte gehören nie ins Repo. Fehlt ein Eintrag, gilt der Standard.
 | `SYNC_SAMPLE_NOTATIONS` | leer | zusätzliche Stichprobe, kommagetrennt, z. B. `ZL 4620,ST 230` |
 | `SYNC_WORK_DIR`, `SYNC_BACKUP_DIR`, `SYNC_LOCK_PATH`, `SYNC_LOG_PATH`, `SYNC_RAW_DIR`, `SYNC_GOLD_PATH` | unter `data/`, `logs/`, `eval/` | Pfade des Abgleichs |
 | `SMTP_HOST`, `SMTP_PORT` (`587`), `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_STARTTLS` (`true`), `SMTP_TIMEOUT_SECONDS` (`30`) | | Mailversand |
+| `SMTP_SECURITY` | leer | `ssl` (direkt verschlüsselt) oder `starttls`, wie beim Steuerprogramm; leer: Port 465 → `ssl`, sonst `starttls` |
 | `MAIL_FROM`, `MAIL_TO` | leer | Absender und Empfänger der Info-Mail |
 | `MAIL_FALLBACK_DIR` | `logs/` | Ablage der Mail, wenn Versand nicht möglich |
 | `USAGE_STATS_URL` | `https://rvkompass.ghochhauser.at/status/statistik` | Link „Alle Daten“ in der Monatsmail |

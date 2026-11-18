@@ -202,10 +202,12 @@ def suggest_terms(
     client_factory=None,
     use_output_config: bool | None = None,
     stats: dict | None = None,
+    call_origin: str = "search",
 ) -> list[dict]:
     """Rohvorschläge des Sprachmodells zu `query` als Liste von Dicts mit den Schlüsseln
     „begriff“, „beziehung“, „begruendung“. Leer bei Fehler, ohne Schlüssel oder über dem
     Tageslimit. `stats` (optional) zählt cache_hits, api_calls, api_errors, limit_reached.
+    `call_origin` ("search" oder "eval") bestimmt die Zählspalte in daily_usage.
     """
     normalized = normalize_query(query or "")
     if not normalized:
@@ -227,7 +229,7 @@ def suggest_terms(
     if not api_key:
         return []
 
-    call_count = rvk_repository.get_and_increment_daily_claude_calls(conn)
+    call_count = rvk_repository.get_and_increment_daily_claude_calls(conn, call_origin)
     if call_count > daily_limit:
         _count(stats, "limit_reached")
         logger.warning(

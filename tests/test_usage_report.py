@@ -59,7 +59,9 @@ def test_month_values():
     assert values["avg_per_day"] == pytest.approx(60 / 31)
     assert (values["peak_day"], values["peak_count"]) == ("2026-10-05", 30)
     assert values["zero_hit_share"] == pytest.approx(5 / 60)
-    assert values["cache_quote_gnd"] == pytest.approx(4 / 8)
+    # Rückgriffe auf lobid: Summe der lobid-Abfragen
+    assert values["lobid_fallbacks"] == 8
+    assert "cache_quote_gnd" not in values
     assert values["cache_quote_llm"] == pytest.approx(2 / 4)
     assert values["claude_calls"] == 1
 
@@ -73,7 +75,7 @@ def test_empty_month_after_start_is_zero_not_dash():
     # ohne Suchen kein stärkster Tag und kein Anteil (keine Division durch 0)
     assert values["peak_day"] is None and values["peak_count"] is None
     assert values["zero_hit_share"] is None
-    assert values["cache_quote_gnd"] is None and values["cache_quote_llm"] is None
+    assert values["lobid_fallbacks"] == 0 and values["cache_quote_llm"] is None
     assert usage_report.fmt_share(values["zero_hit_share"]) == "–"
 
 
@@ -107,13 +109,35 @@ def test_llm_quote_falls_back_to_claude_calls_for_old_days():
     assert values["cache_quote_llm"] == pytest.approx(3 / 4)
 
 
-def test_gnd_quote_ignores_days_without_lookup_count():
+def test_statistics_start_with_first_day_with_searches():
+    # 11.11.: nur Claude-Aufrufe (z. B. Altbestand aus einer Evaluation), keine Suche
     days = {
-        "2026-10-01": _day(5, gnd_hits=9),  # alter Tag: Treffer ohne Nenner
-        "2026-10-02": _day(5, gnd_hits=1, gnd_n=2),
+        "2026-11-11": _day(claude=391),
+        "2026-11-12": _day(28),
+        "2026-11-18": _day(2),
     }
-    values = usage_report.monatswerte("2026-10", days, TODAY)
-    assert values["cache_quote_gnd"] == pytest.approx(0.5)
+    assert usage_report.first_day(days) == "2026-11-12"
+    values = usage_report.monatswerte("2026-11", days, TODAY)
+    assert values["days_counted"] == 7
+    assert values["avg_per_day"] == pytest.approx(30 / 7)
+    assert values["claude_calls"] == 0
+    assert usage_report.alle_tage(days, today=TODAY)[0]["day"] == "2026-11-12"
+    # Tage nur mit Claude-Aufrufen machen keinen Monat „mit Daten“
+    assert (
+        usage_report.monatswerte("2026-10", {"2026-10-05": _day(claude=3)}, TODAY)[
+            "has_data"
+        ]
+        is False
+    )
+
+
+def test_compare_lobid_fallbacks():
+    days = {"2026-09-10": _day(4, gnd_n=4), "2026-10-10": _day(4, gnd_n=6)}
+    current = usage_report.monatswerte("2026-10", days, TODAY)
+    previous = usage_report.monatswerte("2026-09", days, TODAY)
+    delta = usage_report.vergleich(current, previous)
+    assert delta["lobid_fallbacks"]["abs"] == 2
+    assert delta["lobid_fallbacks"]["rel"] == pytest.approx(0.5)
 
 
 # --- vergleich --------------------------------------------------------------------------------
@@ -147,7 +171,8 @@ def test_previous_month_without_data_gives_dash():
 
 
 def test_previous_month_with_zero_has_no_relative_change():
-    days = {"2026-09-01": _day(0), "2026-10-10": _day(7)}
+    # Start im August, September ohne Suchen (0, nicht „–“)
+    days = {"2026-08-31": _day(1), "2026-10-10": _day(7)}
     current = usage_report.monatswerte("2026-10", days, TODAY)
     previous = usage_report.monatswerte("2026-09", days, TODAY)
     delta = usage_report.vergleich(current, previous)
@@ -236,7 +261,7 @@ def test_csv_format():
         "2026-10-30",
         "4",
         "0.2500",
-        "0.5000",
+        "2",
         "",
         "0",
     ]
@@ -272,8 +297,9 @@ def test_load_days_reads_old_schema_without_changing_files(tmp_path):
     rvk = tmp_path / "rvk.sqlite3"
     conn = sqlite3.connect(rvk)
     conn.executescript(SCHEMA_SQL)
-    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-12', 5)")
-    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-13', 1)")
+    # claude_calls_eval (Evaluationsläufe) zählt in der Statistik nicht mit
+    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-12', 5, 100)")
+    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-13', 1, 0)")
     conn.commit()
     conn.close()
     before = (_digest(usage), _digest(rvk))
@@ -304,8 +330,14 @@ def _mail(days, month="2026-10"):
 
 
 def test_mail_html_inline_only_with_colors_and_link():
-    days = {"2026-09-03": _day(10), "2026-10-05": _day(30, 3), "2026-10-06": _day(5)}
+    days = {
+        "2026-09-03": _day(10, gnd_n=2),
+        "2026-10-05": _day(30, 3, gnd_n=5),
+        "2026-10-06": _day(5),
+    }
     html, text = _mail(days)
+    assert "Rückgriffe auf lobid" in html and "Cache-Quote GND" not in html
+    assert "+3 (+150,0 %)" in html  # lobid: 5 gegenüber 2
     assert "<img" not in html and "<style" not in html and "class=" not in html
     assert "<link" not in html and "<script" not in html
     assert "#1C3A6B" in html and "#C9A24B" in html

@@ -235,6 +235,22 @@ def test_broken_answer_gives_empty_list_and_is_not_cached(conn):
     assert stats["api_errors"] == 1
 
 
+def test_call_origin_selects_counter_column(conn):
+    _suggest(conn, FakeClient(), call_origin="eval")
+    row = conn.execute(
+        "SELECT claude_calls, claude_calls_eval FROM daily_usage"
+    ).fetchone()
+    assert tuple(row) == (0, 1)
+
+
+def test_daily_limit_applies_to_search_and_eval_together(conn):
+    rvk_repository.get_and_increment_daily_claude_calls(conn, "eval")
+    stats = {}
+    # eine Evaluation hat das Limit von 1 schon verbraucht: die Suche bekommt keinen Aufruf
+    assert _suggest(conn, FakeClient(), daily_limit=1, stats=stats) == []
+    assert stats == {"limit_reached": 1}
+
+
 def test_daily_limit_reached_gives_empty_list(conn):
     client = FakeClient()
     stats = {}

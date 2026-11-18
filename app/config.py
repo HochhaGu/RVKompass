@@ -46,6 +46,9 @@ class Config:
         os.environ.get("ENABLE_QUERY_EXPANSION", "false").lower() == "true"
     )
     CLAUDE_DAILY_LIMIT = int(os.environ.get("CLAUDE_DAILY_LIMIT", "500"))
+    # Zählspalte der Claude-Aufrufe in daily_usage: "search" (Betrieb) oder "eval". Wird nur von
+    # den Evaluationsskripten überschrieben (scripts/evaluate.py, scripts/tune_scoring.py).
+    CLAUDE_CALL_ORIGIN = "search"
 
     # LLM-Erweiterung (P4): Das Sprachmodell schlägt nur vor; gesucht wird ein Begriff nur, wenn er
     # im RVK-Register oder in der GND steht.
@@ -188,6 +191,9 @@ class Config:
     SMTP_USER = os.environ.get("SMTP_USER", "")
     SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
     SMTP_STARTTLS = os.environ.get("SMTP_STARTTLS", "true").lower() == "true"
+    # Verbindungsart wie beim Steuerprogramm: "ssl" (direkt verschlüsselt) oder "starttls".
+    # Leer: Port 465 → ssl, sonst starttls (bzw. unverschlüsselt bei SMTP_STARTTLS=false).
+    SMTP_SECURITY = os.environ.get("SMTP_SECURITY", "")
     SMTP_TIMEOUT_SECONDS = int(os.environ.get("SMTP_TIMEOUT_SECONDS", "30"))
     MAIL_FROM = os.environ.get("MAIL_FROM", "")
     MAIL_TO = os.environ.get("MAIL_TO", "")

@@ -53,10 +53,10 @@
       <td {{ tdr|safe }}>{{ fmt_share(current.zero_hit_share) }}</td>
       <td {{ tdr|safe }}>{{ fmt_share(previous.zero_hit_share) }}</td>
       <td {{ tdr|safe }}>{{ fmt_pp(delta.zero_hit_share.pp) }}</td></tr>
-  <tr><td {{ td|safe }}>Cache-Quote GND</td>
-      <td {{ tdr|safe }}>{{ fmt_share(current.cache_quote_gnd) }}</td>
-      <td {{ tdr|safe }}>{{ fmt_share(previous.cache_quote_gnd) }}</td>
-      <td {{ tdr|safe }}>{{ fmt_pp(delta.cache_quote_gnd.pp) }}</td></tr>
+  <tr><td {{ td|safe }}>Rückgriffe auf lobid</td>
+      <td {{ tdr|safe }}>{{ fmt_int(current.lobid_fallbacks) }}</td>
+      <td {{ tdr|safe }}>{{ fmt_int(previous.lobid_fallbacks) }}</td>
+      <td {{ tdr|safe }}>{{ fmt_signed_int(delta.lobid_fallbacks.abs) }} ({{ fmt_rel(delta.lobid_fallbacks.rel) }})</td></tr>
   <tr><td {{ td|safe }}>Cache-Quote Sprachmodell</td>
       <td {{ tdr|safe }}>{{ fmt_share(current.cache_quote_llm) }}</td>
       <td {{ tdr|safe }}>{{ fmt_share(previous.cache_quote_llm) }}</td>
@@ -68,7 +68,9 @@
 </table>
 <p style="font-size:12px; color:#5A6172; margin:6px 0 0 0;">Δ: absolute und relative Veränderung,
 bei Anteilen in Prozentpunkten (Pp.). „–“: keine Daten oder kein Vergleichswert.
-Cache-Quote: Anteil der Abfragen, die aus dem Zwischenspeicher beantwortet wurden.</p>
+Rückgriffe auf lobid: Abfragen an lobid-gnd, wenn der lokale GND-Abzug nicht verfügbar war.
+Cache-Quote: Anteil der Sprachmodell-Abfragen aus dem Zwischenspeicher. Claude-API-Aufrufe:
+nur aus echten Suchen, ohne Evaluationsläufe.</p>
 
 {% if daily %}
 <h3 style="font-size:15px; color:#1C3A6B; margin:20px 0 6px 0;">Tagesverlauf {{ current.label }}</h3>

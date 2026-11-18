@@ -346,16 +346,42 @@ def set_expansion_cache(
     conn.commit()
 
 
-def get_and_increment_daily_claude_calls(conn: sqlite3.Connection) -> int:
-    """Erhöht den heutigen Claude-API-Call-Zähler und gibt den neuen Stand zurück."""
+# Zähler in daily_usage je Herkunft des Aufrufs
+CLAUDE_CALL_COLUMNS = {"search": "claude_calls", "eval": "claude_calls_eval"}
+
+
+def ensure_daily_usage_columns(conn: sqlite3.Connection) -> None:
+    """Ergänzt claude_calls_eval in älteren Beständen (idempotent, Werte bleiben)."""
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(daily_usage)")}
+    if columns and "claude_calls_eval" not in columns:
+        conn.execute(
+            "ALTER TABLE daily_usage ADD COLUMN claude_calls_eval "
+            "INTEGER NOT NULL DEFAULT 0"
+        )
+        conn.commit()
+
+
+def get_and_increment_daily_claude_calls(
+    conn: sqlite3.Connection, origin: str = "search"
+) -> int:
+    """Erhöht den heutigen Claude-API-Zähler und liefert die Summe des Tages.
+
+    `origin` "search" (echte Suche) oder "eval" (Evaluationslauf) wählt die Spalte; das
+    Tageslimit gilt für die Summe beider Spalten.
+    """
+    column = CLAUDE_CALL_COLUMNS.get(origin)
+    if column is None:
+        raise ValueError(f"Unbekannte Herkunft des Claude-Aufrufs: {origin!r}")
+    ensure_daily_usage_columns(conn)
     today = datetime.now(UTC).date().isoformat()
     conn.execute(
-        "INSERT INTO daily_usage (day, claude_calls) VALUES (?, 1) "
-        "ON CONFLICT(day) DO UPDATE SET claude_calls = claude_calls + 1",
+        f"INSERT INTO daily_usage (day, {column}) VALUES (?, 1) "
+        f"ON CONFLICT(day) DO UPDATE SET {column} = {column} + 1",
         (today,),
     )
     conn.commit()
     row = conn.execute(
-        "SELECT claude_calls FROM daily_usage WHERE day = ?", (today,)
+        "SELECT claude_calls + claude_calls_eval FROM daily_usage WHERE day = ?",
+        (today,),
     ).fetchone()
-    return row["claude_calls"]
+    return row[0]

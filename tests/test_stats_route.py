@@ -24,7 +24,7 @@ def client(tmp_path):
     rvk = tmp_path / "rvk.sqlite3"
     conn = sqlite3.connect(rvk)
     conn.executescript(SCHEMA_SQL)
-    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-02', 4)")
+    conn.execute("INSERT INTO daily_usage VALUES ('2026-11-02', 4, 50)")
     conn.commit()
     conn.close()
 
@@ -90,17 +90,17 @@ def test_csv_month_level_is_default(client):
     assert lines[0] == ";".join(usage_report.MONTH_CSV_FIELDS)
     assert lines[1].startswith("2026-10;2;")
     assert lines[2].split(";")[0] == "2026-11"
-    # November: GND-Quote 1/2, Claude-Aufrufe aus rvk.sqlite3
+    # November: 2 Rückgriffe auf lobid; Claude-Aufrufe nur aus Suchen (ohne die 50 aus Evaluation)
     november = lines[2].split(";")
-    assert november[6] == "0.5000" and november[8] == "4"
+    assert november[6] == "2" and november[8] == "4"
 
 
 def test_csv_day_level(client):
     response, lines = _csv(client, "?ebene=tag")
     assert "rvkompass-statistik-tag.csv" in response.headers["Content-Disposition"]
     assert lines[0] == ";".join(usage_report.DAY_CSV_FIELDS)
-    assert lines[1] == "2026-10-30;2;1;0;0;0;0;0"
-    assert "2026-11-02;1;0;2;1;0;0;4" in lines
+    assert lines[1] == "2026-10-30;2;1;0;0;0;0"
+    assert "2026-11-02;1;0;2;0;0;4" in lines
     assert lines[-1] == ""
     # keine Suchbegriffe, keine IP-Adressen: nur Datum und Zahlen
     for line in lines[1:-1]:

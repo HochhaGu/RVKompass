@@ -4,7 +4,9 @@
   <h2>Nutzungsstatistik</h2>
   <p class="stats-intro">Alle Monate seit Start, neuester zuerst. Anonyme Tageszähler (UTC-Tage):
     keine Suchbegriffe, keine IP-Adressen. „–“ heißt: keine Daten oder kein Nenner.
-    Cache-Quote ist der Anteil der Abfragen, die aus dem Zwischenspeicher beantwortet wurden.</p>
+    Rückgriffe auf lobid: Abfragen an lobid-gnd, wenn der lokale GND-Abzug nicht verfügbar war.
+    Cache-Quote: Anteil der Sprachmodell-Abfragen aus dem Zwischenspeicher. Claude-API-Aufrufe:
+    nur aus echten Suchen, ohne Evaluationsläufe.</p>
   <p class="stats-downloads">CSV herunterladen:
     <a href="{{ url_for('stats.statistik_csv', ebene='monat') }}">Monatswerte</a> ·
     <a href="{{ url_for('stats.statistik_csv', ebene='tag') }}">Tageswerte</a></p>
@@ -22,7 +24,7 @@
         <th scope="col" class="num">Ø pro Tag</th>
         <th scope="col">Stärkster Tag</th>
         <th scope="col" class="num">Ohne Treffer</th>
-        <th scope="col" class="num">Cache-Quote GND</th>
+        <th scope="col" class="num">Rückgriffe auf lobid</th>
         <th scope="col" class="num">Cache-Quote Sprachmodell</th>
         <th scope="col" class="num">Claude-API-Aufrufe</th>
       </tr>
@@ -35,7 +37,7 @@
         <td class="num">{{ fmt_decimal(m.avg_per_day) }}</td>
         <td>{% if m.peak_day %}{{ fmt_day(m.peak_day) }} ({{ fmt_int(m.peak_count) }}){% else %}–{% endif %}</td>
         <td class="num">{{ fmt_share(m.zero_hit_share) }}</td>
-        <td class="num">{{ fmt_share(m.cache_quote_gnd) }}</td>
+        <td class="num">{{ fmt_int(m.lobid_fallbacks) }}</td>
         <td class="num">{{ fmt_share(m.cache_quote_llm) }}</td>
         <td class="num">{{ fmt_int(m.claude_calls) }}</td>
       </tr>
@@ -49,8 +51,7 @@
                   <th scope="col">Tag</th>
                   <th scope="col" class="num">Suchen</th>
                   <th scope="col" class="num">Ohne Treffer</th>
-                  <th scope="col" class="num">GND-Abfragen</th>
-                  <th scope="col" class="num">GND aus Cache</th>
+                  <th scope="col" class="num">Rückgriffe auf lobid</th>
                   <th scope="col" class="num">Sprachmodell-Abfragen</th>
                   <th scope="col" class="num">Sprachmodell aus Cache</th>
                   <th scope="col" class="num">Claude-API-Aufrufe</th>
@@ -63,7 +64,6 @@
                   <td class="num">{{ fmt_int(d.requests) }}</td>
                   <td class="num">{{ fmt_int(d.zero_hit_requests) }}</td>
                   <td class="num">{{ fmt_int(d.gnd_lookups) }}</td>
-                  <td class="num">{{ fmt_int(d.gnd_cache_hits) }}</td>
                   <td class="num">{{ fmt_int(d.llm_lookups) }}</td>
                   <td class="num">{{ fmt_int(d.llm_cache_hits) }}</td>
                   <td class="num">{{ fmt_int(d.claude_calls) }}</td>

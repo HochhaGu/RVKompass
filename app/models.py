@@ -56,9 +56,13 @@ CREATE TABLE IF NOT EXISTS gnd_cache (
     created_at TEXT NOT NULL
 );
 
+-- Claude-API-Aufrufe je Tag: claude_calls aus echten Suchen, claude_calls_eval aus Evaluationsläufen
+-- (scripts/evaluate.py, scripts/tune_scoring.py, Prüfung im monatlichen Abgleich). Das Tageslimit
+-- CLAUDE_DAILY_LIMIT gilt für die Summe. Ältere Bestände ergänzt ensure_daily_usage_columns().
 CREATE TABLE IF NOT EXISTS daily_usage (
     day TEXT PRIMARY KEY,
-    claude_calls INTEGER NOT NULL DEFAULT 0
+    claude_calls INTEGER NOT NULL DEFAULT 0,
+    claude_calls_eval INTEGER NOT NULL DEFAULT 0
 );
 
 -- P6/P8: RVK-Stand, in dem eine Notation neu kam, geändert oder gelöscht wurde (Etikett

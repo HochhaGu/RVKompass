@@ -110,18 +110,47 @@ def smtp_configured(config) -> bool:
     )
 
 
+def security_mode(config) -> str:
+    """Verbindungsart: "ssl" (direkt verschlüsselt), "starttls" oder "none".
+
+    Gleiche Variable wie beim Steuerprogramm (orchestrator/notify.py): SMTP_SECURITY=ssl|starttls.
+    Ohne Angabe: Port 465 → ssl, sonst starttls; SMTP_STARTTLS=false heißt dann unverschlüsselt.
+    """
+    port = int(_setting(config, "SMTP_PORT", 587))
+    value = str(_setting(config, "SMTP_SECURITY", "") or "").strip().lower()
+    if value in ("ssl", "smtps", "implicit", "ssl/tls"):
+        return "ssl"
+    if value in ("starttls", "start_tls"):
+        return "starttls"
+    if value:
+        logger.warning("Unbekannter Wert für SMTP_SECURITY – Voreinstellung nach Port")
+    if port == 465:
+        return "ssl"
+    return "starttls" if _setting(config, "SMTP_STARTTLS", True) else "none"
+
+
 def send_mail(
-    config, subject: str, html: str, text: str, smtp_factory: Callable = smtplib.SMTP
+    config, subject: str, html: str, text: str, smtp_factory: Callable | None = None
 ) -> None:
-    """Sendet multipart/alternative (Text + HTML im Mailtext). Fehler gehen an den Aufrufer."""
+    """Sendet multipart/alternative (Text + HTML im Mailtext). Fehler gehen an den Aufrufer.
+
+    `smtp_factory` (für Tests) ersetzt smtplib.SMTP bzw. smtplib.SMTP_SSL.
+    """
     message = build_message(config, subject, html, text)
-    with smtp_factory(
-        _setting(config, "SMTP_HOST"),
-        int(_setting(config, "SMTP_PORT", 587)),
-        timeout=int(_setting(config, "SMTP_TIMEOUT_SECONDS", 30)),
-    ) as smtp:
-        if _setting(config, "SMTP_STARTTLS", True):
-            smtp.starttls(context=ssl.create_default_context())
+    mode = security_mode(config)
+    context = ssl.create_default_context()
+    host = _setting(config, "SMTP_HOST")
+    port = int(_setting(config, "SMTP_PORT", 587))
+    timeout = int(_setting(config, "SMTP_TIMEOUT_SECONDS", 30))
+    if mode == "ssl":
+        smtp = (smtp_factory or smtplib.SMTP_SSL)(
+            host, port, timeout=timeout, context=context
+        )
+    else:
+        smtp = (smtp_factory or smtplib.SMTP)(host, port, timeout=timeout)
+    with smtp:
+        if mode == "starttls":
+            smtp.starttls(context=context)
         user = _setting(config, "SMTP_USER")
         if user:
             smtp.login(user, _setting(config, "SMTP_PASSWORD", ""))
@@ -144,7 +173,7 @@ def deliver(
     subject: str,
     html: str,
     text: str,
-    smtp_factory: Callable = smtplib.SMTP,
+    smtp_factory: Callable | None = None,
     fallback_prefix: str = "sync-mail",
 ) -> str:
     """Sendet oder schreibt ersatzweise eine Datei. Liefert "sent" oder "file:<pfad>"."""
@@ -163,9 +192,7 @@ def deliver(
     return f"file:{path}"
 
 
-def notify_gnd_error(
-    config, message: str, smtp_factory: Callable = smtplib.SMTP
-) -> str:
+def notify_gnd_error(config, message: str, smtp_factory: Callable | None = None) -> str:
     """Mail bei Fehlern der GND-Aktualisierung (ein normaler Wechsel steht nur im Log)."""
     result = {
         "status": "error",
