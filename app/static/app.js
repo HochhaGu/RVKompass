@@ -178,8 +178,37 @@ function restoreFocus() {
   (target || document.getElementById("q"))?.focus();
 }
 
+// --- Facette: von Hand geöffnete Fachgebiete über die Neusuche hinweg offen halten ----------
+// Die Facette kommt bei jeder Suche neu (hx-swap-oob); ohne dieses Merken klappte jede Suche
+// die Gruppen wieder zu. Gruppen mit gewählter Hauptgruppe öffnet schon der Server.
+
+let openFacetGroups = null;
+
+document.addEventListener("htmx:beforeRequest", function () {
+  const groups = document.querySelectorAll("#facet-list details.facet-group");
+  if (groups.length) {
+    openFacetGroups = new Set(
+      Array.from(groups)
+        .filter((group) => group.open)
+        .map((group) => group.dataset.letter)
+    );
+  }
+});
+
+function reopenFacetGroups() {
+  if (!openFacetGroups) {
+    return;
+  }
+  for (const group of document.querySelectorAll("#facet-list details.facet-group")) {
+    if (openFacetGroups.has(group.dataset.letter)) {
+      group.open = true;
+    }
+  }
+}
+
 document.addEventListener("htmx:afterSettle", function (event) {
   initTabs(document);
+  reopenFacetGroups();
   if (event.detail && event.detail.target && event.detail.target.id === "results") {
     restoreFocus();
   }

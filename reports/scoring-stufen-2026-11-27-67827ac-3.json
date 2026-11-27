@@ -1,0 +1,354 @@
+{
+  "timestamp": "2026-11-27T08:27:49+00:00",
+  "git_commit": "67827ac",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 97,
+  "gnd_enabled": true,
+  "llm_enabled": false,
+  "max_results": 20,
+  "split": {
+    "dev_count": 50,
+    "test_count": 47,
+    "dev": [
+      "Getriebe",
+      "Gleitlagerschmierung",
+      "Wie Kräfte in Maschinen übertragen werden",
+      "Feder",
+      "CAD",
+      "Transformator",
+      "Spannung",
+      "Photovoltaik",
+      "Wärmepumpenregelung",
+      "Energie speichern für später",
+      "Power-to-X",
+      "Stahl",
+      "Korrosionsschutz von Aluminium",
+      "Kunststoff, der sich selbst repariert",
+      "Datenbank",
+      "Datensicherheit in Unternehmensnetzwerken",
+      "Stahlbeton",
+      "Häuser, die kaum Energie verbrauchen",
+      "BIM",
+      "Regelungstechnik",
+      "PID-Regler Auslegung",
+      "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "Projektmanagement",
+      "Lean Production in der Automobilindustrie",
+      "Bank",
+      "Supply Chain",
+      "Hydraulik",
+      "Zahnrad",
+      "Additive Fertigung von Metallbauteilen",
+      "Kühlung von Verbrennungsmotoren",
+      "Wie ein Motor im Auto funktioniert",
+      "Warum Maschinen vibrieren",
+      "Elektromotor",
+      "Akkumulator",
+      "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "Lithium-Ionen-Batterien als Heimspeicher",
+      "Wirkungsgrad von Gasturbinenkraftwerken",
+      "Keramik",
+      "Legierung",
+      "Leichte Materialien für Flugzeuge",
+      "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "Baustatik",
+      "Tunnelbau",
+      "Warum Häuser nicht einstürzen",
+      "Decke",
+      "Robotik",
+      "Temperaturmessung in Industrieöfen",
+      "Roboter, die mit Menschen zusammenarbeiten",
+      "Logistik",
+      "Mitarbeitende gut führen"
+    ],
+    "test": [
+      "Wälzlager",
+      "Mutter",
+      "Halbleiter",
+      "Leistungselektronik für Elektroautos",
+      "Smart Grid",
+      "Wärmepumpe",
+      "Rotorblätter von Windkraftanlagen",
+      "Strom aus Sonnenlicht",
+      "Faserverbundwerkstoffe",
+      "Warum Metall rostet",
+      "Ermüdung",
+      "Algorithmus",
+      "Neuronale Netze zur Bilderkennung",
+      "Computer lernt aus Beispielen",
+      "Machine Learning",
+      "Brückenbau",
+      "Mehrgeschossiger Holzbau",
+      "Wie man Gebäude erdbebensicher macht",
+      "Sensor",
+      "Messunsicherheit bestimmen",
+      "Industrie 4.0",
+      "Qualitätsmanagement",
+      "Wie Firmen ihre Abläufe verbessern",
+      "Schweißtechnik",
+      "Strömungsmaschinen",
+      "Verschleiß an Zahnradgetrieben",
+      "Schwingungsdämpfung in Werkzeugmaschinen",
+      "Teile mit dem 3D-Drucker herstellen",
+      "Metallteile dauerhaft verbinden",
+      "Schaltungstechnik",
+      "Hochspannungstechnik",
+      "Wechselrichter für Photovoltaikanlagen",
+      "Steuerung von Drehstrommotoren",
+      "Fernwärmenetze in Städten",
+      "Polymere",
+      "Zugversuch an Stahlproben",
+      "Warum Glas bricht",
+      "Smart Materials",
+      "Programmiersprache",
+      "Virus",
+      "Baustoffe",
+      "Brandschutz im Hochbau",
+      "Feuchte Wände im Keller",
+      "Automatisierungstechnik",
+      "Wie eine Fabrik von selbst läuft",
+      "Kostenrechnung",
+      "Innovationsmanagement in Technologieunternehmen"
+    ]
+  },
+  "settings": {
+    "formula": "max_plus",
+    "weights": {
+      "register_exact": 1.0,
+      "gnd_synonym": 0.9,
+      "gnd_narrower": 0.75,
+      "gnd_broader": 0.55,
+      "gnd_related": 0.6,
+      "llm_verified": 0.5,
+      "label_fts": 0.4,
+      "register_similar": 0.4,
+      "vector": 0.2
+    },
+    "path_bonus": 0.1,
+    "path_bonus_cap": 0.15,
+    "sum_cap": 1.2,
+    "tier_high": 0.6551,
+    "tier_medium": 0.5754,
+    "tier_very_high": null,
+    "tier_weak": null
+  },
+  "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.75, gnd_broader 0.55, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.2; Mehrfach-Fund 0.1 je weiterem Pfad, Deckel 0.15",
+  "tiers": {
+    "formula": "max_plus",
+    "tier_very_high": 0.8291,
+    "tier_high": 0.5848,
+    "tier_medium": 0.5218,
+    "tier_weak": 0.4304,
+    "method": "quantile",
+    "share_rule": {
+      "tier_very_high": null,
+      "tier_high": null,
+      "tier_medium": 0.5847,
+      "tier_weak": 0.2671
+    },
+    "shares": {
+      "tier_very_high": 0.8,
+      "tier_high": 0.65,
+      "tier_medium": 0.5,
+      "tier_weak": 0.3
+    },
+    "min_support": 10,
+    "top_k": 10,
+    "shares_by_part": {
+      "dev": {
+        "levels": {
+          "gering": {
+            "n": 100,
+            "main_group": 21,
+            "exact": 1,
+            "share_main_group": 0.21,
+            "share_exact": 0.01,
+            "ci_main_group": [
+              0.1417,
+              0.2998
+            ],
+            "ci_exact": [
+              0.0018,
+              0.0545
+            ]
+          },
+          "schwach": {
+            "n": 99,
+            "main_group": 46,
+            "exact": 4,
+            "share_main_group": 0.4646,
+            "share_exact": 0.0404,
+            "ci_main_group": [
+              0.3696,
+              0.5624
+            ],
+            "ci_exact": [
+              0.0158,
+              0.0993
+            ]
+          },
+          "mittel": {
+            "n": 100,
+            "main_group": 28,
+            "exact": 3,
+            "share_main_group": 0.28,
+            "share_exact": 0.03,
+            "ci_main_group": [
+              0.2014,
+              0.3749
+            ],
+            "ci_exact": [
+              0.0103,
+              0.0845
+            ]
+          },
+          "hoch": {
+            "n": 98,
+            "main_group": 39,
+            "exact": 4,
+            "share_main_group": 0.398,
+            "share_exact": 0.0408,
+            "ci_main_group": [
+              0.3067,
+              0.497
+            ],
+            "ci_exact": [
+              0.016,
+              0.1003
+            ]
+          },
+          "sehr hoch": {
+            "n": 101,
+            "main_group": 60,
+            "exact": 20,
+            "share_main_group": 0.5941,
+            "share_exact": 0.198,
+            "ci_main_group": [
+              0.4965,
+              0.6847
+            ],
+            "ci_exact": [
+              0.132,
+              0.2862
+            ]
+          }
+        },
+        "ordered": false,
+        "separated": {
+          "gering|schwach": true,
+          "schwach|mittel": false,
+          "mittel|hoch": false,
+          "hoch|sehr hoch": false
+        }
+      },
+      "test": {
+        "levels": {
+          "gering": {
+            "n": 103,
+            "main_group": 25,
+            "exact": 2,
+            "share_main_group": 0.2427,
+            "share_exact": 0.0194,
+            "ci_main_group": [
+              0.1701,
+              0.3338
+            ],
+            "ci_exact": [
+              0.0053,
+              0.0681
+            ]
+          },
+          "schwach": {
+            "n": 106,
+            "main_group": 34,
+            "exact": 1,
+            "share_main_group": 0.3208,
+            "share_exact": 0.0094,
+            "ci_main_group": [
+              0.2395,
+              0.4145
+            ],
+            "ci_exact": [
+              0.0017,
+              0.0515
+            ]
+          },
+          "mittel": {
+            "n": 92,
+            "main_group": 43,
+            "exact": 4,
+            "share_main_group": 0.4674,
+            "share_exact": 0.0435,
+            "ci_main_group": [
+              0.3688,
+              0.5686
+            ],
+            "ci_exact": [
+              0.017,
+              0.1065
+            ]
+          },
+          "hoch": {
+            "n": 78,
+            "main_group": 42,
+            "exact": 6,
+            "share_main_group": 0.5385,
+            "share_exact": 0.0769,
+            "ci_main_group": [
+              0.4286,
+              0.6447
+            ],
+            "ci_exact": [
+              0.0357,
+              0.1578
+            ]
+          },
+          "sehr hoch": {
+            "n": 91,
+            "main_group": 40,
+            "exact": 14,
+            "share_main_group": 0.4396,
+            "share_exact": 0.1538,
+            "ci_main_group": [
+              0.3421,
+              0.5419
+            ],
+            "ci_exact": [
+              0.0939,
+              0.2418
+            ]
+          }
+        },
+        "ordered": false,
+        "separated": {
+          "gering|schwach": false,
+          "schwach|mittel": false,
+          "mittel|hoch": false,
+          "hoch|sehr hoch": false
+        }
+      }
+    },
+    "settings": {
+      "formula": "max_plus",
+      "weights": {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.75,
+        "gnd_broader": 0.55,
+        "gnd_related": 0.6,
+        "llm_verified": 0.5,
+        "label_fts": 0.4,
+        "register_similar": 0.4,
+        "vector": 0.2
+      },
+      "path_bonus": 0.1,
+      "path_bonus_cap": 0.15,
+      "sum_cap": 1.2,
+      "tier_high": 0.5848,
+      "tier_medium": 0.5218,
+      "tier_very_high": 0.8291,
+      "tier_weak": 0.4304
+    }
+  }
+}

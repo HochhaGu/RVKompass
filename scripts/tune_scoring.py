@@ -11,6 +11,16 @@ das Gate des Steuerprogramms weiter den Evaluationsbericht liest).
 
 Aufruf:
     python scripts/tune_scoring.py --gold eval/goldstandard.csv --out reports/
+
+P11, ohne Grid (wiederholbar für P12 mit größerem Goldstandard):
+    python scripts/tune_scoring.py --gold eval/goldstandard.csv --diagnose
+        Prüfauftrag „Hit@5 = Hit@10“: Ränge, Scores um Platz 5/6/10, Fundwege, Selbstprüfung.
+        Bericht reports/scoring-diagnose-<datum>-<hash>.json/.md
+    python scripts/tune_scoring.py --gold eval/goldstandard.csv --tiers-only
+        Fünf Relevanzstufen für die eingestellte Formel (Profil aus app/config.py) auf der
+        Entwicklungshälfte ableiten, auf der Testhälfte prüfen.
+        Bericht reports/scoring-stufen-<datum>-<hash>.json/.md
+    --formula max_plus|legacy|… wählt die Formel statt SCORING_FORMULA aus der Konfiguration.
 """
 
 from __future__ import annotations
@@ -49,9 +59,21 @@ VARIANT_TITLES = {
 }
 
 
-def report_basename(out_dir: Path, date: str, commit: str) -> str:
-    """scoring-<datum>-<hash>; existiert die Datei schon, wird -2, -3 ... angehängt."""
-    base = f"scoring-{date}-{commit}"
+# Bezugswerte P5 für max_plus ohne Sprachmodell, voller Bestand
+# (reports/scoring-2026-11-11-c877270-2.json, Variante max_plus, „full“)
+P5_MAX_PLUS_REFERENCE = {"hit@10": 0.5979, "mrr": 0.4649}
+P5_MAX_PLUS_FILE = "reports/scoring-2026-11-11-c877270-2.json"
+# Letzter legacy-Bericht vor P11 (P10, reports/eval-2026-11-16-afc2ce4-3.json)
+P10_LEGACY_REFERENCE = {"hit@10": 0.5464, "mrr": 0.3431}
+P10_LEGACY_FILE = "reports/eval-2026-11-16-afc2ce4-3.json"
+SELF_CHECK_TOLERANCE = 0.005
+
+
+def report_basename(
+    out_dir: Path, date: str, commit: str, prefix: str = "scoring"
+) -> str:
+    """<prefix>-<datum>-<hash>; existiert die Datei schon, wird -2, -3 ... angehängt."""
+    base = f"{prefix}-{date}-{commit}"
     name = base
     counter = 2
     while (out_dir / f"{name}.json").exists() or (out_dir / f"{name}.md").exists():
@@ -250,6 +272,13 @@ def render_markdown(report: dict) -> str:
                 f"| {title} | {tier} | {row['n']} | {_fmt(row['share_main_group'])} | "
                 f"{_fmt(row['share_exact'])} |"
             )
+    if report.get("five_tiers"):
+        lines += [
+            "",
+            "## Fünf Relevanzstufen (P11)",
+            "",
+            *five_tier_lines(report["five_tiers"]),
+        ]
     lines += [
         "",
         "## Aufteilung",
@@ -262,13 +291,423 @@ def render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
+# --- P11: Fünf Stufen und Diagnose (ohne Grid) ------------------------------------------------
+
+
+def derive_and_check_five_tiers(parts: dict, settings: scoring.ScoringSettings) -> dict:
+    """Fünf Stufen auf der Entwicklungshälfte ableiten und auf beiden Hälften auswerten.
+
+    Liefert `{"formula", "tier_*", "methods", "shares": {"dev", "test"}, "settings"}` oder
+    `{"formula", "error"}`, wenn sich mit diesen Daten keine fünf Stufen bilden lassen.
+    """
+    rows_dev = tuning.top_hits(parts["dev"], settings)
+    try:
+        tiers = tuning.derive_five_tiers(rows_dev)
+        tier_settings = settings.replace(
+            tier_very_high=tiers["tier_very_high"],
+            tier_high=tiers["tier_high"],
+            tier_medium=tiers["tier_medium"],
+            tier_weak=tiers["tier_weak"],
+        )
+    except ValueError as exc:
+        return {"formula": settings.formula, "error": str(exc)}
+    shares = {
+        part: tuning.five_tier_shares(
+            tuning.top_hits(parts[part], tier_settings), tier_settings
+        )
+        for part in ("dev", "test")
+    }
+    return {
+        "formula": settings.formula,
+        **tiers,
+        "top_k": tuning.TIER_TOP_K,
+        "shares_by_part": shares,
+        "settings": tier_settings.to_dict(),
+    }
+
+
+TIER_NAMES = (
+    ("tier_very_high", "sehr hoch"),
+    ("tier_high", "hoch"),
+    ("tier_medium", "mittel"),
+    ("tier_weak", "schwach"),
+)
+
+
+def five_tier_lines(tiers: dict) -> list[str]:
+    """Markdown-Abschnitt der fünf Stufen (Regel, Werte, Anteile je Hälfte)."""
+    if "error" in tiers:
+        return [
+            f"Formel {tiers['formula']}: keine fünf Stufen ableitbar ({tiers['error']}).",
+            "",
+        ]
+    shares = dict(tiers["shares"])
+    lines = [
+        (
+            f"Formel {tiers['formula']}. Grundlage: die ersten {tiers['top_k']} Treffer je "
+            "Anfrage der Entwicklungshälfte. Regel (gesetzte Annahme, nicht gemessen): "
+            "Eine Stufe beginnt beim kleinsten Score, ab dem mindestens "
+            + " / ".join(f"{round(shares[k] * 100)} %" for k, _ in TIER_NAMES)
+            + " der Treffer passen („sehr hoch / hoch / mittel / schwach“), mit "
+            f"mindestens {tiers['min_support']} Treffern je Stufe. Nur wenn alle vier "
+            "Grenzen so erreichbar sind, gilt die Anteilsregel; sonst gelten für alle "
+            "vier Grenzen die Quintile der Scores (reine Rangordnung, nicht kalibriert)."
+        ),
+        "",
+        f"Verfahren: **{tiers['method']}**",
+        "",
+        "| Stufe | ab Relevanzwert | Anteilsregel hätte ergeben |",
+        "|---|---|---|",
+    ]
+    for key, word in TIER_NAMES:
+        reached = tiers["share_rule"].get(key)
+        lines.append(
+            f"| {word} | {_fmt(tiers[key])} | "
+            f"{_fmt(reached) if reached is not None else 'nicht erreichbar'} |"
+        )
+    lines += [
+        "",
+        (
+            "„passend“ = Hauptgruppe einer erwarteten Notation, „exakt“ = erwartete "
+            "Notation; Intervall = 95-%-Wilson-Intervall des Anteils passend. Nur im "
+            "Bericht, nicht in der Oberfläche."
+        ),
+        "",
+    ]
+    for part, title in (("test", "Testhälfte"), ("dev", "Entwicklungshälfte")):
+        data = tiers["shares_by_part"][part]
+        lines += [
+            f"### {title}",
+            "",
+            "| Stufe | Treffer | passend | Anteil passend | 95-%-Intervall | exakt | Anteil exakt | 95-%-Intervall exakt |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+
+        def ci_text(ci) -> str:
+            return f"{_fmt(ci[0])} – {_fmt(ci[1])}" if ci else "–"
+
+        for word in reversed(tuning.FIVE_TIER_WORDS):
+            row = data["levels"][word]
+            lines.append(
+                f"| {word} | {row['n']} | {row['main_group']} | "
+                f"{_fmt(row['share_main_group'])} | {ci_text(row['ci_main_group'])} | "
+                f"{row['exact']} | {_fmt(row['share_exact'])} | "
+                f"{ci_text(row.get('ci_exact'))} |"
+            )
+        separated = [k.replace("|", " / ") for k, v in data["separated"].items() if v]
+        overlapping = [
+            k.replace("|", " / ") for k, v in data["separated"].items() if not v
+        ]
+        lines += [
+            "",
+            f"- Anteil passend fällt von Stufe zu Stufe: {_fmt(data['ordered'])}",
+            "- Klar getrennt (Intervalle überlappen nicht): "
+            + (", ".join(separated) or "keine"),
+            "- Überlappende Nachbarstufen: " + (", ".join(overlapping) or "keine"),
+            "",
+        ]
+    return lines
+
+
+def render_tiers_markdown(report: dict) -> str:
+    lines = [
+        "# RVKompass – Fünf Relevanzstufen (P11)",
+        "",
+        "## Übersicht",
+        "",
+        f"- Zeitpunkt: {report['timestamp']}",
+        f"- Git-Stand: {report['git_commit']}"
+        + (" (mit ungespeicherten Änderungen)" if report.get("git_dirty") else ""),
+        f"- Goldstandard: {report['gold_file']} ({report['gold_count']} Anfragen)",
+        (
+            f"- Aufteilung: Entwicklung {report['split']['dev_count']}, Test "
+            f"{report['split']['test_count']} (je Anfragetyp abwechselnd, wie in P5)"
+        ),
+        (
+            f"- Suchwege: GND {_fmt(report['gnd_enabled'])}, Sprachmodell "
+            f"{_fmt(report['llm_enabled'])}"
+        ),
+        f"- Gewichte: {report['settings_text']}",
+        "",
+        (
+            "> Relevanzwerte sind ein Maß für die Passung, keine Wahrscheinlichkeiten. "
+            "Die Stufen sind nur auf der Entwicklungshälfte abgeleitet; maßgeblich für ihre "
+            "Belastbarkeit ist die Testhälfte."
+        ),
+        "",
+        "## Stufen",
+        "",
+        *five_tier_lines(report["tiers"]),
+    ]
+    return "\n".join(lines)
+
+
+def _settings_for_formula(config, formula: str | None) -> scoring.ScoringSettings:
+    """Einstellungen der Konfiguration, wahlweise für eine andere Formel (samt Profil)."""
+    if formula:
+        config = config_with_overrides(config, {"SCORING_FORMULA": formula})
+    return scoring.ScoringSettings.from_config(config)
+
+
+def legacy_changes_since(per_query: list[dict], report_file: str) -> list[dict]:
+    """Anfragen, deren Rang sich bei legacy gegenüber einem älteren Bericht geändert hat."""
+    path = ROOT / report_file
+    try:
+        old = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    return [
+        {k: c[k] for k in ("query", "old_rank", "new_rank")}
+        for c in evaluation.compare_per_query(per_query, old)
+        if c["old_rank"] != c["new_rank"]
+    ]
+
+
+DIAGNOSE_EXAMPLES = 12
+
+
+def render_diagnose_markdown(report: dict) -> str:
+    sc = report["self_check"]
+    full = report["diagnose"]["full"]
+    lines = [
+        "# RVKompass – Diagnose der Rangfolge (P11, Prüfauftrag „Hit@5 = Hit@10“)",
+        "",
+        "## Übersicht",
+        "",
+        f"- Zeitpunkt: {report['timestamp']}",
+        f"- Git-Stand: {report['git_commit']}"
+        + (" (mit ungespeicherten Änderungen)" if report.get("git_dirty") else ""),
+        f"- Goldstandard: {report['gold_file']} ({report['gold_count']} Anfragen)",
+        (
+            f"- Suchwege: GND {_fmt(report['gnd_enabled'])}, Sprachmodell "
+            f"{_fmt(report['llm_enabled'])}"
+        ),
+        f"- Formel: {report['settings']['formula']} – {report['settings_text']}",
+        "",
+        "## Hit@5 und Hit@10 auf zwei Wegen",
+        "",
+        (
+            "„Referenz“ = derselbe Weg wie scripts/evaluate.py (score_candidates, danach "
+            f"Abschneiden auf {report['max_results']} Vorschläge). „FastScorer“ = "
+            "Schnellbewertung des Grids (ungekürzte Rangberechnung)."
+        ),
+        "",
+        "| Hälfte | Hit@5 Referenz | Hit@10 Referenz | Hit@5 FastScorer | Hit@10 FastScorer | Ränge 6–10 | Ränge gleich |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for part, title in (
+        ("full", "Voller Bestand"),
+        ("dev", "Entwicklungshälfte"),
+        ("test", "Testhälfte"),
+    ):
+        d = report["diagnose"][part]
+        lines.append(
+            f"| {title} | {_fmt(d['hit@5'])} | {_fmt(d['hit@10'])} | "
+            f"{_fmt(d['hit@5_fast'])} | {_fmt(d['hit@10_fast'])} | {d['rank_6_to_10']} | "
+            f"{_fmt(d['fast_matches_reference'])} |"
+        )
+    lines += [
+        "",
+        "## Rang der ersten erwarteten Stelle (voller Bestand)",
+        "",
+        "| Rang | Anfragen |",
+        "|---|---|",
+    ]
+    for rank, count in full["histogram"].items():
+        if count:
+            lines.append(f"| {rank} | {count} |")
+    lines += [
+        "",
+        f"- Gleichstand des Scores an der Grenze Platz 5/6: {full['ties_at_5_6']} Anfragen",
+        (
+            f"- Erste erwartete Stelle unter den Kandidaten: {full['expected_found']} Anfragen; "
+            f"davon über einen Fundweg mit Normbegriff, Register oder Volltext "
+            f"{full['expected_with_norm_path']}, nur über Vektor-Ähnlichkeit "
+            f"{full['expected_vector_only']}"
+        ),
+        (
+            "- Anfragen mit mindestens 10 Kandidaten mit Fundweg außer Vektor: "
+            f"{full['queries_with_10_path_candidates']}"
+        ),
+        "",
+        "## Beispiele",
+        "",
+        (
+            "Anfragen, deren erste erwartete Stelle nicht unter den ersten 5 liegt. "
+            "„mit Fundweg“ = Kandidaten mit mindestens einem Fundweg außer Vektor."
+        ),
+        "",
+        "| Anfrage | Rang | ungekürzt | Score erwartet | Fundwege erwartet | Score Platz 5 / 6 / 10 / 11 | Kandidaten (mit Fundweg) |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    examples = [
+        q for q in full["per_query"] if q["rank_uncut"] is None or q["rank_uncut"] > 5
+    ]
+    examples.sort(key=lambda q: (q["rank_uncut"] is None, q["rank_uncut"] or 0))
+    for q in examples[:DIAGNOSE_EXAMPLES]:
+        at = q["scores_at"]
+        lines.append(
+            f"| {evaluation._cell(q['query'])} | {_fmt(q['rank'])} | "
+            f"{_fmt(q['rank_uncut'])} | {_fmt(q['expected_score'])} | "
+            f"{', '.join(q['expected_paths']) or 'nur Vektor'} | "
+            f"{' / '.join(_fmt(at[k]) for k in ('5', '6', '10', '11'))} | "
+            f"{q['candidates']} ({q['candidates_with_path']}) |"
+        )
+    lines += [
+        "",
+        "## Selbstprüfung",
+        "",
+        (
+            f"- max_plus offline, voller Bestand: Hit@10 {_fmt(sc['max_plus_full']['hit@10'])}, "
+            f"MRR {_fmt(sc['max_plus_full']['mrr'])} (P5: Hit@10 "
+            f"{_fmt(P5_MAX_PLUS_REFERENCE['hit@10'])}, MRR {_fmt(P5_MAX_PLUS_REFERENCE['mrr'])}; "
+            f"innerhalb ±{_fmt(SELF_CHECK_TOLERANCE)}: {_fmt(sc['max_plus_reproduces_p5'])})"
+        ),
+        (
+            f"- legacy offline, voller Bestand: Hit@10 {_fmt(sc['legacy_full']['hit@10'])}, "
+            f"MRR {_fmt(sc['legacy_full']['mrr'])} (P5/P4: Hit@10 "
+            f"{_fmt(P4_REFERENCE['hit@10'])}, MRR {_fmt(P4_REFERENCE['mrr'])}; P10: "
+            f"Hit@10 {_fmt(P10_LEGACY_REFERENCE['hit@10'])}, MRR "
+            f"{_fmt(P10_LEGACY_REFERENCE['mrr'])})"
+        ),
+        (
+            f"- legacy: Anfragen mit anderem Rang als im P4/P5-Bezugsbericht "
+            f"({P4_REFERENCE_FILE}): {len(sc['legacy_changes_vs_p5'])}"
+        ),
+        "",
+    ]
+    if sc["legacy_changes_vs_p5"]:
+        lines += ["| Anfrage | Rang P4/P5 | Rang heute |", "|---|---|---|"]
+        for c in sc["legacy_changes_vs_p5"]:
+            lines.append(
+                f"| {evaluation._cell(c['query'])} | {_fmt(c['old_rank'])} | "
+                f"{_fmt(c['new_rank'])} |"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
+def run_p11_mode(args, config, entries, collected, source) -> int:
+    """--diagnose bzw. --tiers-only: ohne Grid, Gewichte aus dem Profil der Konfiguration."""
+    all_qfs = [c["qf"] for c in collected]
+    dev_idx, test_idx = tuning.split_indices(entries)
+    parts = {
+        "dev": [all_qfs[i] for i in dev_idx],
+        "test": [all_qfs[i] for i in test_idx],
+        "full": all_qfs,
+    }
+    if args.diagnose:
+        settings = _settings_for_formula(config, args.formula or "max_plus")
+    else:
+        settings = _settings_for_formula(config, args.formula)
+    commit, dirty = git_info()
+    now = datetime.now(UTC)
+    report = {
+        "timestamp": now.isoformat(timespec="seconds"),
+        "git_commit": commit,
+        "git_dirty": dirty,
+        "gold_file": str(args.gold),
+        "gold_count": len(entries),
+        "gnd_enabled": source is not None,
+        "llm_enabled": llm_enabled(config),
+        "max_results": ranking.MAX_RESULTS,
+        "split": {
+            "dev_count": len(dev_idx),
+            "test_count": len(test_idx),
+            "dev": [entries[i].query for i in dev_idx],
+            "test": [entries[i].query for i in test_idx],
+        },
+        "settings": settings.to_dict(),
+        "settings_text": _settings_text(settings),
+    }
+    if args.diagnose:
+        prefix = "scoring-diagnose"
+        report["diagnose"] = {
+            part: tuning.rank_diagnostics(qfs, settings) for part, qfs in parts.items()
+        }
+        legacy = tuning.START_SETTINGS.replace(formula="legacy")
+        legacy_per_query = tuning.per_query_for(all_qfs, legacy)
+        max_plus_full = tuning.metrics_for(all_qfs, settings)
+        legacy_full = evaluation.aggregate(legacy_per_query)
+        legacy_full.pop("mean_response_ms", None)
+        report["self_check"] = {
+            "max_plus_full": max_plus_full,
+            "max_plus_reproduces_p5": all(
+                abs(max_plus_full[k] - P5_MAX_PLUS_REFERENCE[k]) <= SELF_CHECK_TOLERANCE
+                for k in ("hit@10", "mrr")
+            ),
+            "p5_max_plus_reference": {
+                **P5_MAX_PLUS_REFERENCE,
+                "file": P5_MAX_PLUS_FILE,
+            },
+            "legacy_full": legacy_full,
+            "p4_reference": {**P4_REFERENCE, "file": P4_REFERENCE_FILE},
+            "p10_reference": {**P10_LEGACY_REFERENCE, "file": P10_LEGACY_FILE},
+            "legacy_changes_vs_p5": legacy_changes_since(
+                legacy_per_query, P4_REFERENCE_FILE
+            ),
+            "legacy_changes_vs_p10": legacy_changes_since(
+                legacy_per_query, P10_LEGACY_FILE
+            ),
+        }
+        render = render_diagnose_markdown
+    else:
+        prefix = "scoring-stufen"
+        report["tiers"] = derive_and_check_five_tiers(parts, settings)
+        render = render_tiers_markdown
+
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    name = report_basename(out_dir, now.date().isoformat(), commit, prefix)
+    json_path = out_dir / f"{name}.json"
+    md_path = out_dir / f"{name}.md"
+    json_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    md_path.write_text(render(report), encoding="utf-8")
+    print(f"Bericht: {json_path}")
+    print(f"Bericht: {md_path}")
+    if args.diagnose:
+        for part, d in report["diagnose"].items():
+            print(
+                f"  {part}: Hit@5 {d['hit@5']} / Hit@10 {d['hit@10']} (FastScorer "
+                f"{d['hit@5_fast']} / {d['hit@10_fast']}), Ränge 6–10: {d['rank_6_to_10']}"
+            )
+        sc = report["self_check"]
+        print(
+            f"Selbstprüfung max_plus voll: {sc['max_plus_full']['hit@10']} / "
+            f"{sc['max_plus_full']['mrr']}; legacy voll: {sc['legacy_full']['hit@10']} / "
+            f"{sc['legacy_full']['mrr']}"
+        )
+    else:
+        tiers = {k: v for k, v in report["tiers"].items() if k != "shares_by_part"}
+        print(f"Stufen: {json.dumps(tiers, ensure_ascii=False)}")
+    return 0
+
+
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Abstimmung des Scorings (P5)")
+    parser = argparse.ArgumentParser(description="Abstimmung des Scorings (P5/P11)")
     parser.add_argument(
         "--gold", required=True, help="Goldstandard-CSV (Trennzeichen ;)"
     )
     parser.add_argument("--out", default="reports/", help="Zielverzeichnis")
     parser.add_argument("--limit", type=int, help="nur die ersten N Anfragen")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--diagnose",
+        action="store_true",
+        help="ohne Grid: Prüfauftrag Hit@5 = Hit@10 (Standard: Formel max_plus)",
+    )
+    mode.add_argument(
+        "--tiers-only",
+        action="store_true",
+        help="ohne Grid: fünf Relevanzstufen für die eingestellte Formel ableiten",
+    )
+    parser.add_argument(
+        "--formula",
+        choices=scoring.FORMULAS,
+        help="Formel statt SCORING_FORMULA (Gewichte aus dem Profil in app/config.py)",
+    )
     return parser.parse_args(argv)
 
 
@@ -293,6 +732,9 @@ def main(argv=None) -> int:
         collected = collect_features(conn, service, entries, config, source)
     finally:
         conn.close()
+
+    if args.diagnose or args.tiers_only:
+        return run_p11_mode(args, config, entries, collected, source)
 
     all_qfs = [c["qf"] for c in collected]
     dev_idx, test_idx = tuning.split_indices(entries)
@@ -340,6 +782,8 @@ def main(argv=None) -> int:
         )
         for part in ("dev", "test")
     }
+    # P11: dieselbe Fünf-Stufen-Ableitung wie --tiers-only, für die gewählte Formel
+    five_tiers = derive_and_check_five_tiers(parts, chosen_settings)
 
     commit, dirty = git_info()
     now = datetime.now(UTC)
@@ -393,6 +837,7 @@ def main(argv=None) -> int:
             "shares": shares,
         },
         "chosen_settings": tier_settings.to_dict(),
+        "five_tiers": five_tiers,
     }
 
     out_dir.mkdir(parents=True, exist_ok=True)

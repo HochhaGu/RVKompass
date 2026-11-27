@@ -12,14 +12,24 @@ from app.services import scoring
 TEMPLATES = Path(__file__).resolve().parent.parent / "app" / "templates"
 
 
-@pytest.fixture
-def html():
+def _help(**config):
     app = Flask(__name__, template_folder=str(TEMPLATES))
-    app.config.update(TESTING=True)
+    app.config.update(TESTING=True, **config)
     app.register_blueprint(help_route.bp)
     response = app.test_client().get("/hilfe")
     assert response.status_code == 200
     return response.get_data(as_text=True)
+
+
+@pytest.fixture
+def html():
+    # Standard seit P4: Sprachmodell aus
+    return _help(ENABLE_QUERY_EXPANSION=False)
+
+
+@pytest.fixture
+def html_llm():
+    return _help(ENABLE_QUERY_EXPANSION=True)
 
 
 def test_title_and_overview_first(html):
@@ -41,14 +51,37 @@ def test_required_content(html):
     assert "Nur über Ähnlichkeit gefunden – bitte im Register prüfen" in html
     assert "keine Wahrscheinlichkeit" in html
     for path in scoring.PATH_TYPES:
-        assert scoring.PATH_LABELS[path] in html
+        if path != "llm_verified":
+            assert scoring.PATH_LABELS[path] in html
+
+
+def test_help_without_llm_promises_no_ai_expansion(html):
+    # P11: Sprachmodell aus – kein Fundweg „LLM-verifiziert“, keine KI-Chips, kein Versprechen
+    assert scoring.PATH_LABELS["llm_verified"] not in html
+    for text in ("KI, geprüft", "Sprachmodell", "semantische Unterstützung mit KI"):
+        assert text not in html
+    assert "semantische" in html and "Text-Embeddings" in html
+    assert "über ein Sprachmodell für Texte" not in html
+
+
+def test_help_with_llm_explains_ai_chips_and_path(html_llm):
+    for path in scoring.PATH_TYPES:
+        assert scoring.PATH_LABELS[path] in html_llm
+    bedienung = html_llm.split('<h3 id="bedienung">', 1)[1].split("<h3", 1)[0]
+    assert "KI, geprüft in GND" in bedienung
+    assert "KI, geprüft im RVK-Register" in bedienung
+    assert "geprüfte Vorschläge eines Sprachmodells" in html_llm
 
 
 def test_help_explains_new_operation(html):
     bedienung = html.split('<h3 id="bedienung">', 1)[1].split("<h3", 1)[0]
-    # Chips: entfernen und wiederherstellen
+    # Chips: entfernen und wiederherstellen, Quelle als Text (P11)
     assert "Chip" in bedienung and "×" in bedienung
-    assert "wieder hinzufügen" in bedienung and "KI, geprüft" in bedienung
+    assert "wieder hinzufügen" in bedienung and "GND · Synonym" in bedienung
+    # P11: Facette nach Fachgebieten, einklappbar, Obergrenze als „20+“
+    assert "S – Mathematik · Informatik" in bedienung
+    assert "auf und zu" in bedienung
+    assert "20+" in bedienung
     # Facette mit Zahlen, Tabs, Verweis-Links
     assert "Hauptgruppen filtern" in bedienung and "Fundstellen" in bedienung
     assert "Tabs" in bedienung and "Pfeiltasten" in bedienung

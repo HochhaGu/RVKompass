@@ -13,7 +13,7 @@
       {% for c in g.chips %}
       <li class="chip chip-{{ c.origin }}">
         <span class="chip-term">{% if c.url %}<a class="chip-link" href="{{ c.url }}" target="_blank" rel="noopener">{{ c.term }}<span class="visually-hidden"> (bei lobid-gnd, neues Fenster)</span></a>{% else %}{{ c.term }}{% endif %}</span>
-        <span class="chip-type">{{ c.type_label }}{% if c.origin == "llm" %} · {{ c.origin_label }}{% endif %}</span>
+        <span class="chip-type">{{ c.source_label }}{% if c.origin == "llm" %} · {{ c.type_label }}{% endif %}</span>
         <button type="button" class="chip-remove" aria-label="{{ c.term }} entfernen" data-key="{{ c.key }}" hx-post="/search" hx-target="#results" hx-include="#chips, #facet" hx-indicator="#spinner" hx-vals='{{ {"entfernen": c.key} | tojson }}'><span class="chip-x" aria-hidden="true">×</span></button>
       </li>
       {% endfor %}
@@ -28,7 +28,7 @@
     <p class="chips-removed-title">Entfernt (nicht gesucht):</p>
     <ul class="chip-list">
       {% for c in chips.removed %}
-      <li><button type="button" class="chip-restore" data-key="{{ c.key }}" hx-post="/search" hx-target="#results" hx-include="#chips, #facet" hx-indicator="#spinner" hx-vals='{{ {"zurueck": c.key} | tojson }}'>{{ c.term }} wieder hinzufügen</button>{% if c.origin == "llm" %} <span class="chip-origin">(KI, geprüft)</span>{% endif %}</li>
+      <li><button type="button" class="chip-restore" data-key="{{ c.key }}" hx-post="/search" hx-target="#results" hx-include="#chips, #facet" hx-indicator="#spinner" hx-vals='{{ {"zurueck": c.key} | tojson }}'>{{ c.term }} wieder hinzufügen</button> <span class="chip-origin">({% if c.url %}<a class="chip-link" href="{{ c.url }}" target="_blank" rel="noopener">{{ c.source_label }}<span class="visually-hidden">: {{ c.term }} bei lobid-gnd, neues Fenster</span></a>{% else %}{{ c.source_label }}{% endif %})</span></li>
       {% endfor %}
     </ul>
   </div>

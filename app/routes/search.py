@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, render_template, request
 
 from app import limiter
+from app.config import Config
 from app.services import (
     embedding_service,
     presentation,
@@ -44,25 +45,48 @@ def excluded_keys(form, query: str, all_keys: set[str]) -> set[str]:
     return excluded
 
 
-def _main_groups(db_path: str) -> list[tuple[str, str]]:
+def _letter_titles(conn, config) -> dict[str, str]:
+    """P11: Überschriften der Facette aus der obersten RVK-Ebene, sonst aus der Konfiguration."""
+    top_level = rvk_repository.list_top_level(conn) if conn is not None else []
+    return presentation.letter_titles(
+        top_level,
+        config.get(
+            "MAIN_GROUP_TOP_LEVEL_FALLBACK", Config.MAIN_GROUP_TOP_LEVEL_FALLBACK
+        ),
+    )
+
+
+def _main_groups(db_path: str, config) -> tuple[list[tuple[str, str]], dict[str, str]]:
+    """Hauptgruppen und Überschriften je Anfangsbuchstabe (nur lesend)."""
     conn = rvk_repository.get_readonly_connection(db_path)
     if conn is None:
-        return []
+        return [], _letter_titles(None, config)
     try:
-        return rvk_repository.list_main_groups(conn)
+        return rvk_repository.list_main_groups(conn), _letter_titles(conn, config)
     finally:
         conn.close()
 
 
+def _facet(groups, titles, selected, config, counts=None) -> dict:
+    return presentation.main_group_options(
+        groups,
+        selected,
+        counts,
+        titles=titles,
+        max_count=config.get("MAX_RESULTS", Config.MAX_RESULTS),
+    )
+
+
 @bp.get("/")
 def index():
-    selected = list(current_app.config.get("DEFAULT_MAIN_GROUPS", ()) or ())
-    groups = _main_groups(current_app.config["DATABASE_PATH"])
+    config = current_app.config
+    selected = list(config.get("DEFAULT_MAIN_GROUPS", ()) or ())
+    groups, titles = _main_groups(config["DATABASE_PATH"], config)
     # P10: /?q=… (Verweis-Link ohne JavaScript, neuer Tab) füllt das Feld und sucht sofort
     initial_query = request.args.get("q", "").strip()
     return render_template(
         "search.html",
-        main_group_options=presentation.main_group_options(groups, selected),
+        main_group_options=_facet(groups, titles, selected, config),
         selected_groups=selected,
         initial_query=initial_query,
     )
@@ -77,13 +101,13 @@ def search():
     config = current_app.config
     selected = selected_main_groups(form, config)
     if not query:
-        groups = _main_groups(config["DATABASE_PATH"])
+        groups, titles = _main_groups(config["DATABASE_PATH"], config)
         return render_template(
             "_results_table.html",
             results=[],
             query=query,
             selected_groups=selected,
-            facet_options=presentation.main_group_options(groups, selected),
+            facet_options=_facet(groups, titles, selected, config),
         )
 
     conn = rvk_repository.get_connection(config["DATABASE_PATH"])
@@ -128,6 +152,7 @@ def search():
             conn, {row["main_group"] for row in results}
         )
         groups = rvk_repository.list_main_groups(conn)
+        titles = _letter_titles(conn, config)
 
         # P10: Eingabe ist selbst eine Notation („ZL 4620“) – Karte getrennt von den Vorschlägen
         code = presentation.parse_notation_query(query)
@@ -168,7 +193,13 @@ def search():
         groups=[] if blocks else presentation.group_by_main_group(results, labels),
         filtered_out=getattr(result, "filtered_out", 0),
         selected_groups=selected,
-        facet_options=presentation.main_group_options(groups, selected, counts),
-        empty=presentation.empty_state(query, selected, counts, len(chips["removed"])),
+        facet_options=_facet(groups, titles, selected, config, counts),
+        empty=presentation.empty_state(
+            query,
+            selected,
+            counts,
+            len(chips["removed"]),
+            max_count=config.get("MAX_RESULTS", Config.MAX_RESULTS),
+        ),
         entered=entered,
     )

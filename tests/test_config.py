@@ -33,15 +33,58 @@ def test_scoring_config_is_valid():
     assert 0 <= config.SCORE_PATH_BONUS <= config.SCORE_PATH_BONUS_CAP
     # lässt sich ohne Fehler in Einstellungen übernehmen
     scoring.ScoringSettings.from_config(config)
+    # P11: Profile – max_plus vollständig, Stufen geordnet, legacy mit den alten Stufen
+    max_plus = config.SCORE_PROFILES["max_plus"]
+    assert set(max_plus["weights"]) == set(scoring.PATH_TYPES)
+    assert 0 <= max_plus["path_bonus"] <= max_plus["path_bonus_cap"]
+    tiers = max_plus["tiers"]
+    assert (
+        0
+        < tiers["tier_weak"]
+        < tiers["tier_medium"]
+        <= tiers["tier_high"]
+        < tiers["tier_very_high"]
+    )
+    assert config.SCORE_PROFILES["legacy"]["tiers"] == {
+        "tier_high": 0.6551,
+        "tier_medium": 0.5754,
+    }
+    for name in config.SCORE_PROFILES:
+        assert name in scoring.FORMULAS
 
 
-def test_scoring_formula_can_be_switched_via_env(monkeypatch):
+def test_scoring_formula_default_max_plus_and_switchable_via_env(monkeypatch):
     try:
-        monkeypatch.setenv("SCORING_FORMULA", "max_plus")
+        monkeypatch.delenv("SCORING_FORMULA", raising=False)
         assert importlib.reload(config_module).Config.SCORING_FORMULA == "max_plus"
+        monkeypatch.setenv("SCORING_FORMULA", "legacy")
+        assert importlib.reload(config_module).Config.SCORING_FORMULA == "legacy"
     finally:
         monkeypatch.undo()
         importlib.reload(config_module)
+
+
+def test_max_results_from_config_unchanged_default(monkeypatch):
+    # P11: Obergrenze aus der Konfiguration; Standard 20 wie bisher, damit Rangfolge und
+    # Evaluation (Hit@k, MRR bis Platz 20) unverändert bleiben
+    from app.services import ranking, scoring_tuning
+
+    assert config_module.Config.MAX_RESULTS == 20
+    assert ranking.MAX_RESULTS == 20
+    assert scoring_tuning.MAX_RESULTS == ranking.MAX_RESULTS
+    try:
+        monkeypatch.setenv("MAX_RESULTS", "30")
+        assert importlib.reload(config_module).Config.MAX_RESULTS == 30
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config_module)
+
+
+def test_top_level_fallback_has_source_shape():
+    entries = config_module.Config.MAIN_GROUP_TOP_LEVEL_FALLBACK
+    assert len(entries) == 34
+    assert all(isinstance(n, str) and n and label for n, label in entries)
+    assert ("SA - SP", "Mathematik") in entries and ("SQ - SU", "Informatik") in entries
 
 
 def test_default_main_groups_empty_by_default(monkeypatch):

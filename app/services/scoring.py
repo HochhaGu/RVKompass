@@ -88,6 +88,10 @@ class ScoringSettings:
     sum_cap: float = 1.2
     tier_high: float = 0.75
     tier_medium: float = 0.55
+    # P11: gemessene äußere Grenzen der fünf Stufen („sehr hoch“ ab, „schwach“ ab). Fehlen sie,
+    # leitet `five_tier_bounds` sie wie in P10 aus dem Abstand hoch − mittel ab (nicht kalibriert).
+    tier_very_high: float | None = None
+    tier_weak: float | None = None
 
     def __post_init__(self) -> None:
         if self.formula not in FORMULAS:
@@ -103,6 +107,14 @@ class ScoringSettings:
                 raise ValueError(f"Gewichte fehlen für: {sorted(missing)}")
         if self.tier_high < self.tier_medium:
             raise ValueError("Schwelle „hoch“ muss über der Schwelle „mittel“ liegen")
+        if self.tier_very_high is not None and not self.tier_very_high > self.tier_high:
+            raise ValueError(
+                "Schwelle „sehr hoch“ muss über der Schwelle „hoch“ liegen"
+            )
+        if self.tier_weak is not None and not self.tier_weak < self.tier_medium:
+            raise ValueError(
+                "Schwelle „schwach“ muss unter der Schwelle „mittel“ liegen"
+            )
 
     def weight(self, path: str) -> float:
         return float(self.weights.get(path, 0.0))
@@ -116,6 +128,8 @@ class ScoringSettings:
             "sum_cap": self.sum_cap,
             "tier_high": self.tier_high,
             "tier_medium": self.tier_medium,
+            "tier_very_high": self.tier_very_high,
+            "tier_weak": self.tier_weak,
         }
         values.update(changes)
         return ScoringSettings(**values)
@@ -129,13 +143,17 @@ class ScoringSettings:
             "sum_cap": self.sum_cap,
             "tier_high": self.tier_high,
             "tier_medium": self.tier_medium,
+            "tier_very_high": self.tier_very_high,
+            "tier_weak": self.tier_weak,
         }
 
     @classmethod
     def from_config(cls, config) -> ScoringSettings:
-        """Liest die SCORE_*-Werte aus einer Config-Klasse oder einem Flask-Config-Dict.
+        """Liest Formel und Werte aus einer Config-Klasse oder einem Flask-Config-Dict.
 
-        Fehlende Werte kommen aus `app.config.Config`.
+        P11: Hat die eingestellte Formel ein Profil in SCORE_PROFILES, kommen Gewichte,
+        Mehrfach-Fund-Zuschlag und Stufen aus dem Profil; was dort fehlt, aus den SCORE_*-Werten
+        (Startwerte für „sum“ und „sum_capped“). Fehlende Werte kommen aus `app.config.Config`.
         """
         from app.config import Config
 
@@ -147,14 +165,25 @@ class ScoringSettings:
                 return getattr(config, name)
             return getattr(Config, name)
 
+        formula = get("SCORING_FORMULA")
+        profile = (get("SCORE_PROFILES") or {}).get(formula) or {}
+        tiers = profile.get("tiers") or {}
+
+        def optional(value):
+            return None if value is None else float(value)
+
         return cls(
-            formula=get("SCORING_FORMULA"),
-            weights=dict(get("SCORE_WEIGHTS")),
-            path_bonus=float(get("SCORE_PATH_BONUS")),
-            path_bonus_cap=float(get("SCORE_PATH_BONUS_CAP")),
-            sum_cap=float(get("SCORE_SUM_CAP")),
-            tier_high=float(get("SCORE_TIER_HIGH")),
-            tier_medium=float(get("SCORE_TIER_MEDIUM")),
+            formula=formula,
+            weights=dict(profile.get("weights") or get("SCORE_WEIGHTS")),
+            path_bonus=float(profile.get("path_bonus", get("SCORE_PATH_BONUS"))),
+            path_bonus_cap=float(
+                profile.get("path_bonus_cap", get("SCORE_PATH_BONUS_CAP"))
+            ),
+            sum_cap=float(profile.get("sum_cap", get("SCORE_SUM_CAP"))),
+            tier_high=float(tiers.get("tier_high", get("SCORE_TIER_HIGH"))),
+            tier_medium=float(tiers.get("tier_medium", get("SCORE_TIER_MEDIUM"))),
+            tier_very_high=optional(tiers.get("tier_very_high")),
+            tier_weak=optional(tiers.get("tier_weak")),
         )
 
 
@@ -284,6 +313,23 @@ def legacy_score(components: Mapping[str, float]) -> float:
     if components["llm_bonus"]:
         score += components["llm_bonus"]
     return min(score, 1.0)
+
+
+def five_tier_bounds(settings: ScoringSettings) -> tuple[float, float, float, float]:
+    """Untergrenzen von „schwach“, „mittel“, „hoch“, „sehr hoch“ (aufsteigend).
+
+    Gemessene Grenzen (P11) haben Vorrang. Fehlt eine, gilt die Regel aus P10: je ein Abstand
+    d = hoch − mittel unter „mittel“ bzw. über „hoch“ (nicht kalibriert).
+    """
+    high, medium = settings.tier_high, settings.tier_medium
+    step = high - medium
+    weak = settings.tier_weak
+    very_high = settings.tier_very_high
+    if weak is None:
+        weak = round(medium - step, 9)
+    if very_high is None:
+        very_high = round(high + step, 9)
+    return weak, medium, high, very_high
 
 
 def tier_for(score: float, settings: ScoringSettings) -> str:
