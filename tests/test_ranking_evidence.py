@@ -89,6 +89,17 @@ def service():
     return FakeEmbeddingService()
 
 
+@pytest.fixture(autouse=True)
+def legacy_formula(monkeypatch):
+    """Die von Hand gerechneten Scores dieser Datei gehören zur Formel „legacy“ (Stand P4).
+
+    Seit P11 ist „max_plus“ Standard; damit die Tests weiter genau legacy prüfen, wird die
+    Formel hier ausdrücklich eingestellt. max_plus prüfen eigene Fälle (NEW und
+    test_default_formula_max_plus_uses_profile_weights).
+    """
+    monkeypatch.setattr(ranking.Config, "SCORING_FORMULA", "legacy")
+
+
 def _by_notation(hits):
     return {hit.notation.notation: hit for hit in hits}
 
@@ -338,7 +349,7 @@ def test_hits_to_rows_shows_tier_and_components_instead_of_percent(conn, service
     assert rows[1]["related_terms"] == ["Kupplung"]
 
 
-def test_legacy_is_default_and_explicit_legacy_is_identical(conn, service):
+def test_configured_legacy_and_explicit_legacy_are_identical(conn, service):
     default = ranking.search_result(conn, service, "Getriebe", [], [KUPPLUNG])
     explicit = ranking.search_result(
         conn, service, "Getriebe", [], [KUPPLUNG], scoring_settings=LEGACY
@@ -346,6 +357,25 @@ def test_legacy_is_default_and_explicit_legacy_is_identical(conn, service):
     assert [(h.notation.id, h.score, h.score_components) for h in default.hits] == [
         (h.notation.id, h.score, h.score_components) for h in explicit.hits
     ]
+
+
+def test_default_formula_max_plus_uses_profile_weights(conn, service, monkeypatch):
+    # P11: Standard der Konfiguration ist max_plus mit dem Profil aus app/config.py
+    monkeypatch.setattr(ranking.Config, "SCORING_FORMULA", "max_plus")
+    settings = scoring.ScoringSettings.from_config(ranking.Config)
+    assert settings.formula == "max_plus" and settings.path_bonus == 0.1
+    default = ranking.search_result(conn, service, "Getriebe", [], [KUPPLUNG])
+    explicit = ranking.search_result(
+        conn, service, "Getriebe", [], [KUPPLUNG], scoring_settings=settings
+    )
+    assert [(h.notation.id, h.score) for h in default.hits] == [
+        (h.notation.id, h.score) for h in explicit.hits
+    ]
+    kupplung = _by_notation(default.hits)["ZL 4300"]
+    # GND-Synonym 0.9 + Vektor 0.2 × Cosine 0.3 + Mehrfach-Fund
+    assert kupplung.score_components["gnd_synonym"] == pytest.approx(0.9)
+    assert kupplung.score_components["vector"] == pytest.approx(0.2 * 0.3)
+    assert kupplung.score == pytest.approx(sum(kupplung.score_components.values()))
 
 
 def test_new_formula_components_carry_path_types_and_sum_to_score(conn, service):

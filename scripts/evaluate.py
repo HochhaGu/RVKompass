@@ -11,6 +11,12 @@ Aufruf:
     python scripts/evaluate.py --gold eval/goldstandard.csv --no-expansion
     python scripts/evaluate.py --gold eval/goldstandard.csv --compare reports/eval-....json
 
+P12: Passt die Zahl der Anfragen zu GOLD_SUBSET_SIZES in app/config.py (alt 97, neu Technik,
+neu andere Fachgebiete – nach Zeilenreihenfolge), enthält der Bericht die Kennzahlen je
+Teilmenge („metrics_by_subset“, „by_typ_by_subset“, „by_fachgebiet_by_subset“) und den
+Regressionsschutz „regression_old“: Kennzahlen der alten Anfragen gegen den P11-Endstand
+(REGRESSION_REFERENCE_FILE, Toleranz REGRESSION_TOLERANCE). Mit --limit fehlen beide.
+
 Die Datenbank wird nur über App-Code berührt: Mit API-Schlüssel schreibt die
 Begriffserweiterung wie im Betrieb in expansion_cache und daily_usage (Spalte claude_calls_eval,
 getrennt von echten Suchen); die GND-Erweiterung (P3)
@@ -42,6 +48,60 @@ from app.services import (
     scoring_tuning,
 )
 from app.services.expansion import gnd, llm
+
+# P12-Regressionsschutz: letzter P11-Lauf (max_plus, 97 Anfragen, ohne Sprachmodell)
+REGRESSION_REFERENCE_FILE = "reports/eval-2026-11-27-67827ac-3.json"
+REGRESSION_TOLERANCE = 0.005
+REGRESSION_SUBSET = "alt"
+
+
+def subset_blocks(
+    config, per_query: list[dict], scoring_settings: dict, root: Path = ROOT
+) -> dict:
+    """Teilmengen-Kennzahlen und Regressionsschutz für den Bericht (P12).
+
+    Leer, wenn GOLD_SUBSET_SIZES fehlt oder nicht zur Zahl der Anfragen passt (z. B. --limit).
+    Ohne lesbaren Bezugsbericht steht in „regression_old“ nur ein Fehlerhinweis.
+    """
+    sizes = getattr(config, "GOLD_SUBSET_SIZES", None)
+    if not sizes:
+        return {}
+    try:
+        labels = evaluation.subset_labels(len(per_query), sizes)
+    except ValueError:
+        return {}
+    subsets = evaluation.metrics_by_subset(per_query, labels)
+    blocks = {
+        "metrics_by_subset": subsets["metrics"],
+        "by_typ_by_subset": subsets["by_typ"],
+        "by_fachgebiet_by_subset": subsets["by_fachgebiet"],
+    }
+    if REGRESSION_SUBSET in subsets["metrics"]:
+        old_queries = [
+            q
+            for q, label in zip(per_query, labels, strict=True)
+            if label == REGRESSION_SUBSET
+        ]
+        try:
+            reference = json.loads(
+                (root / REGRESSION_REFERENCE_FILE).read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError) as exc:
+            blocks["regression_old"] = {
+                "reference_file": REGRESSION_REFERENCE_FILE,
+                "ok": False,
+                "error": f"Bezugsbericht unlesbar: {exc}",
+            }
+        else:
+            blocks["regression_old"] = evaluation.regression_check(
+                subsets["metrics"][REGRESSION_SUBSET],
+                reference,
+                old_queries,
+                scoring_settings,
+                tolerance=REGRESSION_TOLERANCE,
+                reference_file=REGRESSION_REFERENCE_FILE,
+            )
+    return blocks
 
 
 def git_info(cwd: Path = ROOT) -> tuple[str, bool]:
@@ -415,6 +475,7 @@ def main(argv=None) -> int:
         "missing_notations": missing_notations,
         "per_query": main_run,
     }
+    report.update(subset_blocks(config, main_run, report["scoring"]))
     if with_exp is not None:
         report["per_query_no_expansion"] = no_exp
         report["metrics_variants"] = {
@@ -464,6 +525,22 @@ def main(argv=None) -> int:
     if missing_notations:
         print(
             f"Hinweis: {len(missing_notations)} erwartete Notation(en) fehlen im RVK-Bestand."
+        )
+    for subset, metrics in (report.get("metrics_by_subset") or {}).items():
+        print(
+            f"  Teilmenge {subset}: n {metrics['n']}, Hit@1 {metrics['hit@1']}, "
+            f"Hit@10 {metrics['hit@10']}, MRR {metrics['mrr']}"
+        )
+    reg = report.get("regression_old")
+    if reg:
+        print(
+            f"Regressionsschutz (alte Anfragen gegen {reg.get('reference_file')}): "
+            f"{'bestanden' if reg.get('ok') else 'NICHT bestanden'}"
+            + (
+                f", gleiche Einstellung: {reg.get('same_settings')}"
+                if "same_settings" in reg
+                else ""
+            )
         )
     return 0
 

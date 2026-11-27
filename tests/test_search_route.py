@@ -336,7 +336,8 @@ def test_chips_with_type_remove_button_and_lobid_links(client):
     assert '<input type="hidden" name="baum" value="1">' in chips
     assert 'aria-label="Schraubenverbindung entfernen"' in chips
     item = chips.split("Schraubenverbindung", 1)[1].split("</li>", 1)[0]
-    assert '<span class="chip-type">Oberbegriff</span>' in item
+    # P11: Quelle und Typ als Text
+    assert '<span class="chip-type">GND · Oberbegriff</span>' in item
     assert 'hx-post="/search"' in item and 'hx-include="#chips, #facet"' in item
     key = presentation.gnd_term_key(TECHNIK, SCHRAUBE)
     assert f'"entfernen": "{key}"' in _unescape(item).replace("\\u003c", "<").replace(
@@ -434,9 +435,13 @@ def test_llm_chips_show_relation_origin_and_status(client):
     chips = _chips(html)
 
     zahnrad = chips.split('aria-label="Zahnrad entfernen"', 1)[0].rsplit("<li", 1)[1]
-    assert '<span class="chip-type">Unterbegriff · KI, geprüft</span>' in zahnrad
+    # P11: Quelle der Prüfung als Text („im RVK-Register“ bzw. „in GND“)
+    assert (
+        '<span class="chip-type">KI, geprüft im RVK-Register · Unterbegriff</span>'
+        in zahnrad
+    )
     welle = chips.split('aria-label="Welle &lt;Technik&gt; entfernen"', 1)[0]
-    assert "verwandt · KI, geprüft" in welle.rsplit("<li", 1)[1]
+    assert "KI, geprüft in GND · verwandt" in welle.rsplit("<li", 1)[1]
 
     assert "Vorschläge des Sprachmodells" in chips
     assert "Bauteil, das Drehmoment überträgt" in chips
@@ -615,6 +620,78 @@ def test_no_hits_with_filter_offers_reset_with_count(client, monkeypatch):
     assert 'href="mailto:rvkompass@ghochhauser.at">Feedback senden</a>' in main
 
 
+def test_counts_above_list_limit_show_plus(client, monkeypatch):
+    # P11: die Liste zeigt höchstens MAX_RESULTS (20) Vorschläge – größere Zahlen als „20+“
+    test_client, seen = client
+    seen["app"].config["MAX_RESULTS"] = 20
+    monkeypatch.setattr(
+        search_route.ranking, "search_result", _no_hits({"MS": 30, "AB": 2})
+    )
+    html = _post(test_client, {"q": "Getriebe", "hg": ["ZL"], "hg_form": "1"})
+    button = (
+        _main(html)
+        .split('class="btn-primary facet-reset"', 1)[1]
+        .split("</button>", 1)[0]
+    )
+    assert "Hauptgruppen-Auswahl zurücksetzen (20+ Vorschläge)" in button
+    facet = _facet(html)
+    ms = facet.split('value="MS"', 1)[1].split("</li>", 1)[0]
+    assert '<span class="facet-num">20+<span class="visually-hidden"> Fundstellen' in ms
+    ab = facet.split('value="AB"', 1)[1].split("</li>", 1)[0]
+    assert '<span class="facet-num">2<span' in ab
+    # Summe der Buchstabengruppe ebenfalls gedeckelt
+    m_head = facet.split('data-letter="M"', 1)[1].split("</summary>", 1)[0]
+    assert "20+" in m_head
+
+
+def test_list_limit_comes_from_config(client, monkeypatch):
+    test_client, seen = client
+    seen["app"].config["MAX_RESULTS"] = 5
+    monkeypatch.setattr(search_route.ranking, "search_result", _no_hits({"MS": 6}))
+    html = _post(test_client, {"q": "Getriebe", "hg": ["ZL"], "hg_form": "1"})
+    assert "zurücksetzen (5+ Vorschläge)" in _main(html)
+    assert "20+" not in html
+
+
+def test_facet_groups_letters_by_subject_with_titles(client):
+    test_client, seen = client
+    conn = sqlite3.connect(seen["db_path"])
+    # oberste Ebene der Systematik (level 0) wie im RVK-Abzug, dazu eine zweite Z-Gruppe
+    conn.execute(
+        "INSERT INTO notation (id, notation, label, level) "
+        "VALUES (20, 'ZG - ZS', 'Technik', 0), (21, 'ZX - ZY', 'Sport', 0)"
+    )
+    conn.execute(
+        "INSERT INTO notation (id, notation, label) VALUES (22, 'ZM', 'Werkstoffe')"
+    )
+    conn.commit()
+    conn.close()
+
+    start = test_client.get("/").get_data(as_text=True)
+    facet = start.split('<div id="facet-list">', 1)[1]
+    # natives details/summary, standardmäßig eingeklappt, Titel aus der Datenbank
+    z_group = facet.split('<details class="facet-group" data-letter="Z"', 1)[1]
+    assert z_group.startswith(">")  # kein open
+    assert "Z – Technik · Sport</span>" in z_group.split("</summary>", 1)[0]
+    # vor der ersten Suche keine Summe
+    assert "facet-group-num" not in z_group.split("</summary>", 1)[0]
+    # Buchstabe ohne Eintrag der obersten Ebene in der Datenbank: Rückfall aus der Konfiguration
+    assert "A – Allgemeines</span>" in facet
+
+    html = _post(test_client, {"q": "Getriebe", "hg": ["ZL"], "hg_form": "1"})
+    facet = _facet(html)
+    # Gruppe mit gewählter Hauptgruppe ist offen; „Gewählt“ bleibt oben
+    assert '<details class="facet-group" data-letter="Z" open>' in facet
+    assert facet.index("Gewählt") < facet.index('data-letter="A"')
+    assert '<details class="facet-group" data-letter="A">' in facet
+    # Summe der Fundstellen der Gruppe in der Überschrift (MS: 3), mit Text für Screenreader
+    m_head = facet.split('data-letter="M"', 1)[1].split("</summary>", 1)[0]
+    assert (
+        '<span class="facet-num facet-group-num">3<span class="visually-hidden">'
+        " Fundstellen</span></span>" in m_head
+    )
+
+
 def test_reset_clears_filter_and_searches_query_of_chips(client):
     test_client, seen = client
     _post(test_client, {"chips_q": "Getriebe", "hg_form": "1"})
@@ -651,18 +728,20 @@ def test_hit_card_relevance_block_without_percent(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Getriebe"})
     card = _card(html, "ZL 4620")
-    # Score 0.5 liegt unter „mittel“ (0.5754) und über „schwach“ (0.5754 − 0.0797)
+    # Standard max_plus (Stufen P12): Score 0.5 liegt über „mittel“ (0.4714) und unter „hoch“
+    # (0.5526)
     assert (
-        '<div class="relevance" role="img" aria-label="Relevanz schwach, Stufe 2 von 5" '
+        '<div class="relevance" role="img" aria-label="Relevanz mittel, Stufe 3 von 5" '
         'title="Relevanzwert 0.50">'
     ) in card
     assert len(re.findall(r'<span class="seg( is-on)?" aria-hidden="true">', card)) == 5
-    assert card.count('<span class="seg is-on"') == 2
-    assert '<span class="relevance-word">schwach</span>' in card
+    assert card.count('<span class="seg is-on"') == 3
+    assert '<span class="relevance-word">mittel</span>' in card
     # kein Prozentzeichen im Text (Links enthalten URL-Kodierung wie %20)
     assert "%" not in re.sub(r'href="[^"]*"', "", card) and "Konfidenz" not in card
     vector = _card(html, "ZL 9999")
-    assert 'aria-label="Relevanz gering, Stufe 1 von 5"' in vector
+    # Relevanzwert 0.40: ab P12 „schwach“ (Grenze 0.3822), vorher „gering“ (0.4304)
+    assert 'aria-label="Relevanz schwach, Stufe 2 von 5"' in vector
     assert "keine Wahrscheinlichkeit" in html
 
 

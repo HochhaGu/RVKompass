@@ -13,6 +13,8 @@
 - P8 Betrieb: Container, Sync, Monitoring
 - P9 (optional) Fremddaten per ISBN und Nutzer-Feedback
 - P10 Design Variante A „Klar“ (Umstellung der Oberfläche nach docs/design.md)
+- P11 Scoring max_plus, LLM aus, Feinschliff Oberfläche
+- P12 Goldstandard erweitert (97 → 501 Anfragen), neue Basismessung
 
 Verbindliche Projektentscheidungen (10.11.2026): Hosting auf VPS mit Docker · Lizenz EUPL 1.2,
 privates Projekt ohne Institutionsbezug · GND erst live mit Cache, ab P8 lokaler Abzug ·
@@ -324,4 +326,159 @@ C. Qualität
 - Evaluation: Hit@1/5/10 und MRR identisch zum Stand vor P10 (reine Darstellungsänderung).
 - Bericht docs/phasen/phase-10.md: was umgesetzt wurde, Abweichungen von docs/design.md mit
   Begründung, offene Punkte.
+```
+
+---
+
+## P11 – Scoring max_plus, LLM aus, Feinschliff Oberfläche
+```
+Ziel: Die in P5 bessere Rangfolge „max_plus“ wird Standard, die Sprachmodell-Erweiterung ist
+aus, die Relevanzstufen sind für die neue Formel gemessen statt geschätzt, und drei Punkte der
+Oberfläche werden nachgeschärft. Verbindlich bleiben docs/design.md und die Leitprinzipien in
+CLAUDE.md („Messen statt meinen“, Score ist Relevanz, nie Prozent).
+Gemessen wird in P11 ausschließlich gegen eval/goldstandard.csv (97 Anfragen, Stand P10).
+eval/goldstandard_erweiterung_2026-11.csv gehört zu P12 und wird in P11 weder gelesen noch
+verändert.
+
+A. Rangfolge und Erweiterung (zuerst; jeder Schritt mit Vorher/Nachher-Messung)
+1. Standardformel „max_plus“: In app/config.py wird SCORING_FORMULA standardmäßig "max_plus"
+   (per .env weiter umschaltbar). Gewichte und Mehrfach-Fund-Zuschlag sind die für max_plus auf
+   der Entwicklungshälfte abgestimmten Werte aus reports/scoring-2026-11-11-c877270-2.md
+   (Abschnitt „Gewählte Gewichte je Variante“): register_exact 1, gnd_synonym 0.9,
+   gnd_narrower 0.75, gnd_broader 0.55, gnd_related 0.6, llm_verified 0.5, label_fts 0.4,
+   register_similar 0.4, vector 0.2; Zuschlag 0.1 je weiterem Pfad, Deckel 0.15.
+   Gewichte so ablegen, dass sie eindeutig zu max_plus gehören (die Startgewichte der anderen
+   Formeln bleiben für scripts/tune_scoring.py erhalten).
+   Prüfauftrag vor allem anderen: In P5 ist bei max_plus auf allen Hälften Hit@5 = Hit@10
+   (z. B. voller Bestand 0.5979 / 0.5979) – auf den Plätzen 6–10 liegt also nie eine richtige
+   Stelle. Klären, ob das echt ist oder ein Fehler (Abschneiden der Kandidatenliste,
+   Gleichstände, Sortierung nach dem Mehrfach-Fund-Zuschlag). Befund mit Beispielen im Bericht;
+   ein Fehler wird behoben, bevor max_plus Standard wird.
+   Selbstprüfung: Evaluation ohne Sprachmodell auf dem vollen Goldstandard muss die P5-Werte
+   für max_plus reproduzieren (Hit@10 0.5979, MRR 0.4649, Toleranz 0.005) – außer der
+   Prüfauftrag hat einen Fehler gefunden; dann die neuen Werte begründen. Weicht es ohne
+   gefundenen Fehler ab: Ursache suchen, nicht die Gewichte nachstellen.
+2. Sprachmodell-Erweiterung aus: Standard ENABLE_QUERY_EXPANSION=false bleibt; zusätzlich
+   sicherstellen, dass Evaluation, Oberfläche und Hilfe ohne Sprachmodell konsistent sind
+   (keine „KI“-Chips, keine leeren LLM-Bereiche, Hilfetext ohne Versprechen einer
+   KI-Erweiterung). Code der LLM-Erweiterung bleibt erhalten und per .env einschaltbar.
+   Der Claim „semantische Unterstützung mit KI“ darf nirgends mehr stehen, wo er nicht stimmt;
+   die Vektorsuche (Embeddings) bleibt und darf als „semantische Suche“ beschrieben werden.
+3. Relevanzstufen kalibrieren: Die fünf Stufen (gering · schwach · mittel · hoch · sehr hoch)
+   für max_plus neu ableiten – nur auf der Entwicklungshälfte, geprüft auf der Testhälfte,
+   gleiche Aufteilung wie in P5. Regel und Werte im Bericht dokumentieren (Anteil passender
+   Treffer je Stufe auf der Testhälfte). Ist eine sinnvolle Trennung von fünf Stufen mit 97
+   Anfragen nicht belastbar, das offen sagen und die beste vertretbare Lösung begründen –
+   nicht schönrechnen. Die Ableitung muss per Skript wiederholbar sein (z. B.
+   scripts/tune_scoring.py erweitern), denn P12 wiederholt sie auf 501 Anfragen.
+
+B. Oberfläche
+1. Hauptgruppen-Facette nach Fachgebieten gegliedert:
+   - Gruppierung nach dem ersten Buchstaben der Notation, Überschrift mit Titel,
+     z. B. „A – Allgemeines“, „S – Mathematik · Informatik“, „Z – Land- und Forstwirtschaft ·
+     Technik · Sport“.
+   - Titel aus den RVK-Daten (oberste Ebene der Systematik, auch Bereiche wie „CA - CK“) per
+     sqlite3 -readonly ermitteln; mehrere Fachgebiete unter einem Buchstaben mit „ · “ verbinden.
+     Wo die Daten keinen Titel liefern: Zuordnung in app/config.py mit Quellenangabe
+     (RVK-Online), nicht aus dem Gedächtnis.
+   - Jede Buchstabengruppe einklappbar, standardmäßig eingeklappt. Die Überschrift zeigt die
+     Summe der Fundstellen der Gruppe (nach der ersten Suche). Gruppen mit angehakter
+     Hauptgruppe sind offen; der Block „Gewählt“ bleibt oben.
+   - Natives <details>/<summary> oder ARIA-Disclosure; Tastatur und Screenreader müssen
+     funktionieren, ohne JavaScript alles bedienbar.
+2. Herkunft der Erweiterungsbegriffe: Jeder Chip zeigt neben dem Typ die Quelle, z. B.
+   „GND · Synonym“, „GND · Oberbegriff“; bei einer später wieder eingeschalteten
+   LLM-Erweiterung „KI, geprüft in GND“ bzw. „… im RVK-Register“. Auch entfernte Begriffe
+   zeigen die Quelle. Quelle als Text, nicht nur als Farbe; GND-Begriffe verlinken wie bisher
+   auf lobid-gnd.
+3. Zahlen stimmig machen (offener Punkt aus P10): Was eine Zahl verspricht, muss die Liste
+   danach zeigen. Zahlen, die die Listenobergrenze übersteigen, als „20+“ (bzw. Obergrenze+)
+   anzeigen – in der Facette und im Knopf „Hauptgruppen-Auswahl zurücksetzen (n Vorschläge)“.
+   Die Obergrenze kommt aus der Konfiguration, nicht fest im Template.
+
+C. Qualität
+- Tests für A1–A3 und B1–B3 ohne Netz; bestehende Tests nicht abschwächen.
+- Evaluation ohne Sprachmodell; Bericht mit Kennzahlen vorher (legacy, Stand P10) und
+  nachher (max_plus), dazu die Stufenwerte.
+- docs/design.md bleibt verbindlich; Abweichungen im Bericht begründen.
+- Bericht docs/phasen/phase-11.md mit offenen Punkten; dort auch notieren, was P12 nach der
+  Erweiterung des Goldstandards neu ableiten muss.
+```
+
+---
+
+## P12 – Goldstandard erweitert, neue Basismessung
+```
+Ziel: Die 404 neuen, von Günther fachlich ausgearbeiteten Anfragen werden geprüft und in
+eval/goldstandard.csv übernommen (97 → 501). Darauf entsteht eine neue Basismessung, und die
+Ableitungen aus P5/P11 werden auf der größeren Basis wiederholt. Diese Phase ist im
+Steuerprogramm als „neue_basis“ markiert: Das Gate vergleicht Hit@10 nicht mit dem alten
+Stand, weil mehr fachfremde Anfragen die Kennzahlen senken, ohne dass der Code schlechter
+wird. Den Regressionsschutz übernimmt deshalb Punkt B2 – er ist Pflicht.
+
+Grundregel: Die fachlichen Angaben (Anfrage, Notationen, Typ, Fachgebiet) stammen von Günther
+und werden nicht „verbessert“. Code und Gewichte passen sich dem Goldstandard an, nie umgekehrt.
+
+A. Prüfen und übernehmen (vor jeder Messung)
+1. Eingang: eval/goldstandard_erweiterung_2026-11.csv (404 Zeilen, gleiche Spalten wie
+   eval/goldstandard.csv; Zeichensatz, Leerzeichen und Notationsschreibweise sind bereinigt,
+   vier Homonyme aus beiden Teillisten – Satz, Druck, Strom, Zelle – sind zu je einer Zeile mit
+   allen Bedeutungen zusammengelegt). Erst parse_gold, dann jede Notation per sqlite3 -readonly
+   gegen den aktuellen RVK-Stand prüfen.
+2. Prüfliste docs/goldstandard/pruefliste-2026-11.md für Günther, oben eine Übersicht mit
+   Zahlen, darunter drei Abschnitte in dieser Reihenfolge:
+   a) Notationen, die es im RVK-Stand nicht gibt (z. B. „F 4320“ bei „Frauenwahlrecht in
+      Österreich“), mit naheliegender Vermutung, falls eindeutig (z. B. Tippfehler) – nur als
+      Hinweis, nicht übernehmen.
+   b) Hauptgruppen-Ausreißer: Zeilen, bei denen keine Notation in einer Hauptgruppe liegt, die
+      zum Fachgebiet der Zeile passt (z. B. „Maus“ → AP 99492, Fachgebiet Informatik). Je Zeile
+      Anfrage, Notation, Benennung und Hierarchiepfad laut RVK.
+   c) Alle übrigen Zeilen kompakt: Anfrage → Notation(en) mit RVK-Benennung, zum Gegenlesen.
+3. Übernahme: Die neuen Zeilen in Dateireihenfolge an eval/goldstandard.csv anhängen; die 97
+   alten Zeilen bleiben byte-gleich und vorn, damit ihre Entwicklungs-/Testzuordnung
+   (split_indices) stabil bleibt. Nicht gefundene Notationen werden aus der Zeile genommen und
+   in der Spalte anmerkung vermerkt („nicht im RVK-Stand <Version>: F 4320, siehe Prüfliste“).
+   Bleibt keine gültige Notation übrig, kommt die Zeile nach eval/goldstandard_offen.csv
+   (gleiche Spalten) statt in den Goldstandard. Danach eval/goldstandard_erweiterung_2026-11.csv
+   löschen (der Inhalt steckt vollständig in goldstandard.csv bzw. goldstandard_offen.csv).
+4. Neue Tests: Goldstandard eindeutig je Anfrage (Berichte und Vergleiche sind nach Anfrage
+   geschlüsselt), nur erlaubte Typen, alle Notationen formal gültig, die ersten 97 Zeilen
+   unverändert gegenüber dem Stand vor P12.
+5. Folgen prüfen: Der monatliche RVK-Abgleich (app/services/rvk_sync) liest denselben
+   Goldstandard (SYNC_GOLD_PATH) – Laufzeit und Gold-Markierungen mit 501 Anfragen einmal per
+   Trockenlauf bzw. Test bestätigen und im Bericht nennen.
+
+B. Neue Basismessung (ohne Sprachmodell, Standardformel aus P11)
+1. Evaluation auf dem vollen Goldstandard (das ist der neue Vergleichsstand) und aufgeschlüsselt
+   nach Teilmenge (alt 97 · neu Technik 248 · neu andere Fachgebiete 156), nach Fachgebiet und
+   nach Typ. Die Teilmengen ergeben sich aus der Zeilenreihenfolge: Zeilen 1–97 alt, dann die
+   Zeilen aus der Erweiterungsdatei in deren Reihenfolge (zuerst Technik bis „Firmware“, dann
+   die Fachgebiete ab „Mietrecht“).
+2. Regressionsschutz (Pflicht): Auf den 97 alten Anfragen müssen Hit@1/5/10 und MRR exakt dem
+   Endstand von P11 entsprechen (Toleranz 0.005). Weicht es ab, ist das ein Fehler in P12 –
+   beheben, bevor irgendetwas anderes passiert.
+
+C. Ableitungen auf 501 Anfragen wiederholen
+1. Relevanzstufen mit dem Skript aus P11 neu ableiten (Entwicklungshälfte), auf der Testhälfte
+   prüfen, Werte vorher/nachher im Bericht.
+2. Gewichte für max_plus mit scripts/tune_scoring.py auf der neuen Entwicklungshälfte neu
+   abstimmen. Entscheidungsregel vorab, nicht nachträglich: Neue Gewichte werden nur Standard,
+   wenn auf der Testhälfte Hit@10 und MRR jeweils nicht schlechter sind und mindestens eine der
+   beiden um ≥ 0.01 besser ist. Sonst bleiben die P11-Gewichte; Befund trotzdem berichten.
+   Den Prüfauftrag aus P11 (Hit@5 = Hit@10) auf 501 Anfragen erneut ansehen.
+3. GND-Sachgruppen → RVK-Hauptgruppen (GND_SUBJECT_CATEGORY_TO_RVK in app/config.py) für die
+   neuen Fachgebiete erweitern – nur wo der Goldstandard eine Hauptgruppe eindeutig stützt,
+   Sachgruppen-Codes an der DNB-Liste (d-nb.info/standards/vocab/gnd/gnd-sc) geprüft, Quelle
+   im Kommentar. Übernahme nach derselben Regel wie C2 (Testhälfte, vorab festgelegt).
+
+D. Schwachstellen (Analyse, keine weiteren Umbauten in dieser Phase)
+- Die 15 schwächsten Anfragen je Teilmenge mit Ursache (keine GND-Bedeutung gefunden, falsche
+  Bedeutung gewählt, richtige Stelle außerhalb der Kandidaten, Homonym …) und die schwächsten
+  Fachgebiete/Typen. Daraus eine kurze, nach Wirkung sortierte Liste von Vorschlägen für die
+  nächste Phase.
+
+E. Qualität
+- Bestehende Tests nicht abschwächen; neue Tests ohne Netz.
+- Bericht docs/phasen/phase-12.md: Übernahme (Zahlen aus A), neue Basis (B1), Regressionsschutz
+  (B2), Entscheidungen C1–C3 mit Messwerten, Schwachstellen (D), offene Punkte.
 ```

@@ -576,3 +576,179 @@ def test_entered_notation_card():
     assert card["origin"] == "Direkt: Notation eingegeben"
     assert "→ ZL 4600 anzeigen" in str(card["see_also_html"])
     assert card["has_note"] is True
+
+
+# --- P11: fünf gemessene Stufen, Zahlen „20+“, Facette nach Fachgebieten, Quelle am Chip -----
+
+FIVE = scoring.ScoringSettings(
+    formula="legacy",
+    tier_very_high=0.83,
+    tier_high=0.58,
+    tier_medium=0.52,
+    tier_weak=0.43,
+)
+
+
+@pytest.mark.parametrize(
+    "score,level,word",
+    [
+        (1.3, 5, "sehr hoch"),
+        (0.83, 5, "sehr hoch"),
+        (0.8299, 4, "hoch"),
+        (0.58, 4, "hoch"),
+        (0.5799, 3, "mittel"),
+        (0.52, 3, "mittel"),
+        (0.5199, 2, "schwach"),
+        (0.43, 2, "schwach"),
+        (0.4299, 1, "gering"),
+    ],
+)
+def test_relevance_level_with_four_measured_thresholds(score, level, word):
+    assert presentation.relevance_level(score, FIVE) == (level, word)
+
+
+def test_relevance_level_profile_from_config_is_used():
+    from app.config import Config
+
+    settings = scoring.ScoringSettings.from_config(Config)
+    tiers = Config.SCORE_PROFILES["max_plus"]["tiers"]
+    assert presentation.relevance_level(tiers["tier_very_high"], settings)[0] == 5
+    assert presentation.relevance_level(tiers["tier_weak"], settings)[0] == 2
+    below = round(tiers["tier_weak"] - 0.0001, 4)
+    assert presentation.relevance_level(below, settings)[1] == "gering"
+
+
+def test_format_count():
+    assert presentation.format_count(21, 20) == "20+"
+    assert presentation.format_count(20, 20) == "20"
+    assert presentation.format_count(3, 20) == "3"
+    assert presentation.format_count(0, 20) == "0"
+    assert presentation.format_count(500, None) == "500"
+    assert presentation.format_count(6, 5) == "5+"
+
+
+TOP_LEVEL = [
+    ("A", "Allgemeines"),
+    ("CA - CK", "Philosophie"),
+    ("CL - CZ", "Psychologie"),
+    ("LD,LH - LO", "Kunstgeschichte"),
+    ("SA - SP", "Mathematik"),
+    ("SQ - SU", "Informatik"),
+    ("X - Y", "Medizin"),
+    ("ZG - ZS", "Technik"),
+    ("ZX - ZY", "Sport"),
+]
+
+
+def test_letter_titles_join_subjects_and_ranges():
+    titles = presentation.letter_titles(TOP_LEVEL)
+    assert titles["A"] == "Allgemeines"
+    assert titles["C"] == "Philosophie · Psychologie"
+    assert titles["L"] == "Kunstgeschichte"
+    assert titles["S"] == "Mathematik · Informatik"
+    # Bereich über zwei Buchstaben gilt für beide
+    assert titles["X"] == titles["Y"] == "Medizin"
+    assert titles["Z"] == "Technik · Sport"
+    assert "B" not in titles
+    # ohne Dubletten
+    doubled = presentation.letter_titles(
+        [("SA - SK", "Mathematik"), ("SL", "Mathematik")]
+    )
+    assert doubled["S"] == "Mathematik"
+
+
+def test_letter_titles_database_first_config_as_fallback():
+    titles = presentation.letter_titles(
+        [("ZG - ZS", "Technik")],
+        [("A", "Allgemeines"), ("ZG - ZS", "Technik alt"), ("ZX - ZY", "Sport")],
+    )
+    # Datenbank hat Vorrang je Buchstabe; die Konfiguration füllt nur Lücken
+    assert titles["Z"] == "Technik"
+    assert titles["A"] == "Allgemeines"
+    assert presentation.letter_titles([], []) == {}
+
+
+def test_fallback_in_config_covers_every_main_group_letter():
+    from app.config import Config
+
+    titles = presentation.letter_titles([], Config.MAIN_GROUP_TOP_LEVEL_FALLBACK)
+    # Anfangsbuchstaben aller RVK-Hauptgruppen laut Quelle (RVK-API v3)
+    assert set(titles) >= set("ABCDEFGHIKLMNPQRSTUVWXYZ")
+    assert titles["S"] == "Mathematik · Informatik"
+
+
+def test_main_group_options_letters_with_heading_sum_and_open():
+    groups = [
+        ("AA", "Allgemeines"),
+        ("SK", "Analysis"),
+        ("ST", "Informatik"),
+        ("ZL", "Maschinenbau"),
+        ("ZM", "Werkstoffe"),
+    ]
+    titles = presentation.letter_titles(TOP_LEVEL)
+    before = presentation.main_group_options(groups, [], titles=titles, max_count=20)
+    s = next(letter for letter in before["letters"] if letter["letter"] == "S")
+    assert s["heading"] == "S – Mathematik · Informatik"
+    assert s["count_sum"] is None and s["count_sum_text"] is None
+    assert not any(letter["open"] for letter in before["letters"])
+
+    after = presentation.main_group_options(
+        groups,
+        ["ZL"],
+        {"SK": 15, "ST": 9, "ZL": 4, "ZM": 1},
+        titles=titles,
+        max_count=20,
+    )
+    by_letter = {letter["letter"]: letter for letter in after["letters"]}
+    assert by_letter["S"]["count_sum"] == 24
+    assert by_letter["S"]["count_sum_text"] == "20+"
+    assert [g["count_text"] for g in by_letter["S"]["groups"]] == ["15", "9"]
+    # Buchstabe mit gewählter Hauptgruppe offen, die übrigen eingeklappt
+    assert by_letter["Z"]["open"] is True and by_letter["S"]["open"] is False
+    assert [g["code"] for g in by_letter["Z"]["groups"]] == ["ZM"]
+    assert by_letter["Z"]["count_sum"] == 1
+    # ohne Titel nur der Buchstabe
+    assert by_letter["A"]["heading"] == "A – Allgemeines"
+    plain = presentation.main_group_options(groups, [], titles={})
+    assert plain["letters"][0]["heading"] == "A"
+
+
+def test_empty_state_reset_count_text_capped():
+    state = presentation.empty_state("X", ["ZL"], {"MS": 30, "AB": 2}, max_count=20)
+    assert state["reset_count"] == 32 and state["reset_count_text"] == "20+"
+    small = presentation.empty_state("X", ["ZL"], {"MS": 3}, max_count=20)
+    assert small["reset_count_text"] == "3"
+
+
+def test_expansion_chips_carry_source_label_also_when_removed():
+    key = presentation.gnd_term_key(SENSE, BROADER)
+    chips = presentation.expansion_chips(
+        QUERY, [SENSE], SUGGESTIONS, {key, "llm|heizstab"}
+    )
+    labels = {c["term"]: c["source_label"] for g in chips["groups"] for c in g["chips"]}
+    assert labels["Wärmepumpe"] == "GND · Synonym"
+    assert labels["Erdwärmepumpe"] == "GND · Unterbegriff"
+    assert labels["Kältetechnik"] == "GND · verwandt"
+    assert labels["Kältemittel"] == "KI, geprüft im RVK-Register"
+    removed = {c["term"]: c for c in chips["removed"]}
+    assert removed["Heiztechnik"]["source_label"] == "GND · Oberbegriff"
+    assert removed["Heiztechnik"]["url"] == "https://lobid.org/gnd/4024356-4"
+    assert removed["Heizstab"]["source_label"] == "KI, geprüft in GND"
+    assert presentation.llm_source_label(None) == "KI, geprüft"
+
+
+def test_expansion_chips_without_llm_have_no_ai_chips_or_block():
+    # Sprachmodell aus (Standard): keine Vorschläge -> keine KI-Chips, kein LLM-Bereich
+    chips = presentation.expansion_chips(QUERY, [SENSE], [])
+    assert chips["llm"] == [] and chips["unverified"] == []
+    assert all(c["origin"] == "gnd" for g in chips["groups"] for c in g["chips"])
+    assert all(
+        not c["source_label"].startswith("KI")
+        for g in chips["groups"]
+        for c in g["chips"]
+    )
+    other = GndSense(
+        gnd_id="9", preferred_name="Pumpe", qualifier="Herz", terms=(RELATED,)
+    )
+    named = presentation.expansion_chips(QUERY, [SENSE, other], [])
+    assert "Sprachmodell, geprüft" not in [g["sense_name"] for g in named["groups"]]

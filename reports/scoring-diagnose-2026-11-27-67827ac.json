@@ -1,0 +1,4534 @@
+{
+  "timestamp": "2026-11-27T08:24:02+00:00",
+  "git_commit": "67827ac",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 97,
+  "gnd_enabled": true,
+  "llm_enabled": false,
+  "max_results": 20,
+  "split": {
+    "dev_count": 50,
+    "test_count": 47,
+    "dev": [
+      "Getriebe",
+      "Gleitlagerschmierung",
+      "Wie Kräfte in Maschinen übertragen werden",
+      "Feder",
+      "CAD",
+      "Transformator",
+      "Spannung",
+      "Photovoltaik",
+      "Wärmepumpenregelung",
+      "Energie speichern für später",
+      "Power-to-X",
+      "Stahl",
+      "Korrosionsschutz von Aluminium",
+      "Kunststoff, der sich selbst repariert",
+      "Datenbank",
+      "Datensicherheit in Unternehmensnetzwerken",
+      "Stahlbeton",
+      "Häuser, die kaum Energie verbrauchen",
+      "BIM",
+      "Regelungstechnik",
+      "PID-Regler Auslegung",
+      "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "Projektmanagement",
+      "Lean Production in der Automobilindustrie",
+      "Bank",
+      "Supply Chain",
+      "Hydraulik",
+      "Zahnrad",
+      "Additive Fertigung von Metallbauteilen",
+      "Kühlung von Verbrennungsmotoren",
+      "Wie ein Motor im Auto funktioniert",
+      "Warum Maschinen vibrieren",
+      "Elektromotor",
+      "Akkumulator",
+      "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "Lithium-Ionen-Batterien als Heimspeicher",
+      "Wirkungsgrad von Gasturbinenkraftwerken",
+      "Keramik",
+      "Legierung",
+      "Leichte Materialien für Flugzeuge",
+      "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "Baustatik",
+      "Tunnelbau",
+      "Warum Häuser nicht einstürzen",
+      "Decke",
+      "Robotik",
+      "Temperaturmessung in Industrieöfen",
+      "Roboter, die mit Menschen zusammenarbeiten",
+      "Logistik",
+      "Mitarbeitende gut führen"
+    ],
+    "test": [
+      "Wälzlager",
+      "Mutter",
+      "Halbleiter",
+      "Leistungselektronik für Elektroautos",
+      "Smart Grid",
+      "Wärmepumpe",
+      "Rotorblätter von Windkraftanlagen",
+      "Strom aus Sonnenlicht",
+      "Faserverbundwerkstoffe",
+      "Warum Metall rostet",
+      "Ermüdung",
+      "Algorithmus",
+      "Neuronale Netze zur Bilderkennung",
+      "Computer lernt aus Beispielen",
+      "Machine Learning",
+      "Brückenbau",
+      "Mehrgeschossiger Holzbau",
+      "Wie man Gebäude erdbebensicher macht",
+      "Sensor",
+      "Messunsicherheit bestimmen",
+      "Industrie 4.0",
+      "Qualitätsmanagement",
+      "Wie Firmen ihre Abläufe verbessern",
+      "Schweißtechnik",
+      "Strömungsmaschinen",
+      "Verschleiß an Zahnradgetrieben",
+      "Schwingungsdämpfung in Werkzeugmaschinen",
+      "Teile mit dem 3D-Drucker herstellen",
+      "Metallteile dauerhaft verbinden",
+      "Schaltungstechnik",
+      "Hochspannungstechnik",
+      "Wechselrichter für Photovoltaikanlagen",
+      "Steuerung von Drehstrommotoren",
+      "Fernwärmenetze in Städten",
+      "Polymere",
+      "Zugversuch an Stahlproben",
+      "Warum Glas bricht",
+      "Smart Materials",
+      "Programmiersprache",
+      "Virus",
+      "Baustoffe",
+      "Brandschutz im Hochbau",
+      "Feuchte Wände im Keller",
+      "Automatisierungstechnik",
+      "Wie eine Fabrik von selbst läuft",
+      "Kostenrechnung",
+      "Innovationsmanagement in Technologieunternehmen"
+    ]
+  },
+  "settings": {
+    "formula": "max_plus",
+    "weights": {
+      "register_exact": 1.0,
+      "gnd_synonym": 0.9,
+      "gnd_narrower": 0.75,
+      "gnd_broader": 0.55,
+      "gnd_related": 0.6,
+      "llm_verified": 0.5,
+      "label_fts": 0.4,
+      "register_similar": 0.4,
+      "vector": 0.2
+    },
+    "path_bonus": 0.1,
+    "path_bonus_cap": 0.15,
+    "sum_cap": 1.2,
+    "tier_high": 0.6551,
+    "tier_medium": 0.5754,
+    "tier_very_high": null,
+    "tier_weak": null
+  },
+  "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.75, gnd_broader 0.55, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.2; Mehrfach-Fund 0.1 je weiterem Pfad, Deckel 0.15",
+  "diagnose": {
+    "dev": {
+      "per_query": [
+        {
+          "query": "Getriebe",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 57,
+          "candidates_with_path": 36,
+          "scores_at": {
+            "5": 1.227905178,
+            "6": 1.219011414,
+            "10": 0.48841337,
+            "11": 0.474352539
+          },
+          "tie_5_6": false,
+          "expected_score": 1.231750321,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Gleitlagerschmierung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 63,
+          "candidates_with_path": 34,
+          "scores_at": {
+            "5": 0.430315495,
+            "6": 0.429021025,
+            "10": 0.412302399,
+            "11": 0.407896388
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie Kräfte in Maschinen übertragen werden",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 57,
+          "rank_fast": 57,
+          "candidates": 67,
+          "candidates_with_path": 48,
+          "scores_at": {
+            "5": 0.475053477,
+            "6": 0.467259336,
+            "10": 0.446772099,
+            "11": 0.393870473
+          },
+          "tie_5_6": false,
+          "expected_score": 0.119644189,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Feder",
+          "typ": "Mehrdeutig",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 72,
+          "candidates_with_path": 72,
+          "scores_at": {
+            "5": 0.482570547,
+            "6": 0.480208993,
+            "10": 0.465681136,
+            "11": 0.465029943
+          },
+          "tie_5_6": false,
+          "expected_score": 1.239361745,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "CAD",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 104,
+          "candidates_with_path": 103,
+          "scores_at": {
+            "5": 0.814564872,
+            "6": 0.610092413,
+            "10": 0.572870523,
+            "11": 0.565645397
+          },
+          "tie_5_6": false,
+          "expected_score": 1.281577539,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Transformator",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 34,
+          "candidates_with_path": 34,
+          "scores_at": {
+            "5": 0.630881643,
+            "6": 0.623444355,
+            "10": 0.365474731,
+            "11": 0.350484341
+          },
+          "tie_5_6": false,
+          "expected_score": 1.266346049,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Spannung",
+          "typ": "Mehrdeutig",
+          "rank": null,
+          "rank_uncut": 34,
+          "rank_fast": 34,
+          "candidates": 60,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.588798654,
+            "6": 0.587615681,
+            "10": 0.569766229,
+            "11": 0.565600818
+          },
+          "tie_5_6": false,
+          "expected_score": 0.431144071,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Photovoltaik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 43,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.877713871,
+            "6": 0.81728251,
+            "10": 0.551034188,
+            "11": 0.525406313
+          },
+          "tie_5_6": false,
+          "expected_score": 1.188365078,
+          "expected_paths": [
+            "gnd_related",
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wärmepumpenregelung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 50,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.573662639,
+            "6": 0.559260023,
+            "10": 0.549884748,
+            "11": 0.541197109
+          },
+          "tie_5_6": false,
+          "expected_score": 0.603308618,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Energie speichern für später",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 62,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.562640119,
+            "6": 0.558572614,
+            "10": 0.550529206,
+            "11": 0.544942129
+          },
+          "tie_5_6": false,
+          "expected_score": 0.614593029,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Power-to-X",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 55,
+          "candidates_with_path": 55,
+          "scores_at": {
+            "5": 0.594867963,
+            "6": 0.589240924,
+            "10": 0.584843549,
+            "11": 0.584300944
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Stahl",
+          "typ": "Fachbegriff",
+          "rank": 19,
+          "rank_uncut": 19,
+          "rank_fast": 19,
+          "candidates": 116,
+          "candidates_with_path": 94,
+          "scores_at": {
+            "5": 0.615168917,
+            "6": 0.604877043,
+            "10": 0.587428719,
+            "11": 0.586950779
+          },
+          "tie_5_6": false,
+          "expected_score": 0.498597866,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Korrosionsschutz von Aluminium",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 51,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.462222064,
+            "6": 0.457538712,
+            "10": 0.36769926,
+            "11": 0.365869099
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kunststoff, der sich selbst repariert",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 71,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.584769893,
+            "6": 0.582959688,
+            "10": 0.571496391,
+            "11": 0.570550025
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Datenbank",
+          "typ": "Fachbegriff",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 73,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 0.667821658,
+            "6": 0.632112163,
+            "10": 0.601361859,
+            "11": 0.585470676
+          },
+          "tie_5_6": false,
+          "expected_score": 0.819174504,
+          "expected_paths": [
+            "gnd_broader",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Datensicherheit in Unternehmensnetzwerken",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 61,
+          "candidates_with_path": 41,
+          "scores_at": {
+            "5": 0.429904056,
+            "6": 0.349697471,
+            "10": 0.334893394,
+            "11": 0.329781377
+          },
+          "tie_5_6": false,
+          "expected_score": 0.510826123,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Stahlbeton",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 90,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.841584444,
+            "6": 0.835807729,
+            "10": 0.602367961,
+            "11": 0.571985805
+          },
+          "tie_5_6": false,
+          "expected_score": 1.298695779,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Häuser, die kaum Energie verbrauchen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 63,
+          "candidates_with_path": 37,
+          "scores_at": {
+            "5": 0.489770329,
+            "6": 0.487916505,
+            "10": 0.383809519,
+            "11": 0.381486714
+          },
+          "tie_5_6": false,
+          "expected_score": 0.570950639,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "BIM",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 84,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.574865189,
+            "6": 0.546455294,
+            "10": 0.464479339,
+            "11": 0.463789392
+          },
+          "tie_5_6": false,
+          "expected_score": 1.085462147,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Regelungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 124,
+          "candidates_with_path": 99,
+          "scores_at": {
+            "5": 1.275355887,
+            "6": 1.271671438,
+            "10": 0.899196005,
+            "11": 0.89606303
+          },
+          "tie_5_6": false,
+          "expected_score": 1.287614381,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "PID-Regler Auslegung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 41,
+          "candidates_with_path": 40,
+          "scores_at": {
+            "5": 0.346374863,
+            "6": 0.340592122,
+            "10": 0.316645509,
+            "11": 0.311723554
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+          "typ": "Fachfremd umschrieben",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 45,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.459841895,
+            "6": 0.456841195,
+            "10": 0.355464566,
+            "11": 0.351763749
+          },
+          "tie_5_6": false,
+          "expected_score": 0.464558303,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Projektmanagement",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 147,
+          "candidates_with_path": 116,
+          "scores_at": {
+            "5": 1.261981416,
+            "6": 0.766028988,
+            "10": 0.742484331,
+            "11": 0.7408764
+          },
+          "tie_5_6": false,
+          "expected_score": 1.291581786,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Lean Production in der Automobilindustrie",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 8,
+          "candidates_with_path": 8,
+          "scores_at": {
+            "5": 0.300457233,
+            "6": 0.284276628,
+            "10": null,
+            "11": null
+          },
+          "tie_5_6": false,
+          "expected_score": 0.564515424,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Bank",
+          "typ": "Mehrdeutig",
+          "rank": 20,
+          "rank_uncut": 20,
+          "rank_fast": 20,
+          "candidates": 53,
+          "candidates_with_path": 49,
+          "scores_at": {
+            "5": 1.255947351,
+            "6": 1.242790371,
+            "10": 0.995029414,
+            "11": 0.878688884
+          },
+          "tie_5_6": false,
+          "expected_score": 0.642812431,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Supply Chain",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 40,
+          "candidates_with_path": 35,
+          "scores_at": {
+            "5": 0.406394291,
+            "6": 0.396877646,
+            "10": 0.364132208,
+            "11": 0.360137916
+          },
+          "tie_5_6": false,
+          "expected_score": 0.505601549,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Hydraulik",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 87,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.641087627,
+            "6": 0.636040616,
+            "10": 0.623504519,
+            "11": 0.619810843
+          },
+          "tie_5_6": false,
+          "expected_score": 1.273516238,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Zahnrad",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 49,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.46060245,
+            "6": 0.449570382,
+            "10": 0.418356174,
+            "11": 0.418253183
+          },
+          "tie_5_6": false,
+          "expected_score": 1.190981773,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Additive Fertigung von Metallbauteilen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 66,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.561553133,
+            "6": 0.558981943,
+            "10": 0.534047389,
+            "11": 0.490191054
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kühlung von Verbrennungsmotoren",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 55,
+          "candidates_with_path": 23,
+          "scores_at": {
+            "5": 0.529701173,
+            "6": 0.528509903,
+            "10": 0.50634501,
+            "11": 0.503473079
+          },
+          "tie_5_6": false,
+          "expected_score": 0.630241215,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie ein Motor im Auto funktioniert",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 38,
+          "rank_fast": 38,
+          "candidates": 53,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.529106879,
+            "6": 0.526221156,
+            "10": 0.51141727,
+            "11": 0.497484231
+          },
+          "tie_5_6": false,
+          "expected_score": 0.107388723,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Warum Maschinen vibrieren",
+          "typ": "Fachfremd umschrieben",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 48,
+          "candidates_with_path": 32,
+          "scores_at": {
+            "5": 0.42610352,
+            "6": 0.423494887,
+            "10": 0.321715569,
+            "11": 0.319339716
+          },
+          "tie_5_6": false,
+          "expected_score": 0.42681855,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Elektromotor",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 64,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.86175673,
+            "6": 0.829172075,
+            "10": 0.59212991,
+            "11": 0.571162796
+          },
+          "tie_5_6": false,
+          "expected_score": 1.290372348,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Akkumulator",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 85,
+          "candidates_with_path": 74,
+          "scores_at": {
+            "5": 0.382065171,
+            "6": 0.377088088,
+            "10": 0.361785877,
+            "11": 0.361683488
+          },
+          "tie_5_6": false,
+          "expected_score": 1.249397832,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 91,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 0.514977038,
+            "6": 0.50931251,
+            "10": 0.480382943,
+            "11": 0.404592782
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Lithium-Ionen-Batterien als Heimspeicher",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 30,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.318446577,
+            "6": 0.305130911,
+            "10": 0.290282661,
+            "11": 0.284426606
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 58,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.567926931,
+            "6": 0.567552876,
+            "10": 0.556047058,
+            "11": 0.549525559
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Keramik",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 133,
+          "candidates_with_path": 116,
+          "scores_at": {
+            "5": 0.780562854,
+            "6": 0.779001594,
+            "10": 0.629314399,
+            "11": 0.622087562
+          },
+          "tie_5_6": false,
+          "expected_score": 0.875315845,
+          "expected_paths": [
+            "gnd_related",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Legierung",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 105,
+          "candidates_with_path": 88,
+          "scores_at": {
+            "5": 0.606554729,
+            "6": 0.592302465,
+            "10": 0.458145887,
+            "11": 0.457208878
+          },
+          "tie_5_6": false,
+          "expected_score": 1.193457937,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Leichte Materialien für Flugzeuge",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 44,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.552808952,
+            "6": 0.551855874,
+            "10": 0.542651963,
+            "11": 0.537957239
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.415640569,
+            "6": 0.415303302,
+            "10": 0.319007051,
+            "11": 0.312751263
+          },
+          "tie_5_6": false,
+          "expected_score": 0.459049273,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Baustatik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 81,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.592927417,
+            "6": 0.575032938,
+            "10": 0.469230306,
+            "11": 0.46920833
+          },
+          "tie_5_6": false,
+          "expected_score": 1.2485448,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Tunnelbau",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 47,
+          "scores_at": {
+            "5": 0.683685803,
+            "6": 0.650693107,
+            "10": 0.60668925,
+            "11": 0.604951465
+          },
+          "tie_5_6": false,
+          "expected_score": 1.280855703,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Häuser nicht einstürzen",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 77,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.332636732,
+            "6": 0.331233042,
+            "10": 0.321137321,
+            "11": 0.320021474
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Decke",
+          "typ": "Mehrdeutig",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 72,
+          "candidates_with_path": 63,
+          "scores_at": {
+            "5": 0.504640877,
+            "6": 0.501252294,
+            "10": 0.481956792,
+            "11": 0.48161695
+          },
+          "tie_5_6": false,
+          "expected_score": 1.268554187,
+          "expected_paths": [
+            "gnd_narrower",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Robotik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 44,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.569295323,
+            "6": 0.419955683,
+            "10": 0.314625633,
+            "11": 0.312219965
+          },
+          "tie_5_6": false,
+          "expected_score": 1.283378673,
+          "expected_paths": [
+            "gnd_related",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Temperaturmessung in Industrieöfen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 61,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.524354744,
+            "6": 0.524095249,
+            "10": 0.415044284,
+            "11": 0.395661432
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Roboter, die mit Menschen zusammenarbeiten",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 19,
+          "candidates_with_path": 17,
+          "scores_at": {
+            "5": 0.541397738,
+            "6": 0.430405307,
+            "10": 0.302481592,
+            "11": 0.294698089
+          },
+          "tie_5_6": false,
+          "expected_score": 0.556902337,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Logistik",
+          "typ": "Fachbegriff",
+          "rank": 5,
+          "rank_uncut": 5,
+          "rank_fast": 5,
+          "candidates": 90,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 1.262803447,
+            "6": 1.256175709,
+            "10": 0.93765009,
+            "11": 0.92704159
+          },
+          "tie_5_6": false,
+          "expected_score": 1.262803447,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mitarbeitende gut führen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 12,
+          "rank_uncut": 12,
+          "rank_fast": 12,
+          "candidates": 61,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.395553249,
+            "6": 0.385526776,
+            "10": 0.363661093,
+            "11": 0.357849848
+          },
+          "tie_5_6": false,
+          "expected_score": 0.35565201,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        }
+      ],
+      "histogram": {
+        "1": 21,
+        "2": 4,
+        "3": 3,
+        "4": 3,
+        "5": 1,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 1,
+        "13": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "18": 0,
+        "19": 1,
+        "20": 1,
+        "nach Platz 20 (abgeschnitten)": 3,
+        "nicht unter den Kandidaten": 12
+      },
+      "hit@5": 0.64,
+      "hit@10": 0.64,
+      "hit@5_fast": 0.64,
+      "hit@10_fast": 0.64,
+      "rank_6_to_10": 0,
+      "fast_matches_reference": true,
+      "ties_at_5_6": 0,
+      "expected_found": 38,
+      "expected_with_norm_path": 36,
+      "expected_vector_only": 2,
+      "queries_with_10_path_candidates": 49
+    },
+    "test": {
+      "per_query": [
+        {
+          "query": "Wälzlager",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 80,
+          "candidates_with_path": 64,
+          "scores_at": {
+            "5": 0.473220462,
+            "6": 0.471183389,
+            "10": 0.466931635,
+            "11": 0.466224837
+          },
+          "tie_5_6": false,
+          "expected_score": 0.621679246,
+          "expected_paths": [
+            "gnd_broader"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mutter",
+          "typ": "Mehrdeutig",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 77,
+          "candidates_with_path": 73,
+          "scores_at": {
+            "5": 0.722385132,
+            "6": 0.714111876,
+            "10": 0.578682962,
+            "11": 0.57837936
+          },
+          "tie_5_6": false,
+          "expected_score": 1.065982133,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Halbleiter",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": 26,
+          "rank_fast": 26,
+          "candidates": 119,
+          "candidates_with_path": 95,
+          "scores_at": {
+            "5": 1.18903842,
+            "6": 0.934242427,
+            "10": 0.619003242,
+            "11": 0.605088484
+          },
+          "tie_5_6": false,
+          "expected_score": 0.484413409,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Leistungselektronik für Elektroautos",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 87,
+          "candidates_with_path": 57,
+          "scores_at": {
+            "5": 0.550826287,
+            "6": 0.549696016,
+            "10": 0.544300508,
+            "11": 0.541321635
+          },
+          "tie_5_6": false,
+          "expected_score": 0.557981968,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Smart Grid",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 20,
+          "candidates_with_path": 20,
+          "scores_at": {
+            "5": 0.306009054,
+            "6": 0.302344739,
+            "10": 0.291918623,
+            "11": 0.289414716
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wärmepumpe",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 38,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.70956167,
+            "6": 0.575991225,
+            "10": 0.544673014,
+            "11": 0.540670252
+          },
+          "tie_5_6": false,
+          "expected_score": 1.254145217,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Rotorblätter von Windkraftanlagen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 51,
+          "candidates_with_path": 40,
+          "scores_at": {
+            "5": 0.489243579,
+            "6": 0.487408018,
+            "10": 0.469371486,
+            "11": 0.461063337
+          },
+          "tie_5_6": false,
+          "expected_score": 0.540410399,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Strom aus Sonnenlicht",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 47,
+          "rank_fast": 47,
+          "candidates": 67,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.516117573,
+            "6": 0.496423316,
+            "10": 0.409810448,
+            "11": 0.407871819
+          },
+          "tie_5_6": false,
+          "expected_score": 0.117564631,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Faserverbundwerkstoffe",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 60,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.5510566,
+            "6": 0.545073164,
+            "10": 0.493958497,
+            "11": 0.476318538
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Metall rostet",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 65,
+          "candidates_with_path": 41,
+          "scores_at": {
+            "5": 0.59066546,
+            "6": 0.590250993,
+            "10": 0.581496561,
+            "11": 0.580335069
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Ermüdung",
+          "typ": "Mehrdeutig",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 54,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.956094676,
+            "6": 0.952203971,
+            "10": 0.591050574,
+            "11": 0.589928547
+          },
+          "tie_5_6": false,
+          "expected_score": 1.04007538,
+          "expected_paths": [
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Algorithmus",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 93,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.448944426,
+            "6": 0.443359959,
+            "10": 0.34417845,
+            "11": 0.342110544
+          },
+          "tie_5_6": false,
+          "expected_score": 0.582447553,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Neuronale Netze zur Bilderkennung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 69,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.314568096,
+            "6": 0.305958891,
+            "10": 0.293739206,
+            "11": 0.293516403
+          },
+          "tie_5_6": false,
+          "expected_score": 0.412857771,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Computer lernt aus Beispielen",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 90,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.439469981,
+            "6": 0.434609962,
+            "10": 0.365943205,
+            "11": 0.362423599
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Machine Learning",
+          "typ": "Englisch/Jargon",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 29,
+          "candidates_with_path": 29,
+          "scores_at": {
+            "5": 0.310934016,
+            "6": 0.309824562,
+            "10": 0.300492656,
+            "11": 0.299295115
+          },
+          "tie_5_6": false,
+          "expected_score": 0.924975502,
+          "expected_paths": [
+            "gnd_narrower",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Brückenbau",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 44,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.717023563,
+            "6": 0.713178074,
+            "10": 0.700432146,
+            "11": 0.699173236
+          },
+          "tie_5_6": false,
+          "expected_score": 1.300500643,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mehrgeschossiger Holzbau",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 66,
+          "candidates_with_path": 32,
+          "scores_at": {
+            "5": 0.536605263,
+            "6": 0.516824698,
+            "10": 0.448159778,
+            "11": 0.442112374
+          },
+          "tie_5_6": false,
+          "expected_score": 0.59472754,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie man Gebäude erdbebensicher macht",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 87,
+          "candidates_with_path": 54,
+          "scores_at": {
+            "5": 0.517402053,
+            "6": 0.517227101,
+            "10": 0.509416962,
+            "11": 0.503317916
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Sensor",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 125,
+          "candidates_with_path": 98,
+          "scores_at": {
+            "5": 0.615631938,
+            "6": 0.605410361,
+            "10": 0.503245986,
+            "11": 0.50230372
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Messunsicherheit bestimmen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 31,
+          "rank_fast": 31,
+          "candidates": 34,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.360867333,
+            "6": 0.358741987,
+            "10": 0.350786948,
+            "11": 0.348859644
+          },
+          "tie_5_6": false,
+          "expected_score": 0.104814684,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Industrie 4.0",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 91,
+          "candidates_with_path": 64,
+          "scores_at": {
+            "5": 0.383450544,
+            "6": 0.37831291,
+            "10": 0.372835481,
+            "11": 0.369616169
+          },
+          "tie_5_6": false,
+          "expected_score": 1.30316186,
+          "expected_paths": [
+            "gnd_narrower",
+            "gnd_related",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Qualitätsmanagement",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 52,
+          "scores_at": {
+            "5": 1.024077082,
+            "6": 1.022200799,
+            "10": 0.935258162,
+            "11": 0.807710004
+          },
+          "tie_5_6": false,
+          "expected_score": 1.321784508,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie Firmen ihre Abläufe verbessern",
+          "typ": "Fachfremd umschrieben",
+          "rank": 13,
+          "rank_uncut": 13,
+          "rank_fast": 13,
+          "candidates": 86,
+          "candidates_with_path": 61,
+          "scores_at": {
+            "5": 0.464441323,
+            "6": 0.461444139,
+            "10": 0.369156492,
+            "11": 0.360283387
+          },
+          "tie_5_6": false,
+          "expected_score": 0.357538593,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Schweißtechnik",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 45,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.624688017,
+            "6": 0.609498215,
+            "10": 0.429690695,
+            "11": 0.41066947
+          },
+          "tie_5_6": false,
+          "expected_score": 0.971640956,
+          "expected_paths": [
+            "gnd_synonym"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Strömungsmaschinen",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 68,
+          "candidates_with_path": 46,
+          "scores_at": {
+            "5": 0.618196201,
+            "6": 0.606734467,
+            "10": 0.571900153,
+            "11": 0.558785462
+          },
+          "tie_5_6": false,
+          "expected_score": 0.696828067,
+          "expected_paths": [
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Verschleiß an Zahnradgetrieben",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 34,
+          "rank_fast": 34,
+          "candidates": 54,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.50818913,
+            "6": 0.501326144,
+            "10": 0.408515412,
+            "11": 0.40670771
+          },
+          "tie_5_6": false,
+          "expected_score": 0.112115228,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 63,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.561133885,
+            "6": 0.560182548,
+            "10": 0.512000322,
+            "11": 0.51080035
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Teile mit dem 3D-Drucker herstellen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 64,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.413598621,
+            "6": 0.326608974,
+            "10": 0.30375818,
+            "11": 0.300482035
+          },
+          "tie_5_6": false,
+          "expected_score": 0.542535794,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Metallteile dauerhaft verbinden",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 69,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.492121482,
+            "6": 0.491892982,
+            "10": 0.482184029,
+            "11": 0.481752765
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Schaltungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 95,
+          "candidates_with_path": 67,
+          "scores_at": {
+            "5": 0.581639266,
+            "6": 0.574816239,
+            "10": 0.547555351,
+            "11": 0.54299674
+          },
+          "tie_5_6": false,
+          "expected_score": 1.177235782,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Hochspannungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 96,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.655391085,
+            "6": 0.623777956,
+            "10": 0.512357569,
+            "11": 0.510728467
+          },
+          "tie_5_6": false,
+          "expected_score": 1.287055707,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wechselrichter für Photovoltaikanlagen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 76,
+          "candidates_with_path": 51,
+          "scores_at": {
+            "5": 0.545814991,
+            "6": 0.536334896,
+            "10": 0.492235088,
+            "11": 0.487493587
+          },
+          "tie_5_6": false,
+          "expected_score": 0.613493824,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Steuerung von Drehstrommotoren",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 54,
+          "candidates_with_path": 24,
+          "scores_at": {
+            "5": 0.550008619,
+            "6": 0.54066962,
+            "10": 0.498021412,
+            "11": 0.43037014
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Fernwärmenetze in Städten",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 65,
+          "candidates_with_path": 48,
+          "scores_at": {
+            "5": 0.346608207,
+            "6": 0.342342263,
+            "10": 0.340756178,
+            "11": 0.339205217
+          },
+          "tie_5_6": false,
+          "expected_score": 0.501671553,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Polymere",
+          "typ": "Fachbegriff",
+          "rank": 12,
+          "rank_uncut": 12,
+          "rank_fast": 12,
+          "candidates": 95,
+          "candidates_with_path": 89,
+          "scores_at": {
+            "5": 1.2384305,
+            "6": 1.227219164,
+            "10": 1.211059546,
+            "11": 0.993583632
+          },
+          "tie_5_6": false,
+          "expected_score": 0.910565257,
+          "expected_paths": [
+            "gnd_related",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Zugversuch an Stahlproben",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 25,
+          "rank_fast": 25,
+          "candidates": 58,
+          "candidates_with_path": 29,
+          "scores_at": {
+            "5": 0.543104661,
+            "6": 0.542437959,
+            "10": 0.433831,
+            "11": 0.416841841
+          },
+          "tie_5_6": false,
+          "expected_score": 0.353893405,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Glas bricht",
+          "typ": "Fachfremd umschrieben",
+          "rank": 5,
+          "rank_uncut": 5,
+          "rank_fast": 5,
+          "candidates": 32,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.426585448,
+            "6": 0.369201267,
+            "10": 0.328422442,
+            "11": 0.311452499
+          },
+          "tie_5_6": false,
+          "expected_score": 0.426585448,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Smart Materials",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 106,
+          "candidates_with_path": 76,
+          "scores_at": {
+            "5": 0.505622339,
+            "6": 0.492190731,
+            "10": 0.389758897,
+            "11": 0.386069155
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Programmiersprache",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 143,
+          "candidates_with_path": 110,
+          "scores_at": {
+            "5": 0.547100556,
+            "6": 0.438264668,
+            "10": 0.431478727,
+            "11": 0.430944276
+          },
+          "tie_5_6": false,
+          "expected_score": 1.304151368,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Virus",
+          "typ": "Mehrdeutig",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 91,
+          "candidates_with_path": 56,
+          "scores_at": {
+            "5": 1.003157377,
+            "6": 0.987452883,
+            "10": 0.860572267,
+            "11": 0.845471215
+          },
+          "tie_5_6": false,
+          "expected_score": 1.100257587,
+          "expected_paths": [
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Baustoffe",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 165,
+          "candidates_with_path": 142,
+          "scores_at": {
+            "5": 1.173550224,
+            "6": 1.170175016,
+            "10": 1.071864355,
+            "11": 0.982971191
+          },
+          "tie_5_6": false,
+          "expected_score": 1.198779702,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Brandschutz im Hochbau",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 49,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.56181829,
+            "6": 0.558428216,
+            "10": 0.480538356,
+            "11": 0.476579964
+          },
+          "tie_5_6": false,
+          "expected_score": 0.639930773,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Feuchte Wände im Keller",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 29,
+          "candidates_with_path": 28,
+          "scores_at": {
+            "5": 0.320322406,
+            "6": 0.314301288,
+            "10": 0.304551482,
+            "11": 0.299398458
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Automatisierungstechnik",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": 22,
+          "rank_fast": 22,
+          "candidates": 118,
+          "candidates_with_path": 103,
+          "scores_at": {
+            "5": 0.800691319,
+            "6": 0.793060571,
+            "10": 0.712823081,
+            "11": 0.709856617
+          },
+          "tie_5_6": false,
+          "expected_score": 0.653362942,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie eine Fabrik von selbst läuft",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 70,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.520397413,
+            "6": 0.507007957,
+            "10": 0.415734851,
+            "11": 0.415068102
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kostenrechnung",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 55,
+          "candidates_with_path": 49,
+          "scores_at": {
+            "5": 0.992184138,
+            "6": 0.989732111,
+            "10": 0.627923083,
+            "11": 0.61975286
+          },
+          "tie_5_6": false,
+          "expected_score": 1.246612817,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Innovationsmanagement in Technologieunternehmen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 80,
+          "candidates_with_path": 46,
+          "scores_at": {
+            "5": 0.451097572,
+            "6": 0.411959851,
+            "10": 0.393957818,
+            "11": 0.383285356
+          },
+          "tie_5_6": false,
+          "expected_score": 0.612519979,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        }
+      ],
+      "histogram": {
+        "1": 14,
+        "2": 4,
+        "3": 6,
+        "4": 2,
+        "5": 1,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 1,
+        "13": 1,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "18": 0,
+        "19": 0,
+        "20": 0,
+        "nach Platz 20 (abgeschnitten)": 6,
+        "nicht unter den Kandidaten": 12
+      },
+      "hit@5": 0.5745,
+      "hit@10": 0.5745,
+      "hit@5_fast": 0.5745,
+      "hit@10_fast": 0.5745,
+      "rank_6_to_10": 0,
+      "fast_matches_reference": true,
+      "ties_at_5_6": 0,
+      "expected_found": 35,
+      "expected_with_norm_path": 32,
+      "expected_vector_only": 3,
+      "queries_with_10_path_candidates": 47
+    },
+    "full": {
+      "per_query": [
+        {
+          "query": "Getriebe",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 57,
+          "candidates_with_path": 36,
+          "scores_at": {
+            "5": 1.227905178,
+            "6": 1.219011414,
+            "10": 0.48841337,
+            "11": 0.474352539
+          },
+          "tie_5_6": false,
+          "expected_score": 1.231750321,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wälzlager",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 80,
+          "candidates_with_path": 64,
+          "scores_at": {
+            "5": 0.473220462,
+            "6": 0.471183389,
+            "10": 0.466931635,
+            "11": 0.466224837
+          },
+          "tie_5_6": false,
+          "expected_score": 0.621679246,
+          "expected_paths": [
+            "gnd_broader"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Gleitlagerschmierung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 63,
+          "candidates_with_path": 34,
+          "scores_at": {
+            "5": 0.430315495,
+            "6": 0.429021025,
+            "10": 0.412302399,
+            "11": 0.407896388
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie Kräfte in Maschinen übertragen werden",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 57,
+          "rank_fast": 57,
+          "candidates": 67,
+          "candidates_with_path": 48,
+          "scores_at": {
+            "5": 0.475053477,
+            "6": 0.467259336,
+            "10": 0.446772099,
+            "11": 0.393870473
+          },
+          "tie_5_6": false,
+          "expected_score": 0.119644189,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Feder",
+          "typ": "Mehrdeutig",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 72,
+          "candidates_with_path": 72,
+          "scores_at": {
+            "5": 0.482570547,
+            "6": 0.480208993,
+            "10": 0.465681136,
+            "11": 0.465029943
+          },
+          "tie_5_6": false,
+          "expected_score": 1.239361745,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mutter",
+          "typ": "Mehrdeutig",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 77,
+          "candidates_with_path": 73,
+          "scores_at": {
+            "5": 0.722385132,
+            "6": 0.714111876,
+            "10": 0.578682962,
+            "11": 0.57837936
+          },
+          "tie_5_6": false,
+          "expected_score": 1.065982133,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "CAD",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 104,
+          "candidates_with_path": 103,
+          "scores_at": {
+            "5": 0.814564872,
+            "6": 0.610092413,
+            "10": 0.572870523,
+            "11": 0.565645397
+          },
+          "tie_5_6": false,
+          "expected_score": 1.281577539,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Transformator",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 34,
+          "candidates_with_path": 34,
+          "scores_at": {
+            "5": 0.630881643,
+            "6": 0.623444355,
+            "10": 0.365474731,
+            "11": 0.350484341
+          },
+          "tie_5_6": false,
+          "expected_score": 1.266346049,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Halbleiter",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": 26,
+          "rank_fast": 26,
+          "candidates": 119,
+          "candidates_with_path": 95,
+          "scores_at": {
+            "5": 1.18903842,
+            "6": 0.934242427,
+            "10": 0.619003242,
+            "11": 0.605088484
+          },
+          "tie_5_6": false,
+          "expected_score": 0.484413409,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Leistungselektronik für Elektroautos",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 87,
+          "candidates_with_path": 57,
+          "scores_at": {
+            "5": 0.550826287,
+            "6": 0.549696016,
+            "10": 0.544300508,
+            "11": 0.541321635
+          },
+          "tie_5_6": false,
+          "expected_score": 0.557981968,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Spannung",
+          "typ": "Mehrdeutig",
+          "rank": null,
+          "rank_uncut": 34,
+          "rank_fast": 34,
+          "candidates": 60,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.588798654,
+            "6": 0.587615681,
+            "10": 0.569766229,
+            "11": 0.565600818
+          },
+          "tie_5_6": false,
+          "expected_score": 0.431144071,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Smart Grid",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 20,
+          "candidates_with_path": 20,
+          "scores_at": {
+            "5": 0.306009054,
+            "6": 0.302344739,
+            "10": 0.291918623,
+            "11": 0.289414716
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Photovoltaik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 43,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.877713871,
+            "6": 0.81728251,
+            "10": 0.551034188,
+            "11": 0.525406313
+          },
+          "tie_5_6": false,
+          "expected_score": 1.188365078,
+          "expected_paths": [
+            "gnd_related",
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wärmepumpe",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 38,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.70956167,
+            "6": 0.575991225,
+            "10": 0.544673014,
+            "11": 0.540670252
+          },
+          "tie_5_6": false,
+          "expected_score": 1.254145217,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wärmepumpenregelung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 50,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.573662639,
+            "6": 0.559260023,
+            "10": 0.549884748,
+            "11": 0.541197109
+          },
+          "tie_5_6": false,
+          "expected_score": 0.603308618,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Rotorblätter von Windkraftanlagen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 51,
+          "candidates_with_path": 40,
+          "scores_at": {
+            "5": 0.489243579,
+            "6": 0.487408018,
+            "10": 0.469371486,
+            "11": 0.461063337
+          },
+          "tie_5_6": false,
+          "expected_score": 0.540410399,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Strom aus Sonnenlicht",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 47,
+          "rank_fast": 47,
+          "candidates": 67,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.516117573,
+            "6": 0.496423316,
+            "10": 0.409810448,
+            "11": 0.407871819
+          },
+          "tie_5_6": false,
+          "expected_score": 0.117564631,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Energie speichern für später",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 62,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.562640119,
+            "6": 0.558572614,
+            "10": 0.550529206,
+            "11": 0.544942129
+          },
+          "tie_5_6": false,
+          "expected_score": 0.614593029,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Power-to-X",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 55,
+          "candidates_with_path": 55,
+          "scores_at": {
+            "5": 0.594867963,
+            "6": 0.589240924,
+            "10": 0.584843549,
+            "11": 0.584300944
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Stahl",
+          "typ": "Fachbegriff",
+          "rank": 19,
+          "rank_uncut": 19,
+          "rank_fast": 19,
+          "candidates": 116,
+          "candidates_with_path": 94,
+          "scores_at": {
+            "5": 0.615168917,
+            "6": 0.604877043,
+            "10": 0.587428719,
+            "11": 0.586950779
+          },
+          "tie_5_6": false,
+          "expected_score": 0.498597866,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Faserverbundwerkstoffe",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 60,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.5510566,
+            "6": 0.545073164,
+            "10": 0.493958497,
+            "11": 0.476318538
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Korrosionsschutz von Aluminium",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 51,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.462222064,
+            "6": 0.457538712,
+            "10": 0.36769926,
+            "11": 0.365869099
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Metall rostet",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 65,
+          "candidates_with_path": 41,
+          "scores_at": {
+            "5": 0.59066546,
+            "6": 0.590250993,
+            "10": 0.581496561,
+            "11": 0.580335069
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kunststoff, der sich selbst repariert",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 71,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.584769893,
+            "6": 0.582959688,
+            "10": 0.571496391,
+            "11": 0.570550025
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Ermüdung",
+          "typ": "Mehrdeutig",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 54,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.956094676,
+            "6": 0.952203971,
+            "10": 0.591050574,
+            "11": 0.589928547
+          },
+          "tie_5_6": false,
+          "expected_score": 1.04007538,
+          "expected_paths": [
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Datenbank",
+          "typ": "Fachbegriff",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 73,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 0.667821658,
+            "6": 0.632112163,
+            "10": 0.601361859,
+            "11": 0.585470676
+          },
+          "tie_5_6": false,
+          "expected_score": 0.819174504,
+          "expected_paths": [
+            "gnd_broader",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Algorithmus",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 93,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.448944426,
+            "6": 0.443359959,
+            "10": 0.34417845,
+            "11": 0.342110544
+          },
+          "tie_5_6": false,
+          "expected_score": 0.582447553,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Neuronale Netze zur Bilderkennung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 69,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.314568096,
+            "6": 0.305958891,
+            "10": 0.293739206,
+            "11": 0.293516403
+          },
+          "tie_5_6": false,
+          "expected_score": 0.412857771,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Datensicherheit in Unternehmensnetzwerken",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 61,
+          "candidates_with_path": 41,
+          "scores_at": {
+            "5": 0.429904056,
+            "6": 0.349697471,
+            "10": 0.334893394,
+            "11": 0.329781377
+          },
+          "tie_5_6": false,
+          "expected_score": 0.510826123,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Computer lernt aus Beispielen",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 90,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.439469981,
+            "6": 0.434609962,
+            "10": 0.365943205,
+            "11": 0.362423599
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Machine Learning",
+          "typ": "Englisch/Jargon",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 29,
+          "candidates_with_path": 29,
+          "scores_at": {
+            "5": 0.310934016,
+            "6": 0.309824562,
+            "10": 0.300492656,
+            "11": 0.299295115
+          },
+          "tie_5_6": false,
+          "expected_score": 0.924975502,
+          "expected_paths": [
+            "gnd_narrower",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Stahlbeton",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 90,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.841584444,
+            "6": 0.835807729,
+            "10": 0.602367961,
+            "11": 0.571985805
+          },
+          "tie_5_6": false,
+          "expected_score": 1.298695779,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Brückenbau",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 44,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.717023563,
+            "6": 0.713178074,
+            "10": 0.700432146,
+            "11": 0.699173236
+          },
+          "tie_5_6": false,
+          "expected_score": 1.300500643,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mehrgeschossiger Holzbau",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 66,
+          "candidates_with_path": 32,
+          "scores_at": {
+            "5": 0.536605263,
+            "6": 0.516824698,
+            "10": 0.448159778,
+            "11": 0.442112374
+          },
+          "tie_5_6": false,
+          "expected_score": 0.59472754,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Häuser, die kaum Energie verbrauchen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 63,
+          "candidates_with_path": 37,
+          "scores_at": {
+            "5": 0.489770329,
+            "6": 0.487916505,
+            "10": 0.383809519,
+            "11": 0.381486714
+          },
+          "tie_5_6": false,
+          "expected_score": 0.570950639,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie man Gebäude erdbebensicher macht",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 87,
+          "candidates_with_path": 54,
+          "scores_at": {
+            "5": 0.517402053,
+            "6": 0.517227101,
+            "10": 0.509416962,
+            "11": 0.503317916
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "BIM",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 84,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.574865189,
+            "6": 0.546455294,
+            "10": 0.464479339,
+            "11": 0.463789392
+          },
+          "tie_5_6": false,
+          "expected_score": 1.085462147,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Regelungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 124,
+          "candidates_with_path": 99,
+          "scores_at": {
+            "5": 1.275355887,
+            "6": 1.271671438,
+            "10": 0.899196005,
+            "11": 0.89606303
+          },
+          "tie_5_6": false,
+          "expected_score": 1.287614381,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Sensor",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 125,
+          "candidates_with_path": 98,
+          "scores_at": {
+            "5": 0.615631938,
+            "6": 0.605410361,
+            "10": 0.503245986,
+            "11": 0.50230372
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "PID-Regler Auslegung",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 41,
+          "candidates_with_path": 40,
+          "scores_at": {
+            "5": 0.346374863,
+            "6": 0.340592122,
+            "10": 0.316645509,
+            "11": 0.311723554
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Messunsicherheit bestimmen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 31,
+          "rank_fast": 31,
+          "candidates": 34,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.360867333,
+            "6": 0.358741987,
+            "10": 0.350786948,
+            "11": 0.348859644
+          },
+          "tie_5_6": false,
+          "expected_score": 0.104814684,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+          "typ": "Fachfremd umschrieben",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 45,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.459841895,
+            "6": 0.456841195,
+            "10": 0.355464566,
+            "11": 0.351763749
+          },
+          "tie_5_6": false,
+          "expected_score": 0.464558303,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Industrie 4.0",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 91,
+          "candidates_with_path": 64,
+          "scores_at": {
+            "5": 0.383450544,
+            "6": 0.37831291,
+            "10": 0.372835481,
+            "11": 0.369616169
+          },
+          "tie_5_6": false,
+          "expected_score": 1.30316186,
+          "expected_paths": [
+            "gnd_narrower",
+            "gnd_related",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Projektmanagement",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 147,
+          "candidates_with_path": 116,
+          "scores_at": {
+            "5": 1.261981416,
+            "6": 0.766028988,
+            "10": 0.742484331,
+            "11": 0.7408764
+          },
+          "tie_5_6": false,
+          "expected_score": 1.291581786,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Qualitätsmanagement",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 52,
+          "scores_at": {
+            "5": 1.024077082,
+            "6": 1.022200799,
+            "10": 0.935258162,
+            "11": 0.807710004
+          },
+          "tie_5_6": false,
+          "expected_score": 1.321784508,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Lean Production in der Automobilindustrie",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 8,
+          "candidates_with_path": 8,
+          "scores_at": {
+            "5": 0.300457233,
+            "6": 0.284276628,
+            "10": null,
+            "11": null
+          },
+          "tie_5_6": false,
+          "expected_score": 0.564515424,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie Firmen ihre Abläufe verbessern",
+          "typ": "Fachfremd umschrieben",
+          "rank": 13,
+          "rank_uncut": 13,
+          "rank_fast": 13,
+          "candidates": 86,
+          "candidates_with_path": 61,
+          "scores_at": {
+            "5": 0.464441323,
+            "6": 0.461444139,
+            "10": 0.369156492,
+            "11": 0.360283387
+          },
+          "tie_5_6": false,
+          "expected_score": 0.357538593,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Bank",
+          "typ": "Mehrdeutig",
+          "rank": 20,
+          "rank_uncut": 20,
+          "rank_fast": 20,
+          "candidates": 53,
+          "candidates_with_path": 49,
+          "scores_at": {
+            "5": 1.255947351,
+            "6": 1.242790371,
+            "10": 0.995029414,
+            "11": 0.878688884
+          },
+          "tie_5_6": false,
+          "expected_score": 0.642812431,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Supply Chain",
+          "typ": "Englisch/Jargon",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 40,
+          "candidates_with_path": 35,
+          "scores_at": {
+            "5": 0.406394291,
+            "6": 0.396877646,
+            "10": 0.364132208,
+            "11": 0.360137916
+          },
+          "tie_5_6": false,
+          "expected_score": 0.505601549,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Hydraulik",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 87,
+          "candidates_with_path": 60,
+          "scores_at": {
+            "5": 0.641087627,
+            "6": 0.636040616,
+            "10": 0.623504519,
+            "11": 0.619810843
+          },
+          "tie_5_6": false,
+          "expected_score": 1.273516238,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Schweißtechnik",
+          "typ": "Fachbegriff",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 45,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.624688017,
+            "6": 0.609498215,
+            "10": 0.429690695,
+            "11": 0.41066947
+          },
+          "tie_5_6": false,
+          "expected_score": 0.971640956,
+          "expected_paths": [
+            "gnd_synonym"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Zahnrad",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 49,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.46060245,
+            "6": 0.449570382,
+            "10": 0.418356174,
+            "11": 0.418253183
+          },
+          "tie_5_6": false,
+          "expected_score": 1.190981773,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Strömungsmaschinen",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 68,
+          "candidates_with_path": 46,
+          "scores_at": {
+            "5": 0.618196201,
+            "6": 0.606734467,
+            "10": 0.571900153,
+            "11": 0.558785462
+          },
+          "tie_5_6": false,
+          "expected_score": 0.696828067,
+          "expected_paths": [
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Verschleiß an Zahnradgetrieben",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 34,
+          "rank_fast": 34,
+          "candidates": 54,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.50818913,
+            "6": 0.501326144,
+            "10": 0.408515412,
+            "11": 0.40670771
+          },
+          "tie_5_6": false,
+          "expected_score": 0.112115228,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Additive Fertigung von Metallbauteilen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 66,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.561553133,
+            "6": 0.558981943,
+            "10": 0.534047389,
+            "11": 0.490191054
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 63,
+          "candidates_with_path": 38,
+          "scores_at": {
+            "5": 0.561133885,
+            "6": 0.560182548,
+            "10": 0.512000322,
+            "11": 0.51080035
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kühlung von Verbrennungsmotoren",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 55,
+          "candidates_with_path": 23,
+          "scores_at": {
+            "5": 0.529701173,
+            "6": 0.528509903,
+            "10": 0.50634501,
+            "11": 0.503473079
+          },
+          "tie_5_6": false,
+          "expected_score": 0.630241215,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie ein Motor im Auto funktioniert",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": 38,
+          "rank_fast": 38,
+          "candidates": 53,
+          "candidates_with_path": 25,
+          "scores_at": {
+            "5": 0.529106879,
+            "6": 0.526221156,
+            "10": 0.51141727,
+            "11": 0.497484231
+          },
+          "tie_5_6": false,
+          "expected_score": 0.107388723,
+          "expected_paths": [],
+          "expected_vector_only": true
+        },
+        {
+          "query": "Teile mit dem 3D-Drucker herstellen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 64,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.413598621,
+            "6": 0.326608974,
+            "10": 0.30375818,
+            "11": 0.300482035
+          },
+          "tie_5_6": false,
+          "expected_score": 0.542535794,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Maschinen vibrieren",
+          "typ": "Fachfremd umschrieben",
+          "rank": 4,
+          "rank_uncut": 4,
+          "rank_fast": 4,
+          "candidates": 48,
+          "candidates_with_path": 32,
+          "scores_at": {
+            "5": 0.42610352,
+            "6": 0.423494887,
+            "10": 0.321715569,
+            "11": 0.319339716
+          },
+          "tie_5_6": false,
+          "expected_score": 0.42681855,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Metallteile dauerhaft verbinden",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 69,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.492121482,
+            "6": 0.491892982,
+            "10": 0.482184029,
+            "11": 0.481752765
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Elektromotor",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 64,
+          "candidates_with_path": 43,
+          "scores_at": {
+            "5": 0.86175673,
+            "6": 0.829172075,
+            "10": 0.59212991,
+            "11": 0.571162796
+          },
+          "tie_5_6": false,
+          "expected_score": 1.290372348,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Schaltungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 95,
+          "candidates_with_path": 67,
+          "scores_at": {
+            "5": 0.581639266,
+            "6": 0.574816239,
+            "10": 0.547555351,
+            "11": 0.54299674
+          },
+          "tie_5_6": false,
+          "expected_score": 1.177235782,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Akkumulator",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 85,
+          "candidates_with_path": 74,
+          "scores_at": {
+            "5": 0.382065171,
+            "6": 0.377088088,
+            "10": 0.361785877,
+            "11": 0.361683488
+          },
+          "tie_5_6": false,
+          "expected_score": 1.249397832,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Hochspannungstechnik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 96,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.655391085,
+            "6": 0.623777956,
+            "10": 0.512357569,
+            "11": 0.510728467
+          },
+          "tie_5_6": false,
+          "expected_score": 1.287055707,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wechselrichter für Photovoltaikanlagen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 76,
+          "candidates_with_path": 51,
+          "scores_at": {
+            "5": 0.545814991,
+            "6": 0.536334896,
+            "10": 0.492235088,
+            "11": 0.487493587
+          },
+          "tie_5_6": false,
+          "expected_score": 0.613493824,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 91,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 0.514977038,
+            "6": 0.50931251,
+            "10": 0.480382943,
+            "11": 0.404592782
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Steuerung von Drehstrommotoren",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 54,
+          "candidates_with_path": 24,
+          "scores_at": {
+            "5": 0.550008619,
+            "6": 0.54066962,
+            "10": 0.498021412,
+            "11": 0.43037014
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Lithium-Ionen-Batterien als Heimspeicher",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 30,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.318446577,
+            "6": 0.305130911,
+            "10": 0.290282661,
+            "11": 0.284426606
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Fernwärmenetze in Städten",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 65,
+          "candidates_with_path": 48,
+          "scores_at": {
+            "5": 0.346608207,
+            "6": 0.342342263,
+            "10": 0.340756178,
+            "11": 0.339205217
+          },
+          "tie_5_6": false,
+          "expected_score": 0.501671553,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 58,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.567926931,
+            "6": 0.567552876,
+            "10": 0.556047058,
+            "11": 0.549525559
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Keramik",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 133,
+          "candidates_with_path": 116,
+          "scores_at": {
+            "5": 0.780562854,
+            "6": 0.779001594,
+            "10": 0.629314399,
+            "11": 0.622087562
+          },
+          "tie_5_6": false,
+          "expected_score": 0.875315845,
+          "expected_paths": [
+            "gnd_related",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Polymere",
+          "typ": "Fachbegriff",
+          "rank": 12,
+          "rank_uncut": 12,
+          "rank_fast": 12,
+          "candidates": 95,
+          "candidates_with_path": 89,
+          "scores_at": {
+            "5": 1.2384305,
+            "6": 1.227219164,
+            "10": 1.211059546,
+            "11": 0.993583632
+          },
+          "tie_5_6": false,
+          "expected_score": 0.910565257,
+          "expected_paths": [
+            "gnd_related",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Legierung",
+          "typ": "Fachbegriff",
+          "rank": 2,
+          "rank_uncut": 2,
+          "rank_fast": 2,
+          "candidates": 105,
+          "candidates_with_path": 88,
+          "scores_at": {
+            "5": 0.606554729,
+            "6": 0.592302465,
+            "10": 0.458145887,
+            "11": 0.457208878
+          },
+          "tie_5_6": false,
+          "expected_score": 1.193457937,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Zugversuch an Stahlproben",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": 25,
+          "rank_fast": 25,
+          "candidates": 58,
+          "candidates_with_path": 29,
+          "scores_at": {
+            "5": 0.543104661,
+            "6": 0.542437959,
+            "10": 0.433831,
+            "11": 0.416841841
+          },
+          "tie_5_6": false,
+          "expected_score": 0.353893405,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Leichte Materialien für Flugzeuge",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 44,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.552808952,
+            "6": 0.551855874,
+            "10": 0.542651963,
+            "11": 0.537957239
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Glas bricht",
+          "typ": "Fachfremd umschrieben",
+          "rank": 5,
+          "rank_uncut": 5,
+          "rank_fast": 5,
+          "candidates": 32,
+          "candidates_with_path": 26,
+          "scores_at": {
+            "5": 0.426585448,
+            "6": 0.369201267,
+            "10": 0.328422442,
+            "11": 0.311452499
+          },
+          "tie_5_6": false,
+          "expected_score": 0.426585448,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Smart Materials",
+          "typ": "Englisch/Jargon",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 106,
+          "candidates_with_path": 76,
+          "scores_at": {
+            "5": 0.505622339,
+            "6": 0.492190731,
+            "10": 0.389758897,
+            "11": 0.386069155
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Programmiersprache",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 143,
+          "candidates_with_path": 110,
+          "scores_at": {
+            "5": 0.547100556,
+            "6": 0.438264668,
+            "10": 0.431478727,
+            "11": 0.430944276
+          },
+          "tie_5_6": false,
+          "expected_score": 1.304151368,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.415640569,
+            "6": 0.415303302,
+            "10": 0.319007051,
+            "11": 0.312751263
+          },
+          "tie_5_6": false,
+          "expected_score": 0.459049273,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Virus",
+          "typ": "Mehrdeutig",
+          "rank": 3,
+          "rank_uncut": 3,
+          "rank_fast": 3,
+          "candidates": 91,
+          "candidates_with_path": 56,
+          "scores_at": {
+            "5": 1.003157377,
+            "6": 0.987452883,
+            "10": 0.860572267,
+            "11": 0.845471215
+          },
+          "tie_5_6": false,
+          "expected_score": 1.100257587,
+          "expected_paths": [
+            "gnd_synonym",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Baustatik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 81,
+          "candidates_with_path": 68,
+          "scores_at": {
+            "5": 0.592927417,
+            "6": 0.575032938,
+            "10": 0.469230306,
+            "11": 0.46920833
+          },
+          "tie_5_6": false,
+          "expected_score": 1.2485448,
+          "expected_paths": [
+            "gnd_broader",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Baustoffe",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 165,
+          "candidates_with_path": 142,
+          "scores_at": {
+            "5": 1.173550224,
+            "6": 1.170175016,
+            "10": 1.071864355,
+            "11": 0.982971191
+          },
+          "tie_5_6": false,
+          "expected_score": 1.198779702,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Tunnelbau",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 75,
+          "candidates_with_path": 47,
+          "scores_at": {
+            "5": 0.683685803,
+            "6": 0.650693107,
+            "10": 0.60668925,
+            "11": 0.604951465
+          },
+          "tie_5_6": false,
+          "expected_score": 1.280855703,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Brandschutz im Hochbau",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 49,
+          "candidates_with_path": 33,
+          "scores_at": {
+            "5": 0.56181829,
+            "6": 0.558428216,
+            "10": 0.480538356,
+            "11": 0.476579964
+          },
+          "tie_5_6": false,
+          "expected_score": 0.639930773,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Warum Häuser nicht einstürzen",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 77,
+          "candidates_with_path": 45,
+          "scores_at": {
+            "5": 0.332636732,
+            "6": 0.331233042,
+            "10": 0.321137321,
+            "11": 0.320021474
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Feuchte Wände im Keller",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 29,
+          "candidates_with_path": 28,
+          "scores_at": {
+            "5": 0.320322406,
+            "6": 0.314301288,
+            "10": 0.304551482,
+            "11": 0.299398458
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Decke",
+          "typ": "Mehrdeutig",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 72,
+          "candidates_with_path": 63,
+          "scores_at": {
+            "5": 0.504640877,
+            "6": 0.501252294,
+            "10": 0.481956792,
+            "11": 0.48161695
+          },
+          "tie_5_6": false,
+          "expected_score": 1.268554187,
+          "expected_paths": [
+            "gnd_narrower",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Automatisierungstechnik",
+          "typ": "Fachbegriff",
+          "rank": null,
+          "rank_uncut": 22,
+          "rank_fast": 22,
+          "candidates": 118,
+          "candidates_with_path": 103,
+          "scores_at": {
+            "5": 0.800691319,
+            "6": 0.793060571,
+            "10": 0.712823081,
+            "11": 0.709856617
+          },
+          "tie_5_6": false,
+          "expected_score": 0.653362942,
+          "expected_paths": [
+            "label_fts"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Robotik",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 44,
+          "candidates_with_path": 42,
+          "scores_at": {
+            "5": 0.569295323,
+            "6": 0.419955683,
+            "10": 0.314625633,
+            "11": 0.312219965
+          },
+          "tie_5_6": false,
+          "expected_score": 1.283378673,
+          "expected_paths": [
+            "gnd_related",
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Temperaturmessung in Industrieöfen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 61,
+          "candidates_with_path": 27,
+          "scores_at": {
+            "5": 0.524354744,
+            "6": 0.524095249,
+            "10": 0.415044284,
+            "11": 0.395661432
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Roboter, die mit Menschen zusammenarbeiten",
+          "typ": "Fachfremd umschrieben",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 19,
+          "candidates_with_path": 17,
+          "scores_at": {
+            "5": 0.541397738,
+            "6": 0.430405307,
+            "10": 0.302481592,
+            "11": 0.294698089
+          },
+          "tie_5_6": false,
+          "expected_score": 0.556902337,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Wie eine Fabrik von selbst läuft",
+          "typ": "Fachfremd umschrieben",
+          "rank": null,
+          "rank_uncut": null,
+          "rank_fast": null,
+          "candidates": 70,
+          "candidates_with_path": 53,
+          "scores_at": {
+            "5": 0.520397413,
+            "6": 0.507007957,
+            "10": 0.415734851,
+            "11": 0.415068102
+          },
+          "tie_5_6": false,
+          "expected_score": null,
+          "expected_paths": [],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Kostenrechnung",
+          "typ": "Fachbegriff",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 55,
+          "candidates_with_path": 49,
+          "scores_at": {
+            "5": 0.992184138,
+            "6": 0.989732111,
+            "10": 0.627923083,
+            "11": 0.61975286
+          },
+          "tie_5_6": false,
+          "expected_score": 1.246612817,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact",
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Logistik",
+          "typ": "Fachbegriff",
+          "rank": 5,
+          "rank_uncut": 5,
+          "rank_fast": 5,
+          "candidates": 90,
+          "candidates_with_path": 58,
+          "scores_at": {
+            "5": 1.262803447,
+            "6": 1.256175709,
+            "10": 0.93765009,
+            "11": 0.92704159
+          },
+          "tie_5_6": false,
+          "expected_score": 1.262803447,
+          "expected_paths": [
+            "gnd_synonym",
+            "label_fts",
+            "register_exact"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Innovationsmanagement in Technologieunternehmen",
+          "typ": "Spezifisch/Kompositum",
+          "rank": 1,
+          "rank_uncut": 1,
+          "rank_fast": 1,
+          "candidates": 80,
+          "candidates_with_path": 46,
+          "scores_at": {
+            "5": 0.451097572,
+            "6": 0.411959851,
+            "10": 0.393957818,
+            "11": 0.383285356
+          },
+          "tie_5_6": false,
+          "expected_score": 0.612519979,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        },
+        {
+          "query": "Mitarbeitende gut führen",
+          "typ": "Fachfremd umschrieben",
+          "rank": 12,
+          "rank_uncut": 12,
+          "rank_fast": 12,
+          "candidates": 61,
+          "candidates_with_path": 30,
+          "scores_at": {
+            "5": 0.395553249,
+            "6": 0.385526776,
+            "10": 0.363661093,
+            "11": 0.357849848
+          },
+          "tie_5_6": false,
+          "expected_score": 0.35565201,
+          "expected_paths": [
+            "register_similar"
+          ],
+          "expected_vector_only": false
+        }
+      ],
+      "histogram": {
+        "1": 35,
+        "2": 8,
+        "3": 9,
+        "4": 5,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0,
+        "12": 2,
+        "13": 1,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "18": 0,
+        "19": 1,
+        "20": 1,
+        "nach Platz 20 (abgeschnitten)": 9,
+        "nicht unter den Kandidaten": 24
+      },
+      "hit@5": 0.6082,
+      "hit@10": 0.6082,
+      "hit@5_fast": 0.6082,
+      "hit@10_fast": 0.6082,
+      "rank_6_to_10": 0,
+      "fast_matches_reference": true,
+      "ties_at_5_6": 0,
+      "expected_found": 73,
+      "expected_with_norm_path": 68,
+      "expected_vector_only": 5,
+      "queries_with_10_path_candidates": 96
+    }
+  },
+  "self_check": {
+    "max_plus_full": {
+      "hit@1": 0.3608,
+      "hit@5": 0.6082,
+      "hit@10": 0.6082,
+      "mrr": 0.4536,
+      "main_group_hit@5": 0.8454,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "max_plus_reproduces_p5": false,
+    "p5_max_plus_reference": {
+      "hit@10": 0.5979,
+      "mrr": 0.4649,
+      "file": "reports/scoring-2026-11-11-c877270-2.json"
+    },
+    "legacy_full": {
+      "hit@1": 0.2577,
+      "hit@5": 0.4639,
+      "hit@10": 0.5567,
+      "mrr": 0.3461,
+      "main_group_hit@5": 0.7216,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "p4_reference": {
+      "hit@10": 0.5567,
+      "mrr": 0.3432,
+      "hit@1": 0.2577,
+      "file": "reports/eval-2026-11-11-c784d47-4.json"
+    },
+    "p10_reference": {
+      "hit@10": 0.5464,
+      "mrr": 0.3431,
+      "file": "reports/eval-2026-11-16-afc2ce4-3.json"
+    },
+    "legacy_changes_vs_p5": [
+      {
+        "query": "Wie Kräfte in Maschinen übertragen werden",
+        "old_rank": 11,
+        "new_rank": 15
+      },
+      {
+        "query": "Mutter",
+        "old_rank": 6,
+        "new_rank": 8
+      },
+      {
+        "query": "Smart Grid",
+        "old_rank": 16,
+        "new_rank": null
+      },
+      {
+        "query": "Strom aus Sonnenlicht",
+        "old_rank": 3,
+        "new_rank": 4
+      },
+      {
+        "query": "Ermüdung",
+        "old_rank": null,
+        "new_rank": 8
+      },
+      {
+        "query": "Machine Learning",
+        "old_rank": 9,
+        "new_rank": 5
+      },
+      {
+        "query": "BIM",
+        "old_rank": 14,
+        "new_rank": null
+      },
+      {
+        "query": "Messunsicherheit bestimmen",
+        "old_rank": 5,
+        "new_rank": 2
+      },
+      {
+        "query": "Verschleiß an Zahnradgetrieben",
+        "old_rank": 12,
+        "new_rank": 11
+      },
+      {
+        "query": "Fernwärmenetze in Städten",
+        "old_rank": 8,
+        "new_rank": 7
+      },
+      {
+        "query": "Keramik",
+        "old_rank": 5,
+        "new_rank": 2
+      },
+      {
+        "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+        "old_rank": 6,
+        "new_rank": 5
+      }
+    ],
+    "legacy_changes_vs_p10": [
+      {
+        "query": "Wie Kräfte in Maschinen übertragen werden",
+        "old_rank": 11,
+        "new_rank": 15
+      },
+      {
+        "query": "Mutter",
+        "old_rank": 6,
+        "new_rank": 8
+      },
+      {
+        "query": "Smart Grid",
+        "old_rank": 16,
+        "new_rank": null
+      },
+      {
+        "query": "Strom aus Sonnenlicht",
+        "old_rank": 3,
+        "new_rank": 4
+      },
+      {
+        "query": "Ermüdung",
+        "old_rank": null,
+        "new_rank": 8
+      },
+      {
+        "query": "Machine Learning",
+        "old_rank": 9,
+        "new_rank": 5
+      },
+      {
+        "query": "BIM",
+        "old_rank": 14,
+        "new_rank": null
+      },
+      {
+        "query": "Messunsicherheit bestimmen",
+        "old_rank": 5,
+        "new_rank": 2
+      },
+      {
+        "query": "Verschleiß an Zahnradgetrieben",
+        "old_rank": 12,
+        "new_rank": 11
+      },
+      {
+        "query": "Fernwärmenetze in Städten",
+        "old_rank": 8,
+        "new_rank": 7
+      },
+      {
+        "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+        "old_rank": 6,
+        "new_rank": 5
+      }
+    ]
+  }
+}

@@ -299,6 +299,32 @@ def list_main_groups(conn: sqlite3.Connection) -> list[tuple[str, str]]:
     return groups
 
 
+# (Datenbankpfad, letzte sync_log-ID) -> oberste Ebene der Systematik
+_top_level_cache: dict[tuple[str, int | None], list[tuple[str, str]]] = {}
+
+
+def list_top_level(conn: sqlite3.Connection) -> list[tuple[str, str]]:
+    """Oberste Ebene der RVK (level 0, z. B. ("CA - CK", "Philosophie")) nach Notation.
+
+    Für die Überschriften der Hauptgruppen-Facette (P11). Zwischengespeichert je Datenbank und
+    Sync-Lauf wie `list_main_groups`; bei einem Datenbankfehler leer.
+    """
+    path = _database_path(conn)
+    key = (path, _last_sync_id(conn))
+    if path and key in _top_level_cache:
+        return _top_level_cache[key]
+    try:
+        rows = conn.execute(
+            "SELECT notation, label FROM notation WHERE level = 0 ORDER BY notation"
+        ).fetchall()
+    except sqlite3.Error:
+        return []
+    entries = [(row[0], row[1] or "") for row in rows if row[0]]
+    if path:
+        _top_level_cache[key] = entries
+    return entries
+
+
 def get_change_versions(
     conn: sqlite3.Connection, notation_ids: Iterable[int]
 ) -> dict[int, str]:

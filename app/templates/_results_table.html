@@ -24,7 +24,7 @@
   <div class="empty-state card" role="status">
     {% if empty and empty.cause == "filter" %}
     <h2 class="empty-title">Keine Vorschläge in den gewählten Hauptgruppen ({{ empty.selected | join(', ') }}).</h2>
-    <p><button type="button" class="btn-primary facet-reset" hx-post="/search" hx-target="#results" hx-include="#chips" hx-indicator="#spinner" hx-vals='{"hg_form": "1"}'>Hauptgruppen-Auswahl zurücksetzen ({{ empty.reset_count }} {{ "Vorschlag" if empty.reset_count == 1 else "Vorschläge" }})</button></p>
+    <p><button type="button" class="btn-primary facet-reset" hx-post="/search" hx-target="#results" hx-include="#chips" hx-indicator="#spinner" hx-vals='{"hg_form": "1"}'>Hauptgruppen-Auswahl zurücksetzen ({{ empty.reset_count_text }} {{ "Vorschlag" if empty.reset_count == 1 else "Vorschläge" }})</button></p>
     {% else %}
     <h2 class="empty-title">Für „{{ query }}“ wurde nichts gefunden.</h2>
     {% endif %}

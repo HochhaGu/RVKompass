@@ -9,12 +9,28 @@ keine Wahrscheinlichkeiten. Sie werden deshalb als Dezimalzahlen und nie in Proz
 from __future__ import annotations
 
 import csv
-from collections.abc import Iterable
+import re
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+
+from app.services import presentation
 
 # Hauptgruppe einer Notation: seit P6 in app/services/presentation.py (auch für die Oberfläche);
 # hier weiter verfügbar für bestehende Aufrufer.
 from app.services.presentation import main_group
+
+# P12: Formal gültige Notation im Goldstandard („ZL 4100“, „PU 2345.4560“), voll verankert;
+# dasselbe Muster, mit dem die Oberfläche Notationen in RVK-Bemerkungen erkennt.
+NOTATION_FORMAT_RE = re.compile(rf"^{presentation._NOTATION}$")
+
+# P12: Erlaubte Anfragetypen des Goldstandards
+ALLOWED_TYPES = (
+    "Fachbegriff",
+    "Fachfremd umschrieben",
+    "Spezifisch/Kompositum",
+    "Englisch/Jargon",
+    "Mehrdeutig",
+)
 
 REQUIRED_COLUMNS = ("query", "erwartete_notationen")
 METRIC_KEYS = (
@@ -326,6 +342,89 @@ def _is_number(value) -> bool:
     return isinstance(value, int | float) and not isinstance(value, bool)
 
 
+# --- Teilmengen und Regressionsschutz (P12) ----------------------------------------------------
+
+SUBSET_LABELS = {
+    "alt": "alt (bis P11)",
+    "neu_technik": "neu Technik",
+    "neu_andere": "neu andere Fachgebiete",
+}
+
+
+def subset_labels(n_entries: int, sizes: Mapping[str, int]) -> list[str]:
+    """Teilmenge je Position in Dateireihenfolge: die ersten sizes[erste] Einträge, dann die
+    nächsten … Stimmt die Summe nicht mit `n_entries` überein: ValueError."""
+    total = sum(sizes.values())
+    if total != n_entries:
+        raise ValueError(
+            f"Teilmengen ({total} Einträge) passen nicht zum Goldstandard ({n_entries})"
+        )
+    labels: list[str] = []
+    for name, size in sizes.items():
+        labels.extend([name] * size)
+    return labels
+
+
+def metrics_by_subset(per_query: Sequence[dict], labels: Sequence[str]) -> dict:
+    """Kennzahlen je Teilmenge, dazu je Teilmenge nach Typ und nach Fachgebiet.
+
+    Ergebnis: {"metrics": {teilmenge: kennzahlen}, "by_typ": {teilmenge: {typ: …}},
+    "by_fachgebiet": {teilmenge: {fachgebiet: …}}}; Reihenfolge der Teilmengen wie in `labels`.
+    """
+    if len(per_query) != len(labels):
+        raise ValueError("Anzahl Teilmengen-Kennungen passt nicht zu den Anfragen")
+    groups: dict[str, list[dict]] = {}
+    for q, label in zip(per_query, labels, strict=True):
+        groups.setdefault(label, []).append(q)
+    return {
+        "metrics": {k: aggregate(v) for k, v in groups.items()},
+        "by_typ": {k: aggregate_by(v, "typ") for k, v in groups.items()},
+        "by_fachgebiet": {k: aggregate_by(v, "fachgebiet") for k, v in groups.items()},
+    }
+
+
+REGRESSION_KEYS = ("hit@1", "hit@5", "hit@10", "mrr")
+
+
+def regression_check(
+    subset_metrics: Mapping[str, float],
+    reference_report: Mapping,
+    subset_per_query: Sequence[dict],
+    settings: Mapping | None,
+    tolerance: float = 0.005,
+    reference_file: str = "",
+) -> dict:
+    """Regressionsschutz P12: Kennzahlen der alten Anfragen gegen den P11-Endstand.
+
+    `ok` ist wahr, wenn Hit@1/5/10 und MRR je höchstens `tolerance` vom Bezug abweichen.
+    `same_settings`: Scoring-Einstellung gleich der des Bezugsberichts. `changed` listet die
+    alten Anfragen mit anderem Rang oder anderen Top-3 (compare_per_query).
+    """
+    reference = reference_report.get("metrics", {})
+    diffs = {}
+    for key in REGRESSION_KEYS:
+        old, new = reference.get(key), subset_metrics.get(key)
+        if not (_is_number(old) and _is_number(new)):
+            diffs[key] = {"old": old, "new": new, "diff": None, "ok": False}
+            continue
+        diff = round(new - old, 4)
+        diffs[key] = {
+            "old": old,
+            "new": new,
+            "diff": diff,
+            "ok": abs(diff) <= tolerance + 1e-9,
+        }
+    return {
+        "reference_file": reference_file,
+        "tolerance": tolerance,
+        "ok": all(d["ok"] for d in diffs.values()),
+        "metrics": diffs,
+        "same_settings": settings is not None
+        and dict(settings) == dict(reference_report.get("scoring") or {}),
+        "changed": compare_per_query(list(subset_per_query), dict(reference_report)),
+    }
+
+
 def _fmt(value) -> str:
     if value is None:
         return "–"
@@ -432,9 +531,20 @@ def _scoring_section(report: dict) -> list[str]:
         "",
         f"- Formel: {settings.get('formula', '–')}",
         (
-            f"- Stufenschwellen: hoch ab {_fmt(settings.get('tier_high'))}, "
-            f"mittel ab {_fmt(settings.get('tier_medium'))} (Relevanzwerte, keine "
-            "Wahrscheinlichkeiten)"
+            "- Stufenschwellen: "
+            + (
+                f"sehr hoch ab {_fmt(settings.get('tier_very_high'))}, "
+                if settings.get("tier_very_high") is not None
+                else ""
+            )
+            + f"hoch ab {_fmt(settings.get('tier_high'))}, "
+            f"mittel ab {_fmt(settings.get('tier_medium'))}"
+            + (
+                f", schwach ab {_fmt(settings.get('tier_weak'))}"
+                if settings.get("tier_weak") is not None
+                else ""
+            )
+            + " (Relevanzwerte, keine Wahrscheinlichkeiten)"
         ),
     ]
     if settings.get("formula") != "legacy":
@@ -464,6 +574,68 @@ def _scoring_section(report: dict) -> list[str]:
                 f"| {SPLIT_LABELS.get(split, split)} | "
                 + " | ".join(_fmt(metrics.get(k)) for k in keys)
                 + " |"
+            )
+    return lines
+
+
+def _subset_section(report: dict) -> list[str]:
+    """Abschnitt „Kennzahlen je Teilmenge“ (P12): alt, neu Technik, neu andere Fachgebiete."""
+    subsets = report.get("metrics_by_subset")
+    if not subsets:
+        return []
+    lines = [
+        "",
+        "## Kennzahlen je Teilmenge",
+        "",
+        (
+            "Teilmengen nach Zeilenreihenfolge im Goldstandard: zuerst die Anfragen bis P11, "
+            "dann die Erweiterung 2026-11 (Technik, danach andere Fachgebiete)."
+        ),
+        "",
+    ]
+    lines += _metrics_table(
+        {SUBSET_LABELS.get(k, k): v for k, v in subsets.items()}, "Teilmenge"
+    )
+    for key, title in (
+        ("by_typ_by_subset", "Typ"),
+        ("by_fachgebiet_by_subset", "Fachgebiet"),
+    ):
+        for subset, groups in (report.get(key) or {}).items():
+            lines += ["", f"### {title} – {SUBSET_LABELS.get(subset, subset)}", ""]
+            lines += _metrics_table(groups, title)
+    return lines
+
+
+def _regression_section(report: dict) -> list[str]:
+    reg = report.get("regression_old")
+    if not reg:
+        return []
+    lines = [
+        "",
+        "## Regressionsschutz (alte Anfragen gegen P11)",
+        "",
+        (
+            f"Bezug: {reg.get('reference_file') or '–'}, Toleranz ±{_fmt(reg.get('tolerance'))}. "
+            f"Ergebnis: **{'bestanden' if reg.get('ok') else 'NICHT bestanden'}**; "
+            f"gleiche Scoring-Einstellung wie im Bezug: {_fmt(reg.get('same_settings'))}."
+        ),
+        "",
+        "| Kennzahl | P11 | heute | Differenz | innerhalb Toleranz |",
+        "|---|---|---|---|---|",
+    ]
+    for key, row in (reg.get("metrics") or {}).items():
+        lines.append(
+            f"| {METRIC_LABELS.get(key, key)} | {_fmt(row.get('old'))} | "
+            f"{_fmt(row.get('new'))} | {_fmt(row.get('diff'))} | {_fmt(row.get('ok'))} |"
+        )
+    changed = reg.get("changed") or []
+    lines += ["", f"Alte Anfragen mit anderem Rang oder anderen Top-3: {len(changed)}"]
+    if changed:
+        lines += ["", "| Anfrage | Rang P11 | Rang heute |", "|---|---|---|"]
+        for c in changed:
+            lines.append(
+                f"| {_cell(c['query'])} | {_rank_text(c['old_rank'])} | "
+                f"{_rank_text(c['new_rank'])} |"
             )
     return lines
 
@@ -583,6 +755,8 @@ def render_markdown(report: dict) -> str:
             lines.append(f"| {METRIC_LABELS[key]} | {_fmt(metrics.get(key))} |")
 
     lines += _scoring_section(report)
+    lines += _subset_section(report)
+    lines += _regression_section(report)
     lines += _variants_section(report)
     lines += _llm_section(report)
 

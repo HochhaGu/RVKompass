@@ -20,15 +20,15 @@
 
   <h3 id="was-ist">Was ist RVKompass?</h3>
   <p>RVKompass hilft dir, zu einem Thema passende Systemstellen der <abbr title="Regensburger Verbundklassifikation">RVK</abbr> zu finden – gerade in Fächern, die nicht zu deiner eigenen fachlichen Expertise zählen.</p>
-  <p>Du gibst einen Begriff in den Suchschlitz ein. RVKompass erweitert ihn über die Gemeinsame Normdatei (GND) und, falls eingeschaltet, über geprüfte Vorschläge eines Sprachmodells. Danach durchsucht es den lokal gespeicherten RVK-Bestand per Stichwort- und semantischer Suche. Die Vorschläge stehen nach Relevanz sortiert, mit Notation, Benennung, Hierarchiepfad und RVK-Bemerkung.</p>
+  <p>Du gibst einen Begriff in den Suchschlitz ein. RVKompass erweitert ihn über die Gemeinsame Normdatei (GND){% if llm_enabled %} und über geprüfte Vorschläge eines Sprachmodells{% endif %}. Danach durchsucht es den lokal gespeicherten RVK-Bestand per Stichwortsuche und semantischer Suche (Vektorsuche über Text-Embeddings). Die Vorschläge stehen nach Relevanz sortiert, mit Notation, Benennung, Hierarchiepfad und RVK-Bemerkung.</p>
 
   <h3 id="vorschlag">Vorschlag ≠ Entscheidung</h3>
   <p>RVKompass zeigt <strong>Vorschläge</strong>: Systemstellen der RVK, die zu deinem Suchbegriff passen könnten. Die Entscheidung, welche Stelle ein Werk bekommt, triffst du. Prüfe jede Stelle über „in RVK-Online prüfen“ im Zusammenhang der Systematik – mit Hierarchiepfad und RVK-Bemerkung.</p>
 
   <h3 id="bedienung">Bedienung: Erweiterung, Hauptgruppen, Bedeutungen, Verweise</h3>
   <ul>
-    <li><strong>Erweiterung als Chips:</strong> Unter dem Suchfeld steht jeder Begriff, mit dem zusätzlich gesucht wurde, als Chip – mit seinem Typ (Synonym, Oberbegriff, Unterbegriff, verwandt). Begriffe vom Sprachmodell tragen den Zusatz „KI, geprüft“. Mit dem × entfernst du einen Begriff; die Vorschläge werden sofort ohne ihn neu berechnet. Entfernte Begriffe stehen unter „Entfernt“ und lassen sich mit „wieder hinzufügen“ einzeln zurückholen.</li>
-    <li><strong>Hauptgruppen (Facette):</strong> Links (auf schmalen Bildschirmen über „Hauptgruppen filtern“) wählst du RVK-Hauptgruppen. Dann erscheinen nur Vorschläge aus diesen Gruppen. Die Zahl neben jeder Gruppe nennt die Fundstellen dieser Suche ohne Filter; Gruppen ohne Fundstellen sind abgeschwächt. Vor der ersten Suche gibt es noch keine Zahlen.</li>
+    <li><strong>Erweiterung als Chips:</strong> Unter dem Suchfeld steht jeder Begriff, mit dem zusätzlich gesucht wurde, als Chip – mit Quelle und Typ, zum Beispiel „GND · Synonym“, „GND · Oberbegriff“, „GND · Unterbegriff“ oder „GND · verwandt“. GND-Begriffe verlinken auf ihren Datensatz bei lobid-gnd.{% if llm_enabled %} Begriffe vom Sprachmodell tragen die Quelle „KI, geprüft in GND“ bzw. „KI, geprüft im RVK-Register“.{% endif %} Mit dem × entfernst du einen Begriff; die Vorschläge werden sofort ohne ihn neu berechnet. Entfernte Begriffe stehen mit ihrer Quelle unter „Entfernt“ und lassen sich mit „wieder hinzufügen“ einzeln zurückholen.</li>
+    <li><strong>Hauptgruppen (Facette):</strong> Links (auf schmalen Bildschirmen über „Hauptgruppen filtern“) wählst du RVK-Hauptgruppen. Dann erscheinen nur Vorschläge aus diesen Gruppen. Die Hauptgruppen sind nach Fachgebieten gegliedert, zum Beispiel „S – Mathematik · Informatik“; jedes Fachgebiet klappst du mit einem Klick (oder Enter/Leertaste) auf und zu. Fachgebiete mit einer gewählten Hauptgruppe sind offen. Die Zahl neben jeder Gruppe nennt die Fundstellen dieser Suche ohne Filter, die Zahl am Fachgebiet ihre Summe; Gruppen ohne Fundstellen sind abgeschwächt. Die Liste zeigt höchstens {{ max_results }} Vorschläge; größere Zahlen stehen deshalb als „{{ max_results }}+“. Vor der ersten Suche gibt es noch keine Zahlen.</li>
     <li><strong>Mehrere Bedeutungen (Tabs):</strong> Hat ein Wort laut GND mehrere Bedeutungen (etwa „Mutter“ oder „Bank“), stehen die Vorschläge getrennt je Bedeutung auf Tabs über der Liste, zum Beispiel „Mutter (Technik) · 4“. Gewählt ist die Bedeutung, die zu den gewählten Hauptgruppen passt, sonst die erste. Mit den Pfeiltasten wechselst du zwischen den Tabs.</li>
     <li><strong>Verweise:</strong> Nennt eine RVK-Bemerkung oder ein Verweis eine andere Notation, steht dort ein Link wie „→ ST 301 anzeigen“. Er sucht direkt nach dieser Stelle; die eingegebene Notation erscheint dann als eigene Karte über den Vorschlägen.</li>
     <li><strong>Keine Vorschläge:</strong> Dann steht dort, woran es liegt, und was du tun kannst – etwa die Hauptgruppen-Auswahl zurücksetzen oder einen allgemeineren Begriff versuchen.</li>
@@ -48,12 +48,14 @@
     <dd>Ein speziellerer GND-Begriff führt zur Stelle. Die Stelle deckt oft nur einen Teil deines Themas ab.</dd>
     <dt>{{ path_labels.gnd_related }}</dt>
     <dd>Ein verwandter GND-Begriff führt zur Stelle. Nur ein Hinweis auf das Umfeld – genau prüfen.</dd>
+    {% if llm_enabled %}
     <dt>{{ path_labels.llm_verified }}</dt>
     <dd>Ein Sprachmodell hat einen Begriff vorgeschlagen, und dieser Begriff steht im RVK-Register oder in der GND. Gesucht wird nur mit solchen geprüften Begriffen; nicht geprüfte Vorschläge werden angezeigt, aber nicht gesucht.</dd>
+    {% endif %}
     <dt>{{ path_labels.register_similar }}</dt>
     <dd>Ein Registerbegriff ist deinem Begriff inhaltlich ähnlich (Vektor-Ähnlichkeit). Ein Hinweis, keine Übereinstimmung.</dd>
     <dt>{{ path_labels.vector }}</dt>
-    <dd>Die Benennung der Stelle ist deinem Begriff inhaltlich ähnlich (Vektor-Ähnlichkeit über ein Sprachmodell für Texte). Am wenigsten verlässlich – immer im Register prüfen.</dd>
+    <dd>Die Benennung der Stelle ist deinem Begriff inhaltlich ähnlich (Vektor-Ähnlichkeit: semantische Suche über Text-Embeddings). Am wenigsten verlässlich – immer im Register prüfen.</dd>
   </dl>
 
   <h3 id="warum">„Warum?“ und der Warnhinweis</h3>
@@ -61,7 +63,7 @@
   <p>Wurde ein Vorschlag <strong>nur über Ähnlichkeit</strong> gefunden, steht am Vorschlag: „⚠ Nur über Ähnlichkeit gefunden – bitte im Register prüfen“. Dann gibt es keinen Registereintrag und keinen Normbegriff, der die Stelle stützt.</p>
 
   <h3 id="relevanz">Relevanzstufen</h3>
-  <p>Rechts auf jeder Karte zeigen fünf Segmente und ein Wort die Relevanzstufe: <strong>gering</strong>, <strong>schwach</strong>, <strong>mittel</strong>, <strong>hoch</strong> oder <strong>sehr hoch</strong>. Die Stufen ordnen die Vorschläge nach ihrer Passung zur Eingabe. Sie sind ein Relevanzmaß und <strong>keine Wahrscheinlichkeit</strong>, dass eine Stelle richtig ist. Den genauen Relevanzwert zeigt der Tooltip über den Segmenten.</p>
+  <p>Rechts auf jeder Karte zeigen fünf Segmente und ein Wort die Relevanzstufe: <strong>gering</strong>, <strong>schwach</strong>, <strong>mittel</strong>, <strong>hoch</strong> oder <strong>sehr hoch</strong>. Die Stufen ordnen die Vorschläge nach ihrer Passung zur Eingabe. Sie sind ein Relevanzmaß und <strong>keine Wahrscheinlichkeit</strong>, dass eine Stelle richtig ist. Die Stufengrenzen teilen die Relevanzwerte der ersten Vorschläge in fünf etwa gleich große Bereiche; sie sind eine Rangordnung, keine geprüfte Aussage darüber, wie oft eine Stelle passt. Den genauen Relevanzwert zeigt der Tooltip über den Segmenten.</p>
 
   <h3 id="grenzen">Was das Werkzeug nicht tut</h3>
   <ul>

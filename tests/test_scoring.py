@@ -177,10 +177,84 @@ def test_legacy_components_match_previous_constants():
 def test_from_config_reads_class_and_mapping():
     from_class = scoring.ScoringSettings.from_config(Config)
     assert from_class.formula == Config.SCORING_FORMULA
-    assert from_class.tier_high == Config.SCORE_TIER_HIGH
-    from_mapping = scoring.ScoringSettings.from_config({"SCORE_TIER_MEDIUM": 0.1})
+    profile = Config.SCORE_PROFILES[Config.SCORING_FORMULA]
+    assert from_class.tier_high == profile["tiers"]["tier_high"]
+    # Formel ohne Profil: SCORE_*-Werte, auch aus einem Dict
+    from_mapping = scoring.ScoringSettings.from_config(
+        {"SCORING_FORMULA": "sum", "SCORE_TIER_MEDIUM": 0.1}
+    )
     assert from_mapping.tier_medium == 0.1
+    assert from_mapping.tier_high == Config.SCORE_TIER_HIGH
     assert from_mapping.weights == Config.SCORE_WEIGHTS
+    assert from_mapping.tier_very_high is None and from_mapping.tier_weak is None
+
+
+def test_from_config_default_is_max_plus_with_profile_weights():
+    # P11: Gewichte aus reports/scoring-2026-11-11-c877270-2.md
+    settings = scoring.ScoringSettings.from_config(Config)
+    assert settings.formula == "max_plus"
+    assert dict(settings.weights) == {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.75,
+        "gnd_broader": 0.55,
+        "gnd_related": 0.6,
+        "llm_verified": 0.5,
+        "label_fts": 0.4,
+        "register_similar": 0.4,
+        "vector": 0.2,
+    }
+    assert settings.path_bonus == 0.1 and settings.path_bonus_cap == 0.15
+    assert (
+        settings.tier_weak
+        < settings.tier_medium
+        <= settings.tier_high
+        < settings.tier_very_high
+    )
+    # Startgewichte der anderen Formeln bleiben erhalten
+    assert Config.SCORE_WEIGHTS["vector"] == 0.4 and Config.SCORE_PATH_BONUS == 0.05
+
+
+def test_from_config_legacy_keeps_previous_tiers():
+    settings = scoring.ScoringSettings.from_config({"SCORING_FORMULA": "legacy"})
+    assert settings.formula == "legacy"
+    assert (settings.tier_high, settings.tier_medium) == (0.6551, 0.5754)
+    assert settings.tier_very_high is None and settings.tier_weak is None
+
+
+def test_profile_from_mapping_overrides_score_values():
+    profiles = {
+        "max_plus": {"weights": dict(START_SETTINGS.weights), "path_bonus": 0.0}
+    }
+    settings = scoring.ScoringSettings.from_config(
+        {"SCORING_FORMULA": "max_plus", "SCORE_PROFILES": profiles}
+    )
+    assert settings.path_bonus == 0.0
+    assert settings.weight("vector") == START_SETTINGS.weight("vector")
+    # Profil ohne Stufen: SCORE_TIER_* gelten
+    assert settings.tier_high == Config.SCORE_TIER_HIGH
+
+
+@pytest.mark.parametrize(
+    "very_high,weak",
+    [(0.7, None), (0.6, None), (None, 0.55), (None, 0.6)],
+)
+def test_five_tier_order_is_checked(very_high, weak):
+    with pytest.raises(ValueError):
+        scoring.ScoringSettings(
+            tier_high=0.7, tier_medium=0.55, tier_very_high=very_high, tier_weak=weak
+        )
+
+
+def test_five_tier_bounds_measured_or_derived():
+    measured = scoring.ScoringSettings(
+        tier_high=0.7, tier_medium=0.6, tier_very_high=0.9, tier_weak=0.3
+    )
+    assert scoring.five_tier_bounds(measured) == (0.3, 0.6, 0.7, 0.9)
+    derived = scoring.ScoringSettings(tier_high=0.7, tier_medium=0.6)
+    assert scoring.five_tier_bounds(derived) == pytest.approx((0.5, 0.6, 0.7, 0.8))
+    round_trip = measured.replace(tier_high=0.8)
+    assert round_trip.tier_very_high == 0.9 and round_trip.to_dict()["tier_weak"] == 0.3
 
 
 def test_every_component_key_has_a_german_label():

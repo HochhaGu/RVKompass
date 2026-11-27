@@ -132,3 +132,129 @@ def test_main_writes_scoring_report(setup):
     test_legacy = report["variants"][0]["test"]
     assert f"| legacy (Stand P4) | {tune._fmt(test_legacy['hit@1'])} |" in md
     assert "Konfidenz" not in md
+    # P11: der Grid-Modus enthält dieselbe Fünf-Stufen-Ableitung (hier zu wenige Scores)
+    assert report["five_tiers"]["formula"] == report["decision"]["chosen"]
+    assert "## Fünf Relevanzstufen (P11)" in md
+
+
+def test_diagnose_writes_report_without_grid(setup):
+    gold, out = setup
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--diagnose"]) == 0
+
+    (json_path,) = out.glob("scoring-diagnose-*.json")
+    assert re.fullmatch(
+        r"scoring-diagnose-\d{4}-\d{2}-\d{2}-abc1234\.json", json_path.name
+    )
+    assert len(list(out.glob("eval-*.json"))) == 1
+    assert not list(out.glob("scoring-2*.json"))  # kein Grid-Bericht
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert report["settings"]["formula"] == "max_plus"
+    assert report["settings"]["path_bonus"] == 0.1
+    assert set(report["diagnose"]) == {"dev", "test", "full"}
+    full = report["diagnose"]["full"]
+    assert {"hit@5", "hit@10", "hit@5_fast", "hit@10_fast", "histogram"} <= set(full)
+    assert full["fast_matches_reference"] is True
+    assert len(full["per_query"]) == 4
+    assert "scores_at" in full["per_query"][0]
+    sc = report["self_check"]
+    assert {"max_plus_full", "legacy_full", "max_plus_reproduces_p5"} <= set(sc)
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    for heading in (
+        "## Hit@5 und Hit@10 auf zwei Wegen",
+        "## Beispiele",
+        "## Selbstprüfung",
+    ):
+        assert heading in md
+
+
+def test_retune_writes_report_and_decides(setup):
+    gold, out = setup
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--retune"]) == 0
+
+    (json_path,) = out.glob("scoring-retune-*.json")
+    assert re.fullmatch(
+        r"scoring-retune-\d{4}-\d{2}-\d{2}-abc1234\.json", json_path.name
+    )
+    assert len(list(out.glob("eval-*.json"))) == 1  # kein neuer eval-Bericht
+    assert not list(out.glob("scoring-2*.json"))  # kein P5-Grid-Bericht
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert report["formula"] == "max_plus"
+    assert report["grid_size"] == len(tune.tuning.weight_grid("max_plus"))
+    for key in ("current", "candidate"):
+        assert set(report[key]["metrics"]) >= {"dev", "test", "full"}
+    decision = report["decision"]
+    assert set(decision["conditions"]) == {
+        "hit@10_not_worse",
+        "mrr_not_worse",
+        "gain_ge_min",
+    }
+    expected = tune.tuning.accept_p12(
+        report["candidate"]["metrics"]["test"], report["current"]["metrics"]["test"]
+    )
+    assert decision["accepted"] == expected["accepted"]
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "## Entscheidung" in md and "vorab festgelegt" in md
+    assert "Konfidenz" not in md
+
+
+def test_retune_with_subsets(setup, monkeypatch):
+    gold, out = setup
+    db_path = Path(tune.get_config().DATABASE_PATH)
+
+    config = FakeConfig(db_path)
+    config.GOLD_SUBSET_SIZES = {"alt": 2, "neu_technik": 2}
+    monkeypatch.setattr(tune, "get_config", lambda: config)
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--retune"]) == 0
+    (json_path,) = out.glob("scoring-retune-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert {"subset:alt", "subset:neu_technik"} <= set(report["current"]["metrics"])
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--diagnose"]) == 0
+    (diag_path,) = out.glob("scoring-diagnose-*.json")
+    diag = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert set(diag["diagnose_by_subset"]) == {"alt", "neu_technik"}
+    assert "per_query" not in diag["diagnose_by_subset"]["alt"]
+    assert "Teilmenge alt (bis P11)" in diag_path.with_suffix(".md").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_retune_excludes_other_modes():
+    with pytest.raises(SystemExit):
+        tune.parse_args(["--gold", "x", "--retune", "--diagnose"])
+
+
+def test_tiers_only_writes_five_tier_report(setup, monkeypatch):
+    gold, out = setup
+
+    def many_candidates(conn, service, query, terms, gnd_senses=()):
+        # genug verschiedene Scores für fünf Stufen: 10 Kandidaten je Anfrage
+        features = [
+            _feat(
+                i,
+                "ZL 4100" if i % 3 == 0 else f"ZX {i}",
+                0.05 * i,
+                {"vector": 0.05 * i, **({"label_fts": 1.0} if i % 2 else {})},
+            )
+            for i in range(1, 11)
+        ]
+        return ranking.Candidates(None, {}, set(range(1, 11)), features)
+
+    monkeypatch.setattr(tune.ranking, "build_candidates", many_candidates)
+    args = ["--gold", str(gold), "--out", str(out), "--tiers-only"]
+    assert tune.main([*args, "--formula", "max_plus"]) == 0
+
+    (json_path,) = out.glob("scoring-stufen-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    tiers = report["tiers"]
+    assert tiers["formula"] == "max_plus"
+    assert tiers["method"] in {"share", "quantile"}
+    values = [tiers[k] for k in ("tier_very_high", "tier_high", "tier_medium")]
+    assert values == sorted(values, reverse=True)
+    assert tiers["tier_weak"] < tiers["tier_medium"]
+    assert set(tiers["shares_by_part"]) == {"dev", "test"}
+    levels = tiers["shares_by_part"]["test"]["levels"]
+    assert set(levels) == {"gering", "schwach", "mittel", "hoch", "sehr hoch"}
+    assert "ci_main_group" in levels["hoch"]
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "gesetzte Annahme" in md and "### Testhälfte" in md
+    assert "Konfidenz" not in md and "%-Intervall" in md

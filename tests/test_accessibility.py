@@ -170,6 +170,7 @@ def test_focus_ring_is_3px_gold_with_contrast_ring():
         ".action",
         ".facet-item",
         ".facet-toggle",
+        ".facet-group-head",
         ".main-nav a",
         '.sense-tabs [role="tab"]',
         ".why summary",
@@ -287,6 +288,33 @@ def test_tabs_roles():
     assert "aria-controls=" in table and "aria-selected=" in table
     js = (ROOT / "app" / "static" / "app.js").read_text(encoding="utf-8")
     assert '"tabpanel"' in js and "ArrowRight" in js and "ArrowLeft" in js
+
+
+def test_facet_groups_are_native_disclosures():
+    # P11: details/summary – per Tastatur und Screenreader bedienbar, ohne JavaScript nutzbar
+    facet = _template("_facet_list.html")
+    assert '<details class="facet-group"' in facet and "<summary" in facet
+    assert "{% if letter.open %} open{% endif %}" in facet
+    # Summe in der Überschrift auch als Text für Screenreader
+    assert (
+        '<span class="visually-hidden"> {{ "Fundstelle" if letter.count_sum == 1'
+        in facet
+    )
+    # keine feste Obergrenze im Template
+    for name in ("_facet_list.html", "_results_table.html", "_chips.html"):
+        assert "20+" not in _template(name) and ">20<" not in _template(name)
+    # JavaScript nur als Komfort: geöffnete Gruppen über die Neusuche hinweg merken
+    js = (ROOT / "app" / "static" / "app.js").read_text(encoding="utf-8")
+    assert "details.facet-group" in js and "htmx:beforeRequest" in js
+
+
+def test_chip_source_is_text():
+    chips = _template("_chips.html")
+    assert '<span class="chip-type">{{ c.source_label }}' in chips
+    # entfernte Begriffe: Quelle in Klammern, GND-Begriffe mit lobid-Link
+    removed = chips.split('class="chips-removed"', 1)[1]
+    assert '<span class="chip-origin">({% if c.url %}' in removed
+    assert '{{ c.source_label }}<span class="visually-hidden">: {{ c.term }}' in removed
 
 
 def test_skip_link_and_live_region():

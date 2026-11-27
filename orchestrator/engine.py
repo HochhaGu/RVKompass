@@ -349,6 +349,8 @@ class Engine:
     def _step_gates(self, state: dict, phase: Phase) -> str:
         info = state["phases"][phase.id]
         baseline = state.get("baseline")
+        if phase.new_baseline:
+            baseline = {"metrics": None, "neue_basis": True, "phase": phase.id}
         report = self.gates.run(self.s.worktree, phase.evaluation, baseline)
         info["gates"] = report.summary_lines()
         self._write_run(

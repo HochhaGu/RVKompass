@@ -1,0 +1,1440 @@
+{
+  "timestamp": "2026-11-27T09:44:39+00:00",
+  "git_commit": "fd6f0d3",
+  "git_dirty": true,
+  "eval_file": "reports/eval-2026-11-27-fd6f0d3.json",
+  "diagnose_file": "reports/scoring-diagnose-2026-11-27-fd6f0d3.json",
+  "n": 501,
+  "cause_counts": {
+    "not_candidate": 183,
+    "no_gnd_sense": 33,
+    "wrong_sense": 19,
+    "vector_only": 1,
+    "cut_after_20": 13,
+    "behind_10": 17
+  },
+  "cause_counts_by_subset": {
+    "alt": {
+      "not_candidate": 24,
+      "no_gnd_sense": 5,
+      "wrong_sense": 3,
+      "cut_after_20": 1,
+      "behind_10": 5
+    },
+    "neu_technik": {
+      "not_candidate": 80,
+      "no_gnd_sense": 19,
+      "wrong_sense": 5,
+      "vector_only": 1,
+      "cut_after_20": 4,
+      "behind_10": 6
+    },
+    "neu_andere": {
+      "not_candidate": 79,
+      "no_gnd_sense": 9,
+      "wrong_sense": 11,
+      "cut_after_20": 8,
+      "behind_10": 6
+    }
+  },
+  "cause_counts_all_queries": {
+    "not_candidate": 183,
+    "no_gnd_sense": 34,
+    "wrong_sense": 20,
+    "vector_only": 1,
+    "cut_after_20": 13,
+    "behind_10": 17,
+    "top10_not_first": 100,
+    "ok": 133
+  },
+  "homonym_misses": 33,
+  "weakest_fachgebiete": [
+    {
+      "name": "Pädagogik und Bildung",
+      "hit@1": 0.0,
+      "hit@5": 0.0,
+      "hit@10": 0.0,
+      "mrr": 0.0,
+      "main_group_hit@5": 0.3,
+      "mean_response_ms": 243.6,
+      "zero_result_rate": 0.0,
+      "n": 10
+    },
+    {
+      "name": "Sprache und Literatur",
+      "hit@1": 0.0,
+      "hit@5": 0.1111,
+      "hit@10": 0.2222,
+      "mrr": 0.0401,
+      "main_group_hit@5": 0.5556,
+      "mean_response_ms": 232.3,
+      "zero_result_rate": 0.0,
+      "n": 9
+    },
+    {
+      "name": "Verfahrens- und Umwelttechnik",
+      "hit@1": 0.0,
+      "hit@5": 0.2,
+      "hit@10": 0.2,
+      "mrr": 0.05,
+      "main_group_hit@5": 0.8,
+      "mean_response_ms": 342.9,
+      "zero_result_rate": 0.0,
+      "n": 5
+    },
+    {
+      "name": "Land- und Forstwirtschaft, Ernährung",
+      "hit@1": 0.0,
+      "hit@5": 0.1,
+      "hit@10": 0.1,
+      "mrr": 0.0525,
+      "main_group_hit@5": 0.6,
+      "mean_response_ms": 222.4,
+      "zero_result_rate": 0.0,
+      "n": 10
+    },
+    {
+      "name": "Medizin und Pflege",
+      "hit@1": 0.0,
+      "hit@5": 0.1,
+      "hit@10": 0.1,
+      "mrr": 0.0553,
+      "main_group_hit@5": 0.2,
+      "mean_response_ms": 222.1,
+      "zero_result_rate": 0.0,
+      "n": 10
+    },
+    {
+      "name": "Biologie und Chemie",
+      "hit@1": 0.0,
+      "hit@5": 0.1111,
+      "hit@10": 0.1111,
+      "mrr": 0.0761,
+      "main_group_hit@5": 0.4444,
+      "mean_response_ms": 208.3,
+      "zero_result_rate": 0.0,
+      "n": 9
+    },
+    {
+      "name": "Recht",
+      "hit@1": 0.0,
+      "hit@5": 0.3,
+      "hit@10": 0.3,
+      "mrr": 0.0917,
+      "main_group_hit@5": 0.5,
+      "mean_response_ms": 316.1,
+      "zero_result_rate": 0.0,
+      "n": 10
+    },
+    {
+      "name": "Musik",
+      "hit@1": 0.1,
+      "hit@5": 0.1,
+      "hit@10": 0.2,
+      "mrr": 0.11,
+      "main_group_hit@5": 0.2,
+      "mean_response_ms": 237.9,
+      "zero_result_rate": 0.0,
+      "n": 10
+    }
+  ],
+  "weakest_typen": [
+    {
+      "name": "Fachfremd umschrieben",
+      "hit@1": 0.1104,
+      "hit@5": 0.2727,
+      "hit@10": 0.3247,
+      "mrr": 0.1794,
+      "main_group_hit@5": 0.6818,
+      "mean_response_ms": 199.8,
+      "zero_result_rate": 0.0,
+      "n": 154
+    },
+    {
+      "name": "Mehrdeutig",
+      "hit@1": 0.2041,
+      "hit@5": 0.3061,
+      "hit@10": 0.3265,
+      "mrr": 0.2473,
+      "main_group_hit@5": 0.4898,
+      "mean_response_ms": 333.5,
+      "zero_result_rate": 0.0,
+      "n": 49
+    },
+    {
+      "name": "Spezifisch/Kompositum",
+      "hit@1": 0.1765,
+      "hit@5": 0.3627,
+      "hit@10": 0.3824,
+      "mrr": 0.2525,
+      "main_group_hit@5": 0.7549,
+      "mean_response_ms": 195.8,
+      "zero_result_rate": 0.0,
+      "n": 102
+    },
+    {
+      "name": "Englisch/Jargon",
+      "hit@1": 0.3704,
+      "hit@5": 0.463,
+      "hit@10": 0.5185,
+      "mrr": 0.4116,
+      "main_group_hit@5": 0.6852,
+      "mean_response_ms": 273.4,
+      "zero_result_rate": 0.0,
+      "n": 54
+    },
+    {
+      "name": "Fachbegriff",
+      "hit@1": 0.4789,
+      "hit@5": 0.6972,
+      "hit@10": 0.7183,
+      "mrr": 0.5735,
+      "main_group_hit@5": 0.8169,
+      "mean_response_ms": 286.2,
+      "zero_result_rate": 0.0,
+      "n": 142
+    }
+  ],
+  "weakest_fachgebiete_by_subset": {
+    "alt": [
+      {
+        "name": "Werkstoffe",
+        "hit@1": 0.0,
+        "hit@5": 0.3077,
+        "hit@10": 0.3077,
+        "mrr": 0.122,
+        "main_group_hit@5": 0.6923,
+        "mean_response_ms": 226.4,
+        "zero_result_rate": 0.0,
+        "n": 13
+      },
+      {
+        "name": "Mess- und Regelungstechnik",
+        "hit@1": 0.2727,
+        "hit@5": 0.4545,
+        "hit@10": 0.4545,
+        "mrr": 0.3409,
+        "main_group_hit@5": 0.5455,
+        "mean_response_ms": 235.2,
+        "zero_result_rate": 0.0,
+        "n": 11
+      },
+      {
+        "name": "Maschinenbau",
+        "hit@1": 0.3158,
+        "hit@5": 0.6316,
+        "hit@10": 0.6316,
+        "mrr": 0.4254,
+        "main_group_hit@5": 1.0,
+        "mean_response_ms": 238.1,
+        "zero_result_rate": 0.0,
+        "n": 19
+      },
+      {
+        "name": "Energietechnik",
+        "hit@1": 0.3,
+        "hit@5": 0.6,
+        "hit@10": 0.6,
+        "mrr": 0.45,
+        "main_group_hit@5": 0.9,
+        "mean_response_ms": 339.6,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Elektrotechnik",
+        "hit@1": 0.4167,
+        "hit@5": 0.5833,
+        "hit@10": 0.5833,
+        "mrr": 0.4653,
+        "main_group_hit@5": 0.75,
+        "mean_response_ms": 362.0,
+        "zero_result_rate": 0.0,
+        "n": 12
+      },
+      {
+        "name": "Wirtschaft und Management",
+        "hit@1": 0.5,
+        "hit@5": 0.7,
+        "hit@10": 0.7,
+        "mrr": 0.5744,
+        "main_group_hit@5": 0.9,
+        "mean_response_ms": 257.9,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Informatik",
+        "hit@1": 0.4444,
+        "hit@5": 0.8889,
+        "hit@10": 0.8889,
+        "mrr": 0.6018,
+        "main_group_hit@5": 1.0,
+        "mean_response_ms": 255.2,
+        "zero_result_rate": 0.0,
+        "n": 9
+      },
+      {
+        "name": "Bauwesen",
+        "hit@1": 0.6923,
+        "hit@5": 0.7692,
+        "hit@10": 0.7692,
+        "mrr": 0.7179,
+        "main_group_hit@5": 0.9231,
+        "mean_response_ms": 238.3,
+        "zero_result_rate": 0.0,
+        "n": 13
+      }
+    ],
+    "neu_technik": [
+      {
+        "name": "Verfahrens- und Umwelttechnik",
+        "hit@1": 0.0,
+        "hit@5": 0.2,
+        "hit@10": 0.2,
+        "mrr": 0.05,
+        "main_group_hit@5": 0.8,
+        "mean_response_ms": 342.9,
+        "zero_result_rate": 0.0,
+        "n": 5
+      },
+      {
+        "name": "Mess- und Regelungstechnik",
+        "hit@1": 0.2,
+        "hit@5": 0.3,
+        "hit@10": 0.3,
+        "mrr": 0.2292,
+        "main_group_hit@5": 0.55,
+        "mean_response_ms": 219.9,
+        "zero_result_rate": 0.0,
+        "n": 20
+      },
+      {
+        "name": "Maschinenbau",
+        "hit@1": 0.2444,
+        "hit@5": 0.4444,
+        "hit@10": 0.5111,
+        "mrr": 0.3265,
+        "main_group_hit@5": 0.7556,
+        "mean_response_ms": 249.0,
+        "zero_result_rate": 0.0,
+        "n": 45
+      },
+      {
+        "name": "Energietechnik",
+        "hit@1": 0.24,
+        "hit@5": 0.44,
+        "hit@10": 0.56,
+        "mrr": 0.3691,
+        "main_group_hit@5": 0.88,
+        "mean_response_ms": 211.3,
+        "zero_result_rate": 0.0,
+        "n": 25
+      },
+      {
+        "name": "Wirtschaft und Management",
+        "hit@1": 0.2941,
+        "hit@5": 0.4706,
+        "hit@10": 0.5882,
+        "mrr": 0.398,
+        "main_group_hit@5": 0.8235,
+        "mean_response_ms": 243.5,
+        "zero_result_rate": 0.0,
+        "n": 17
+      },
+      {
+        "name": "Elektrotechnik",
+        "hit@1": 0.3125,
+        "hit@5": 0.5312,
+        "hit@10": 0.5938,
+        "mrr": 0.4195,
+        "main_group_hit@5": 0.9062,
+        "mean_response_ms": 234.4,
+        "zero_result_rate": 0.0,
+        "n": 32
+      },
+      {
+        "name": "Werkstoffe",
+        "hit@1": 0.375,
+        "hit@5": 0.5938,
+        "hit@10": 0.625,
+        "mrr": 0.4534,
+        "main_group_hit@5": 0.875,
+        "mean_response_ms": 226.7,
+        "zero_result_rate": 0.0,
+        "n": 32
+      },
+      {
+        "name": "Informatik",
+        "hit@1": 0.4118,
+        "hit@5": 0.5294,
+        "hit@10": 0.5294,
+        "mrr": 0.4647,
+        "main_group_hit@5": 0.7647,
+        "mean_response_ms": 255.9,
+        "zero_result_rate": 0.0,
+        "n": 34
+      }
+    ],
+    "neu_andere": [
+      {
+        "name": "Pädagogik und Bildung",
+        "hit@1": 0.0,
+        "hit@5": 0.0,
+        "hit@10": 0.0,
+        "mrr": 0.0,
+        "main_group_hit@5": 0.3,
+        "mean_response_ms": 243.6,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Sprache und Literatur",
+        "hit@1": 0.0,
+        "hit@5": 0.1111,
+        "hit@10": 0.2222,
+        "mrr": 0.0401,
+        "main_group_hit@5": 0.5556,
+        "mean_response_ms": 232.3,
+        "zero_result_rate": 0.0,
+        "n": 9
+      },
+      {
+        "name": "Land- und Forstwirtschaft, Ernährung",
+        "hit@1": 0.0,
+        "hit@5": 0.1,
+        "hit@10": 0.1,
+        "mrr": 0.0525,
+        "main_group_hit@5": 0.6,
+        "mean_response_ms": 222.4,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Medizin und Pflege",
+        "hit@1": 0.0,
+        "hit@5": 0.1,
+        "hit@10": 0.1,
+        "mrr": 0.0553,
+        "main_group_hit@5": 0.2,
+        "mean_response_ms": 222.1,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Biologie und Chemie",
+        "hit@1": 0.0,
+        "hit@5": 0.1111,
+        "hit@10": 0.1111,
+        "mrr": 0.0761,
+        "main_group_hit@5": 0.4444,
+        "mean_response_ms": 208.3,
+        "zero_result_rate": 0.0,
+        "n": 9
+      },
+      {
+        "name": "Recht",
+        "hit@1": 0.0,
+        "hit@5": 0.3,
+        "hit@10": 0.3,
+        "mrr": 0.0917,
+        "main_group_hit@5": 0.5,
+        "mean_response_ms": 316.1,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Musik",
+        "hit@1": 0.1,
+        "hit@5": 0.1,
+        "hit@10": 0.2,
+        "mrr": 0.11,
+        "main_group_hit@5": 0.2,
+        "mean_response_ms": 237.9,
+        "zero_result_rate": 0.0,
+        "n": 10
+      },
+      {
+        "name": "Sport",
+        "hit@1": 0.0,
+        "hit@5": 0.3,
+        "hit@10": 0.3,
+        "mrr": 0.125,
+        "main_group_hit@5": 0.7,
+        "mean_response_ms": 221.3,
+        "zero_result_rate": 0.0,
+        "n": 10
+      }
+    ]
+  },
+  "worst_by_subset": {
+    "alt": [
+      {
+        "query": "Automatisierungstechnik",
+        "typ": "Fachbegriff",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZQ 6000"
+        ],
+        "top3": [
+          "QP 225",
+          "ZI 8860",
+          "MS 4850"
+        ],
+        "rank": null,
+        "rank_uncut": 22,
+        "cause": "wrong_sense",
+        "homonym": false,
+        "gnd_senses": [
+          "Automatisierungstechnik"
+        ],
+        "expected_paths": [
+          "label_fts"
+        ]
+      },
+      {
+        "query": "Halbleiter",
+        "typ": "Fachbegriff",
+        "fachgebiet": "Elektrotechnik",
+        "expected": [
+          "ZN 4800"
+        ],
+        "top3": [
+          "UP 3250",
+          "UP 3200",
+          "UP 3050"
+        ],
+        "rank": null,
+        "rank_uncut": 26,
+        "cause": "wrong_sense",
+        "homonym": false,
+        "gnd_senses": [
+          "Halbleiter"
+        ],
+        "expected_paths": [
+          "label_fts"
+        ]
+      },
+      {
+        "query": "Leichte Materialien für Flugzeuge",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Werkstoffe",
+        "expected": [
+          "ZL 3230"
+        ],
+        "top3": [
+          "ZO 7210",
+          "ZO 7205",
+          "ZO 7340"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Messunsicherheit bestimmen",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZQ 3115"
+        ],
+        "top3": [
+          "QC 020",
+          "QH 233",
+          "MT 23100"
+        ],
+        "rank": null,
+        "rank_uncut": 31,
+        "cause": "no_gnd_sense",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "PID-Regler Auslegung",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZQ 5000"
+        ],
+        "top3": [
+          "HF 571",
+          "EE 1650",
+          "EE 1660"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Smart Grid",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Elektrotechnik",
+        "expected": [
+          "ZP 4450"
+        ],
+        "top3": [
+          "ZN 8500",
+          "ZG 9225",
+          "ZN 8550"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "Intelligentes Stromnetz"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Spannung",
+        "typ": "Mehrdeutig",
+        "fachgebiet": "Elektrotechnik",
+        "expected": [
+          "ZQ 3400"
+        ],
+        "top3": [
+          "UF 1800",
+          "TG 3500",
+          "UF 2000"
+        ],
+        "rank": null,
+        "rank_uncut": 34,
+        "cause": "wrong_sense",
+        "homonym": true,
+        "gnd_senses": [
+          "Spannung",
+          "Spannung <Geologie>",
+          "Elektrische Spannung",
+          "Mechanische Spannung"
+        ],
+        "expected_paths": [
+          "label_fts"
+        ]
+      },
+      {
+        "query": "Temperaturmessung in Industrieöfen",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZP 3279"
+        ],
+        "top3": [
+          "ZQ 3800",
+          "UH 5740",
+          "ZL 7400"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Warum Häuser nicht einstürzen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Bauwesen",
+        "expected": [
+          "ZI 3300"
+        ],
+        "top3": [
+          "ZH 5000",
+          "ZH 5260",
+          "ZH 8950"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Warum Metall rostet",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Werkstoffe",
+        "expected": [
+          "ZM 7510"
+        ],
+        "top3": [
+          "UQ 7000",
+          "UQ 7360",
+          "UQ 7020"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Wie eine Fabrik von selbst läuft",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZQ 6000"
+        ],
+        "top3": [
+          "ZL 3170",
+          "ZL 3180",
+          "ZM 9000"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Energietechnik",
+        "expected": [
+          "ZL 5475"
+        ],
+        "top3": [
+          "ZP 3300",
+          "ZP 3580",
+          "ZP 3275"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Zugversuch an Stahlproben",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Werkstoffe",
+        "expected": [
+          "ZM 3600"
+        ],
+        "top3": [
+          "ZK 8200",
+          "ZI 4941",
+          "ZI 7200"
+        ],
+        "rank": null,
+        "rank_uncut": 25,
+        "cause": "cut_after_20",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": [
+          "register_similar"
+        ]
+      },
+      {
+        "query": "Additive Fertigung von Metallbauteilen",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Maschinenbau",
+        "expected": [
+          "ZM 9045"
+        ],
+        "top3": [
+          "ZK 8200",
+          "ZL 3235",
+          "ZM 8475"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Computer lernt aus Beispielen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Informatik",
+        "expected": [
+          "ST 301"
+        ],
+        "top3": [
+          "AL 40450",
+          "AL 34330",
+          "SR 9000"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      }
+    ],
+    "neu_technik": [
+      {
+        "query": "Big Data",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Informatik",
+        "expected": [
+          "ST 530"
+        ],
+        "top3": [
+          "AK 54535",
+          "MR 2200",
+          "AP 95500"
+        ],
+        "rank": null,
+        "rank_uncut": 25,
+        "cause": "wrong_sense",
+        "homonym": false,
+        "gnd_senses": [
+          "Big Data",
+          "Big Data <Motiv>"
+        ],
+        "expected_paths": [
+          "register_similar"
+        ]
+      },
+      {
+        "query": "Blockchain",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Informatik",
+        "expected": [
+          "ST 610"
+        ],
+        "top3": [
+          "QK 305",
+          "MF 3360",
+          "ZN 8580"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "Blockchain"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Bogen",
+        "typ": "Mehrdeutig",
+        "fachgebiet": "Bauwesen",
+        "expected": [
+          "ZI 3300"
+        ],
+        "top3": [
+          "LK 80130",
+          "ZH 7400",
+          "AL 27300"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": true,
+        "gnd_senses": [
+          "Bogen <Architektur>",
+          "Bogen <Waffe>",
+          "Bogen <Streichinstrument>",
+          "Bogen <Mathematik>",
+          "Bogen <Gerät>"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Bus",
+        "typ": "Mehrdeutig",
+        "fachgebiet": "Informatik",
+        "expected": [
+          "ST 185"
+        ],
+        "top3": [
+          "ZO 4450",
+          "ZO 4430",
+          "ZQ 6150"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": true,
+        "gnd_senses": [
+          "Bus <Informatik>",
+          "Omnibus"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Destillation in der chemischen Industrie",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Verfahrens- und Umwelttechnik",
+        "expected": [
+          "VN 7000"
+        ],
+        "top3": [
+          "ZL 3930",
+          "QR 525",
+          "PF 450"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "DevOps",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Informatik",
+        "expected": [
+          "ST 230"
+        ],
+        "top3": [
+          "NH 9300",
+          "BL 2870",
+          "EE 7926"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "DevOps"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Dichtungstechnik",
+        "typ": "Fachbegriff",
+        "fachgebiet": "Maschinenbau",
+        "expected": [
+          "ZL 4400"
+        ],
+        "top3": [
+          "ZM 8300",
+          "ZN 8770",
+          "ZM 8315"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Die Oberfläche von Metall härter machen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Werkstoffe",
+        "expected": [
+          "ZM 7610"
+        ],
+        "top3": [
+          "UP 7560",
+          "UQ 7000",
+          "UQ 7340"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Digital Twin",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZQ 5000"
+        ],
+        "top3": [
+          "AP 99431",
+          "AP 99449",
+          "ST 340"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "Digitaler Zwilling"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Druck",
+        "typ": "Mehrdeutig",
+        "fachgebiet": "Maschinenbau / Kunst, Medien und Kommunikation",
+        "expected": [
+          "UP 2500",
+          "UX 6000",
+          "ZL 7200",
+          "ZM 8200",
+          "AN 28000",
+          "AM 23000",
+          "AN 25400"
+        ],
+        "top3": [
+          "NK 4940",
+          "RC 35238",
+          "RC 40238"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": true,
+        "gnd_senses": [
+          "Druck",
+          "Druckwerk",
+          "Drucktechnik"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "E-Mobility",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Fahrzeugtechnik",
+        "expected": [
+          "ZO 4480"
+        ],
+        "top3": [
+          "QR 760",
+          "ST 273",
+          "ST 207"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Ein Bauteil am Computer entwerfen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Maschinenbau",
+        "expected": [
+          "ZG 9146"
+        ],
+        "top3": [
+          "ST 150",
+          "ZN 4200",
+          "ST 166"
+        ],
+        "rank": null,
+        "rank_uncut": 55,
+        "cause": "no_gnd_sense",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Eine Fabrik am Bildschirm überwachen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Mess- und Regelungstechnik",
+        "expected": [
+          "ZM 9240"
+        ],
+        "top3": [
+          "ZG 9280",
+          "ZG 9225",
+          "PF 269"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Entscheiden, ob sich eine neue Maschine lohnt",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Wirtschaft und Management",
+        "expected": [
+          "QP 720"
+        ],
+        "top3": [
+          "ZL 7130",
+          "ZL 5000",
+          "ZG 9225"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Festigkeitsberechnung mit der Finite-Elemente-Methode",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Maschinenbau",
+        "expected": [
+          "ZI 3310"
+        ],
+        "top3": [
+          "QH 160",
+          "UP 4000",
+          "SK 910"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      }
+    ],
+    "neu_andere": [
+      {
+        "query": "Abseits",
+        "typ": "Mehrdeutig",
+        "fachgebiet": "Sport",
+        "expected": [
+          "ZY 2021"
+        ],
+        "top3": [
+          "QP 632",
+          "ZH 7300",
+          "ZL 3760"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": true,
+        "gnd_senses": [
+          "Abseits"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Als Fabriken und Dampfmaschinen alles veränderten",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Geschichte",
+        "expected": [
+          "NW 3900",
+          "NW 3100"
+        ],
+        "top3": [
+          "ZL 5300",
+          "ZL 3170",
+          "ZL 5200"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Alte Gebäude erhalten",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Kunst, Medien und Kommunikation",
+        "expected": [
+          "LH 60310"
+        ],
+        "top3": [
+          "ZH 7050",
+          "ZH 6750",
+          "ZH 7080"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Ausdauertraining im Alter",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Sport",
+        "expected": [
+          "ZX 7550"
+        ],
+        "top3": [
+          "MS 2600",
+          "QX 400",
+          "MT 26200"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Ausgebrannt sein im Job",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Psychologie",
+        "expected": [
+          "CU 3000"
+        ],
+        "top3": [
+          "AR 17100",
+          "MS 5200",
+          "AR 17450"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Barock",
+        "typ": "Fachbegriff",
+        "fachgebiet": "Kunst, Medien und Kommunikation",
+        "expected": [
+          "LH 65760",
+          "GH 1004"
+        ],
+        "top3": [
+          "AP 64700",
+          "EC 3920",
+          "EK 2582"
+        ],
+        "rank": null,
+        "rank_uncut": 45,
+        "cause": "wrong_sense",
+        "homonym": false,
+        "gnd_senses": [
+          "Barock"
+        ],
+        "expected_paths": [
+          "label_fts"
+        ]
+      },
+      {
+        "query": "Bestandsentwicklung",
+        "typ": "Fachbegriff",
+        "fachgebiet": "Bibliotheks- und Informationswesen",
+        "expected": [
+          "AN 71000",
+          "AN 70000"
+        ],
+        "top3": [
+          "ZI 3950",
+          "AP 94400",
+          "AP 94300"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Blasmusikkapellen in Österreich",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Musik",
+        "expected": [
+          "LC 87160",
+          "LS 20390"
+        ],
+        "top3": [
+          "AM 82247",
+          "AM 83880",
+          "DQ 5007"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Blended Learning",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Pädagogik und Bildung",
+        "expected": [
+          "DP 2050"
+        ],
+        "top3": [
+          "CM 6000",
+          "GB 3031",
+          "GB 3030"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "Integriertes Lernen"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "CRISPR",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Biologie und Chemie",
+        "expected": [
+          "WG 3450",
+          "WC 4460"
+        ],
+        "top3": [
+          "ZL 3800",
+          "UQ 5400",
+          "ZL 6100"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Compliance",
+        "typ": "Englisch/Jargon",
+        "fachgebiet": "Recht",
+        "expected": [
+          "PE 380",
+          "QP 341"
+        ],
+        "top3": [
+          "CV 5000",
+          "WT 3600",
+          "WT 3604"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [
+          "Compliance <Patient>",
+          "Compliance <Physiologie>",
+          "Compliance <Psychologie>"
+        ],
+        "expected_paths": []
+      },
+      {
+        "query": "Darf ich Fotos von fremden Leuten ins Netz stellen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Recht",
+        "expected": [
+          "PZ 3700"
+        ],
+        "top3": [
+          "AP 95200",
+          "AP 96950",
+          "AP 97800"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Denkmalpflege von Kirchenbauten",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Kunst, Medien und Kommunikation",
+        "expected": [
+          "BR 5890",
+          "LH 60300",
+          "NZ 28042"
+        ],
+        "top3": [
+          "BO 9550",
+          "BO 9470",
+          "BS 4500"
+        ],
+        "rank": null,
+        "rank_uncut": 59,
+        "cause": "cut_after_20",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": [
+          "register_similar"
+        ]
+      },
+      {
+        "query": "Dialekte in Oberösterreich",
+        "typ": "Spezifisch/Kompositum",
+        "fachgebiet": "Sprache und Literatur",
+        "expected": [
+          "LC 60160",
+          "GD 2420"
+        ],
+        "top3": [
+          "DQ 5007",
+          "GB 2914",
+          "AL 60439"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      },
+      {
+        "query": "Dinge ausleihen statt kaufen",
+        "typ": "Fachfremd umschrieben",
+        "fachgebiet": "Bibliotheks- und Informationswesen",
+        "expected": [
+          "QR 790",
+          "ZH 9317",
+          "AN 66100",
+          "AN 73000"
+        ],
+        "top3": [
+          "ND 6080",
+          "QL 632",
+          "QL 700"
+        ],
+        "rank": null,
+        "rank_uncut": null,
+        "cause": "not_candidate",
+        "homonym": false,
+        "gnd_senses": [],
+        "expected_paths": []
+      }
+    ]
+  },
+  "proposals": [
+    {
+      "cause": "not_candidate",
+      "label": "richtige Stelle nicht unter den Kandidaten",
+      "queries": 183
+    },
+    {
+      "cause": "no_gnd_sense",
+      "label": "keine GND-Bedeutung und kein Treffer über das RVK-Register",
+      "queries": 33
+    },
+    {
+      "cause": "wrong_sense",
+      "label": "GND-Bedeutung führt woanders hin (Annäherung: falsche Bedeutung)",
+      "queries": 19
+    },
+    {
+      "cause": "behind_10",
+      "label": "gefunden, aber hinter Platz 10",
+      "queries": 17
+    },
+    {
+      "cause": "cut_after_20",
+      "label": "gefunden, aber hinter Platz 20 abgeschnitten",
+      "queries": 13
+    },
+    {
+      "cause": "vector_only",
+      "label": "nur über inhaltliche Ähnlichkeit (Vektor) gefunden, zu weit hinten",
+      "queries": 1
+    }
+  ]
+}

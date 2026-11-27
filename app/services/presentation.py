@@ -327,6 +327,23 @@ LLM_UNVERIFIED_LABEL = (
     "nicht verifiziert – nicht im Normvokabular gefunden – nicht gesucht"
 )
 
+# P11: Quelle am Chip als Text (nicht nur über die Farbe)
+LLM_SOURCE_LABELS = {
+    "gnd": "KI, geprüft in GND",
+    "rvk_register": "KI, geprüft im RVK-Register",
+}
+LLM_SOURCE_DEFAULT = "KI, geprüft"
+
+
+def gnd_source_label(relation: str) -> str:
+    """„GND · Synonym“, „GND · Oberbegriff“ … für einen GND-Erweiterungsbegriff."""
+    return f"GND · {RELATION_LABELS.get(relation, 'verwandt')}"
+
+
+def llm_source_label(verified_via: str | None) -> str:
+    """„KI, geprüft in GND“ bzw. „… im RVK-Register“ für einen geprüften LLM-Begriff."""
+    return LLM_SOURCE_LABELS.get(verified_via or "", LLM_SOURCE_DEFAULT)
+
 
 def gnd_term_key(sense: GndSense, term: ExpansionTerm) -> str:
     """Stabiler Schlüssel eines GND-Suchbegriffs (Formularwert im Erweiterungsbaum)."""
@@ -359,6 +376,7 @@ def _llm_node(suggestion: LlmSuggestion, excluded: set[str]) -> dict:
         "relation": suggestion.llm_relation,
         "rationale": suggestion.rationale,
         "verified": suggestion.verified,
+        "verified_via": suggestion.verified_via,
         "key": None,
         "checked": False,
     }
@@ -387,7 +405,10 @@ def expansion_chips(
     - `removed`: abgewählte Begriffe (einzeln wiederherstellbar),
     - `llm`: alle LLM-Vorschläge mit Prüfstatus, `unverified`: die nicht gesuchten davon,
     - `active_keys`: Schlüssel der gesuchten Begriffe (versteckte Formularfelder).
-    Jeder Chip trägt `key`, `term`, `type_label`, `origin` (gnd/llm), `origin_label` und `url`.
+    Jeder Chip trägt `key`, `term`, `type_label`, `origin` (gnd/llm), `origin_label`,
+    `source_label` (P11: Quelle als Text, z. B. „GND · Synonym“, „KI, geprüft in GND“) und `url`.
+    Ohne LLM-Vorschläge (Sprachmodell aus, Standard) gibt es keine KI-Chips und keinen
+    LLM-Bereich (`llm` leer).
     """
     excluded = set(excluded)
     senses = list(senses)
@@ -413,6 +434,7 @@ def expansion_chips(
                 "type_label": RELATION_LABELS.get(term.relation, "verwandt"),
                 "origin": "gnd",
                 "origin_label": "GND",
+                "source_label": gnd_source_label(term.relation),
                 "url": lobid_url(term.gnd_id),
                 "sense_name": sense.display_name,
             }
@@ -432,7 +454,8 @@ def expansion_chips(
             "term": node["matched_term"],
             "type_label": LLM_RELATION_LABELS.get(node["relation"], "verwandt"),
             "origin": "llm",
-            "origin_label": "KI, geprüft",
+            "origin_label": LLM_SOURCE_DEFAULT,
+            "source_label": llm_source_label(node["verified_via"]),
             "url": None,
             "sense_name": None,
             "status": node["status"],
@@ -477,20 +500,87 @@ def apply_exclusions(
     return filtered_senses, filtered_llm
 
 
+def format_count(n: int, cap: int | None = None) -> str:
+    """Zahl für die Oberfläche: über der Listenobergrenze `cap` als „20+“ (P11).
+
+    Was eine Zahl verspricht, soll die Liste danach zeigen; sie zeigt höchstens `cap`
+    Vorschläge. Ohne `cap` (None oder 0) die Zahl selbst.
+    """
+    n = int(n)
+    if cap and n > cap:
+        return f"{int(cap)}+"
+    return str(n)
+
+
+def _top_level_letters(notation: str) -> list[str]:
+    """Anfangsbuchstaben, die ein Eintrag der obersten Ebene abdeckt.
+
+    „CA - CK“ -> ["C"], „LD,LH - LO“ -> ["L"], „X - Y“ -> ["X", "Y"], „A“ -> ["A"].
+    """
+    text = " ".join(str(notation or "").split()).upper()
+    if not text or not ("A" <= text[0] <= "Z"):
+        return []
+    first = last = text[0]
+    if "-" in text:
+        end = text.rsplit("-", 1)[1].strip()
+        if end and "A" <= end[0] <= "Z" and end[0] > first:
+            last = end[0]
+    return [chr(c) for c in range(ord(first), ord(last) + 1)]
+
+
+def _titles_from(entries: Iterable[tuple[str, str]]) -> dict[str, str]:
+    names: dict[str, list[str]] = {}
+    for notation, label in entries:
+        label = " ".join(str(label or "").split())
+        if not label:
+            continue
+        for letter in _top_level_letters(notation):
+            bucket = names.setdefault(letter, [])
+            if label not in bucket:
+                bucket.append(label)
+    return {letter: " · ".join(labels) for letter, labels in names.items()}
+
+
+def letter_titles(
+    top_level: Iterable[tuple[str, str]],
+    fallback: Iterable[tuple[str, str]] = (),
+) -> dict[str, str]:
+    """Titel je Anfangsbuchstabe aus der obersten Ebene der RVK (P11).
+
+    `top_level` sind (Notation, Benennung) aus der Datenbank, `fallback` dieselbe Form aus der
+    Konfiguration (Config.MAIN_GROUP_TOP_LEVEL_FALLBACK). Mehrere Fachgebiete eines Buchstabens
+    werden in Notationsreihenfolge mit „ · “ verbunden, ohne Dubletten. Ein Bereich zählt zu
+    jedem Buchstaben, den er abdeckt („X - Y“ zu X und Y). Die Datenbank hat Vorrang; die
+    Konfiguration gilt nur für Buchstaben, für die die Datenbank nichts liefert.
+    """
+    titles = _titles_from(fallback)
+    titles.update(_titles_from(top_level))
+    return titles
+
+
 def main_group_options(
     groups: Iterable[tuple[str, str]],
     selected: Iterable[str],
     counts: Mapping[str, int] | None = None,
+    titles: Mapping[str, str] | None = None,
+    max_count: int | None = None,
 ) -> dict:
-    """Facette „Hauptgruppen“: gewählte zuerst, dann nach Anfangsbuchstaben.
+    """Facette „Hauptgruppen“: gewählte zuerst, dann nach Anfangsbuchstaben gegliedert.
 
     Gewählte Codes, die in `groups` fehlen (z. B. Voreinstellung aus .env), erscheinen trotzdem.
     `counts` (P10) sind die Fundstellen je Hauptgruppe der letzten Suche, ungefiltert; vor der
     ersten Suche `None` – dann tragen die Einträge keine Zahl (`count` None).
+
+    P11: Jeder Buchstabe trägt `title` (Fachgebiete, aus `titles`), `heading`
+    („S – Mathematik · Informatik“), `count_sum` (Summe der Fundstellen seiner Einträge, vor der
+    ersten Suche None) und `open` (eine gewählte Hauptgruppe beginnt mit diesem Buchstaben;
+    sonst eingeklappt). Zahlen über `max_count` (Listenobergrenze) stehen in `count_text` bzw.
+    `count_sum_text` als „20+“.
     """
     groups = list(groups)
     selected = list(selected)
     labels = dict(groups)
+    titles = titles or {}
 
     def entry(code: str, label: str, checked: bool) -> dict:
         count = None if counts is None else int(counts.get(code, 0))
@@ -499,21 +589,37 @@ def main_group_options(
             "label": label,
             "checked": checked,
             "count": count,
+            "count_text": None if count is None else format_count(count, max_count),
             "has_hits": count is None or count > 0,
         }
 
     chosen = [entry(code, labels.get(code, ""), True) for code in selected]
+    selected_letters = {code[:1] for code in selected}
     letters: dict[str, list[dict]] = {}
     for code, label in groups:
         if code in selected:
             continue
         letters.setdefault(code[:1], []).append(entry(code, label, False))
+    result_letters = []
+    for letter, items in sorted(letters.items()):
+        title = titles.get(letter, "")
+        count_sum = None if counts is None else sum(i["count"] for i in items)
+        result_letters.append(
+            {
+                "letter": letter,
+                "title": title,
+                "heading": f"{letter} – {title}" if title else letter,
+                "groups": items,
+                "count_sum": count_sum,
+                "count_sum_text": None
+                if count_sum is None
+                else format_count(count_sum, max_count),
+                "open": letter in selected_letters,
+            }
+        )
     return {
         "selected": chosen,
-        "letters": [
-            {"letter": letter, "groups": items}
-            for letter, items in sorted(letters.items())
-        ],
+        "letters": result_letters,
         "has_counts": counts is not None,
     }
 
@@ -585,14 +691,13 @@ RELEVANCE_WORDS = ("gering", "schwach", "mittel", "hoch", "sehr hoch")
 def relevance_level(score: float, settings: scoring.ScoringSettings) -> tuple[int, str]:
     """Fünf Relevanzstufen für die Treffer-Karte: (Stufe 1–5, Stufenwort).
 
-    „mittel“ und „hoch“ beginnen an den kalibrierten Schwellen `tier_medium`/`tier_high`.
-    Die äußeren Stufen (NICHT kalibriert) liegen je einen Abstand d = tier_high − tier_medium
-    darüber („sehr hoch“) bzw. darunter („schwach“); noch tiefer ist „gering“.
+    Die Stufen beginnen an den Schwellen `tier_weak`, `tier_medium`, `tier_high`,
+    `tier_very_high` (P11: für max_plus am Goldstandard abgeleitet, siehe app/config.py).
+    Fehlen die äußeren beiden, liegen sie wie in P10 je einen Abstand d = tier_high −
+    tier_medium über „hoch“ bzw. unter „mittel“ (nicht kalibriert); darunter ist „gering“.
     Ein Relevanzmaß, keine Wahrscheinlichkeit; die Rangfolge ändert sich dadurch nicht.
     """
-    high, medium = settings.tier_high, settings.tier_medium
-    step = high - medium
-    bounds = (round(medium - step, 9), medium, high, round(high + step, 9))
+    bounds = scoring.five_tier_bounds(settings)
     level = 1 + sum(score >= bound for bound in bounds)
     return level, RELEVANCE_WORDS[level - 1]
 
@@ -602,11 +707,14 @@ def empty_state(
     selected: Iterable[str],
     counts: Mapping[str, int] | None,
     removed_count: int = 0,
+    max_count: int | None = None,
 ) -> dict:
     """Zustand „keine Vorschläge“: Ursache und Auswege (docs/design.md Abschnitt 7).
 
     Ursache `filter`: Es gäbe Fundstellen, aber keine in den gewählten Hauptgruppen; dann nennt
-    `reset_count` die Zahl, die ein Zurücksetzen der Auswahl zeigen würde. Sonst `nothing`.
+    `reset_count` die Zahl der Fundstellen ohne Filter und `reset_count_text` die Zahl, die ein
+    Zurücksetzen der Auswahl zeigen würde (über der Listenobergrenze `max_count` als „20+“,
+    P11). Sonst `nothing`.
     """
     selected = list(selected)
     total = sum((counts or {}).values())
@@ -616,6 +724,7 @@ def empty_state(
         "cause": cause,
         "selected": selected,
         "reset_count": total,
+        "reset_count_text": format_count(total, max_count),
         "removed_count": int(removed_count),
     }
 

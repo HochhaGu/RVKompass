@@ -68,6 +68,34 @@ def test_exclude_notations():
     assert evaluation.exclude_notations(GOLD, []) == GOLD
 
 
+def test_real_gold_standard_in_sync_checks():
+    """P12/A5: Der Monatsabgleich liest den vollen Goldstandard (SYNC_GOLD_PATH)."""
+    import time
+
+    from app.config import Config
+    from app.services.rvk_sync import pipeline
+
+    start = time.perf_counter()
+    gold = pipeline.load_gold(Config.SYNC_GOLD_PATH)
+    assert len(gold) == sum(Config.GOLD_SUBSET_SIZES.values())
+    present = {n for e in gold for n in e.expected}
+    # alle Notationen in beiden Ständen vorhanden -> keine Markierung
+    assert checks.mark_gold(gold, present, present, "2026/3") == []
+    # eine Notation im neuen Stand gelöscht -> genau ihre Einträge markiert bzw. gestrichen
+    target = "ST 170"
+    affected = {e.query for e in gold if target in e.expected}
+    assert affected
+    marks = checks.mark_gold(gold, present, present - {target}, "2026/3")
+    assert {m.query for m in marks} == affected
+    assert {m.status for m in marks} == {checks.GOLD_DELETED}
+    assert checks.excluded_by_marks(marks) == {target}
+    filtered = evaluation.exclude_notations(gold, checks.excluded_by_marks(marks))
+    only_target = {e.query for e in gold if e.expected == [target]}
+    assert len(filtered) == len(gold) - len(only_target)
+    assert all(target not in e.expected for e in filtered)
+    assert time.perf_counter() - start < 1.0
+
+
 def test_eval_drop_threshold():
     assert checks.check_eval({"hit@10": 0.5}, {"hit@10": 0.451}, 0.05)[0] is True
     assert checks.check_eval({"hit@10": 0.5}, {"hit@10": 0.449}, 0.05)[0] is False

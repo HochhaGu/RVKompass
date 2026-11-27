@@ -30,7 +30,8 @@ from app.services import presentation, rvk_repository, scoring
 from app.services.presentation import main_group
 from app.services.query_expansion import normalize_query
 
-MAX_RESULTS = 20
+# Obergrenze der Vorschlagsliste aus der Konfiguration (P11, Standard 20)
+MAX_RESULTS = Config.MAX_RESULTS
 # Zuschläge der Formel „legacy“ (Stand P4), seit P5 in app/services/scoring.py
 KEYWORD_BONUS = scoring.KEYWORD_BONUS
 TERM_MATCH_BONUS = scoring.TERM_MATCH_BONUS

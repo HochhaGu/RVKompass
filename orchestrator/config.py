@@ -21,6 +21,9 @@ class Phase:
     halt_message: str | None = None
     web_domains: tuple[str, ...] = ()
     extra_bash: tuple[str, ...] = ()
+    # Goldstandard geändert: Evaluation läuft, aber ohne Hit@10-Vergleich mit dem alten Stand;
+    # das Ergebnis wird der neue Vergleichsstand für spätere Phasen.
+    new_baseline: bool = False
 
     @property
     def number(self) -> int:
@@ -125,6 +128,7 @@ def load_settings(path: Path | None = None, repo_root: Path | None = None) -> Se
             halt_message=(p.get("haltepunkt") or None),
             web_domains=tuple(p.get("web", []) or []),
             extra_bash=tuple(p.get("bash", []) or []),
+            new_baseline=bool(p.get("neue_basis", False)),
         )
         for p in data["phasen"]
     )
