@@ -167,6 +167,62 @@ def test_diagnose_writes_report_without_grid(setup):
         assert heading in md
 
 
+def test_retune_writes_report_and_decides(setup):
+    gold, out = setup
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--retune"]) == 0
+
+    (json_path,) = out.glob("scoring-retune-*.json")
+    assert re.fullmatch(
+        r"scoring-retune-\d{4}-\d{2}-\d{2}-abc1234\.json", json_path.name
+    )
+    assert len(list(out.glob("eval-*.json"))) == 1  # kein neuer eval-Bericht
+    assert not list(out.glob("scoring-2*.json"))  # kein P5-Grid-Bericht
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert report["formula"] == "max_plus"
+    assert report["grid_size"] == len(tune.tuning.weight_grid("max_plus"))
+    for key in ("current", "candidate"):
+        assert set(report[key]["metrics"]) >= {"dev", "test", "full"}
+    decision = report["decision"]
+    assert set(decision["conditions"]) == {
+        "hit@10_not_worse",
+        "mrr_not_worse",
+        "gain_ge_min",
+    }
+    expected = tune.tuning.accept_p12(
+        report["candidate"]["metrics"]["test"], report["current"]["metrics"]["test"]
+    )
+    assert decision["accepted"] == expected["accepted"]
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "## Entscheidung" in md and "vorab festgelegt" in md
+    assert "Konfidenz" not in md
+
+
+def test_retune_with_subsets(setup, monkeypatch):
+    gold, out = setup
+    db_path = Path(tune.get_config().DATABASE_PATH)
+
+    config = FakeConfig(db_path)
+    config.GOLD_SUBSET_SIZES = {"alt": 2, "neu_technik": 2}
+    monkeypatch.setattr(tune, "get_config", lambda: config)
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--retune"]) == 0
+    (json_path,) = out.glob("scoring-retune-*.json")
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    assert {"subset:alt", "subset:neu_technik"} <= set(report["current"]["metrics"])
+    assert tune.main(["--gold", str(gold), "--out", str(out), "--diagnose"]) == 0
+    (diag_path,) = out.glob("scoring-diagnose-*.json")
+    diag = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert set(diag["diagnose_by_subset"]) == {"alt", "neu_technik"}
+    assert "per_query" not in diag["diagnose_by_subset"]["alt"]
+    assert "Teilmenge alt (bis P11)" in diag_path.with_suffix(".md").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_retune_excludes_other_modes():
+    with pytest.raises(SystemExit):
+        tune.parse_args(["--gold", "x", "--retune", "--diagnose"])
+
+
 def test_tiers_only_writes_five_tier_report(setup, monkeypatch):
     gold, out = setup
 

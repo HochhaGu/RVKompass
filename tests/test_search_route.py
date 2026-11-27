@@ -728,19 +728,20 @@ def test_hit_card_relevance_block_without_percent(client):
     test_client, _ = client
     html = _post(test_client, {"q": "Getriebe"})
     card = _card(html, "ZL 4620")
-    # Standard max_plus (P11): Score 0.5 liegt unter „mittel“ (0.5218) und über „schwach“
-    # (0.4304); bei legacy wäre es ebenfalls „schwach“ (0.5754 − 0.0797 ≤ 0.5 < 0.5754)
+    # Standard max_plus (Stufen P12): Score 0.5 liegt über „mittel“ (0.4714) und unter „hoch“
+    # (0.5526)
     assert (
-        '<div class="relevance" role="img" aria-label="Relevanz schwach, Stufe 2 von 5" '
+        '<div class="relevance" role="img" aria-label="Relevanz mittel, Stufe 3 von 5" '
         'title="Relevanzwert 0.50">'
     ) in card
     assert len(re.findall(r'<span class="seg( is-on)?" aria-hidden="true">', card)) == 5
-    assert card.count('<span class="seg is-on"') == 2
-    assert '<span class="relevance-word">schwach</span>' in card
+    assert card.count('<span class="seg is-on"') == 3
+    assert '<span class="relevance-word">mittel</span>' in card
     # kein Prozentzeichen im Text (Links enthalten URL-Kodierung wie %20)
     assert "%" not in re.sub(r'href="[^"]*"', "", card) and "Konfidenz" not in card
     vector = _card(html, "ZL 9999")
-    assert 'aria-label="Relevanz gering, Stufe 1 von 5"' in vector
+    # Relevanzwert 0.40: ab P12 „schwach“ (Grenze 0.3822), vorher „gering“ (0.4304)
+    assert 'aria-label="Relevanz schwach, Stufe 2 von 5"' in vector
     assert "keine Wahrscheinlichkeit" in html
 
 

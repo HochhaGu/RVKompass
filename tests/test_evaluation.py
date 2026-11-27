@@ -401,3 +401,106 @@ def test_compare_per_query_reports_changed_rank_or_top3():
 
 def test_compare_per_query_without_old_per_query_is_empty():
     assert ev.compare_per_query([_pq("a", 1, [])], {"metrics": {}}) == []
+
+
+# --- P12: Teilmengen und Regressionsschutz ------------------------------------------------------
+
+
+def test_subset_labels_in_file_order():
+    labels = ev.subset_labels(5, {"alt": 2, "neu_technik": 2, "neu_andere": 1})
+    assert labels == ["alt", "alt", "neu_technik", "neu_technik", "neu_andere"]
+
+
+def test_subset_labels_wrong_sum_raises():
+    with pytest.raises(ValueError):
+        ev.subset_labels(4, {"alt": 2, "neu_technik": 1})
+
+
+def _typed(query, results, expected, typ, fach):
+    entry = ev.GoldEntry(query=query, expected=expected, typ=typ, fachgebiet=fach)
+    return ev.evaluate_query(entry, results, 0.01, [])
+
+
+def test_metrics_by_subset():
+    per_query = [
+        _typed("a", ["ZL 1"], ["ZL 1"], "Fachbegriff", "Maschinenbau"),
+        _typed("b", ["ZL 2"], ["ZL 1"], "Mehrdeutig", "Maschinenbau"),
+        _typed("c", ["X", "PU 1"], ["PU 1"], "Fachbegriff", "Recht"),
+    ]
+    result = ev.metrics_by_subset(per_query, ["alt", "alt", "neu_andere"])
+    assert list(result["metrics"]) == ["alt", "neu_andere"]
+    assert result["metrics"]["alt"]["n"] == 2
+    assert result["metrics"]["alt"]["hit@1"] == 0.5
+    assert result["metrics"]["neu_andere"]["mrr"] == 0.5
+    assert set(result["by_typ"]["alt"]) == {"Fachbegriff", "Mehrdeutig"}
+    assert set(result["by_fachgebiet"]["neu_andere"]) == {"Recht"}
+    with pytest.raises(ValueError):
+        ev.metrics_by_subset(per_query, ["alt"])
+
+
+REFERENCE = {
+    "metrics": {"hit@1": 0.3608, "hit@5": 0.6082, "hit@10": 0.6082, "mrr": 0.4536},
+    "scoring": {"formula": "max_plus", "path_bonus": 0.1},
+    "per_query": [_pq("a", 1, ["ZL 1"]), _pq("b", 3, ["X"])],
+}
+
+
+def test_regression_check_within_tolerance():
+    metrics = {"hit@1": 0.3608, "hit@5": 0.6082, "hit@10": 0.6132, "mrr": 0.4500}
+    result = ev.regression_check(
+        metrics,
+        REFERENCE,
+        [_pq("a", 1, ["ZL 1"]), _pq("b", 3, ["X"])],
+        {"formula": "max_plus", "path_bonus": 0.1},
+        reference_file="ref.json",
+    )
+    assert result["ok"] is True
+    assert result["same_settings"] is True
+    assert result["metrics"]["hit@10"]["diff"] == 0.005
+    assert result["metrics"]["mrr"]["diff"] == -0.0036
+    assert result["changed"] == []
+    assert result["reference_file"] == "ref.json"
+
+
+def test_regression_check_outside_tolerance_and_other_settings():
+    metrics = {"hit@1": 0.3508, "hit@5": 0.6082, "hit@10": 0.6082, "mrr": 0.4536}
+    result = ev.regression_check(
+        metrics,
+        REFERENCE,
+        [_pq("a", 2, ["X", "ZL 1"]), _pq("b", 3, ["X"])],
+        {"formula": "max_plus", "path_bonus": 0.05},
+    )
+    assert result["ok"] is False
+    assert result["metrics"]["hit@1"]["ok"] is False
+    assert result["metrics"]["hit@5"]["ok"] is True
+    assert result["same_settings"] is False
+    assert [c["query"] for c in result["changed"]] == ["a"]
+
+
+def test_regression_check_missing_metric_fails():
+    result = ev.regression_check({"hit@1": 0.3608}, REFERENCE, [], None)
+    assert result["ok"] is False
+    assert result["same_settings"] is False
+
+
+def test_render_markdown_subset_and_regression_sections():
+    per_query = [_q("Getriebe", ["ZL 4100"], ["ZL 4100"]), _q("Feder", [], ["ZL 4300"])]
+    metrics = ev.aggregate(per_query)
+    subsets = ev.metrics_by_subset(per_query, ["alt", "neu_technik"])
+    report = {
+        "metrics": metrics,
+        "metrics_by_subset": subsets["metrics"],
+        "by_typ_by_subset": subsets["by_typ"],
+        "by_fachgebiet_by_subset": subsets["by_fachgebiet"],
+        "regression_old": ev.regression_check(
+            subsets["metrics"]["alt"], {"metrics": metrics}, per_query[:1], None
+        ),
+    }
+    md = ev.render_markdown(report)
+    assert "## Kennzahlen je Teilmenge" in md
+    assert "| alt (bis P11) |" in md and "| neu Technik |" in md
+    assert "### Typ – alt (bis P11)" in md
+    assert "### Fachgebiet – neu Technik" in md
+    assert "## Regressionsschutz (alte Anfragen gegen P11)" in md
+    assert md.index("## Kennzahlen je Teilmenge") < md.index("## Regressionsschutz")
+    assert "Konfidenz" not in md and "%" not in md

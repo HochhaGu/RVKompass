@@ -1,0 +1,244 @@
+{
+  "timestamp": "2026-11-27T09:25:15+00:00",
+  "git_commit": "fd6f0d3",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 501,
+  "gnd_enabled": true,
+  "llm_enabled": false,
+  "formula": "max_plus",
+  "grid_size": 17496,
+  "grid": {
+    "weights": {
+      "gnd_synonym": [
+        0.8,
+        0.9,
+        1.0
+      ],
+      "gnd_narrower": [
+        0.6,
+        0.75,
+        0.9
+      ],
+      "gnd_broader": [
+        0.55,
+        0.7,
+        0.85
+      ],
+      "gnd_related": [
+        0.45,
+        0.6,
+        0.75
+      ],
+      "vector": [
+        0.2,
+        0.4,
+        0.7,
+        1.0,
+        1.5,
+        2.0
+      ],
+      "label_fts": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "register_similar": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    "path_bonus": [
+      0.0,
+      0.025,
+      0.05,
+      0.1
+    ]
+  },
+  "split": {
+    "dev_count": 251,
+    "test_count": 250
+  },
+  "current": {
+    "settings": {
+      "formula": "max_plus",
+      "weights": {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.75,
+        "gnd_broader": 0.55,
+        "gnd_related": 0.6,
+        "llm_verified": 0.5,
+        "label_fts": 0.4,
+        "register_similar": 0.4,
+        "vector": 0.2
+      },
+      "path_bonus": 0.1,
+      "path_bonus_cap": 0.15,
+      "sum_cap": 1.2,
+      "tier_high": 0.5848,
+      "tier_medium": 0.5218,
+      "tier_very_high": 0.8291,
+      "tier_weak": 0.4304
+    },
+    "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.75, gnd_broader 0.55, gnd_related 0.6, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.2; Mehrfach-Fund 0.1 je weiterem Pfad, Deckel 0.15",
+    "metrics": {
+      "dev": {
+        "hit@1": 0.2629,
+        "hit@5": 0.4263,
+        "hit@10": 0.4582,
+        "mrr": 0.3316,
+        "main_group_hit@5": 0.7291,
+        "zero_result_rate": 0.0,
+        "n": 251
+      },
+      "test": {
+        "hit@1": 0.268,
+        "hit@5": 0.444,
+        "hit@10": 0.48,
+        "mrr": 0.3438,
+        "main_group_hit@5": 0.704,
+        "zero_result_rate": 0.0,
+        "n": 250
+      },
+      "full": {
+        "hit@1": 0.2655,
+        "hit@5": 0.4351,
+        "hit@10": 0.4691,
+        "mrr": 0.3377,
+        "main_group_hit@5": 0.7166,
+        "zero_result_rate": 0.0,
+        "n": 501
+      },
+      "subset:alt": {
+        "hit@1": 0.3608,
+        "hit@5": 0.6082,
+        "hit@10": 0.6082,
+        "mrr": 0.4536,
+        "main_group_hit@5": 0.8454,
+        "zero_result_rate": 0.0,
+        "n": 97
+      },
+      "subset:neu_technik": {
+        "hit@1": 0.3065,
+        "hit@5": 0.4879,
+        "hit@10": 0.5363,
+        "mrr": 0.3873,
+        "main_group_hit@5": 0.7903,
+        "zero_result_rate": 0.0,
+        "n": 248
+      },
+      "subset:neu_andere": {
+        "hit@1": 0.141,
+        "hit@5": 0.2436,
+        "hit@10": 0.2756,
+        "mrr": 0.1867,
+        "main_group_hit@5": 0.5192,
+        "zero_result_rate": 0.0,
+        "n": 156
+      }
+    }
+  },
+  "candidate": {
+    "settings": {
+      "formula": "max_plus",
+      "weights": {
+        "register_exact": 1.0,
+        "gnd_synonym": 0.9,
+        "gnd_narrower": 0.6,
+        "gnd_broader": 0.55,
+        "gnd_related": 0.75,
+        "llm_verified": 0.5,
+        "label_fts": 0.4,
+        "register_similar": 0.4,
+        "vector": 0.4
+      },
+      "path_bonus": 0.0,
+      "path_bonus_cap": 0.15,
+      "sum_cap": 1.2,
+      "tier_high": 0.5848,
+      "tier_medium": 0.5218,
+      "tier_very_high": 0.8291,
+      "tier_weak": 0.4304
+    },
+    "settings_text": "register_exact 1, gnd_synonym 0.9, gnd_narrower 0.6, gnd_broader 0.55, gnd_related 0.75, llm_verified 0.5, label_fts 0.4, register_similar 0.4, vector 0.4; Mehrfach-Fund 0 je weiterem Pfad, Deckel 0.15",
+    "metrics": {
+      "dev": {
+        "hit@1": 0.2789,
+        "hit@5": 0.4343,
+        "hit@10": 0.4701,
+        "mrr": 0.3427,
+        "main_group_hit@5": 0.7331,
+        "zero_result_rate": 0.0,
+        "n": 251
+      },
+      "test": {
+        "hit@1": 0.276,
+        "hit@5": 0.44,
+        "hit@10": 0.48,
+        "mrr": 0.349,
+        "main_group_hit@5": 0.692,
+        "zero_result_rate": 0.0,
+        "n": 250
+      },
+      "full": {
+        "hit@1": 0.2774,
+        "hit@5": 0.4371,
+        "hit@10": 0.475,
+        "mrr": 0.3458,
+        "main_group_hit@5": 0.7126,
+        "zero_result_rate": 0.0,
+        "n": 501
+      },
+      "subset:alt": {
+        "hit@1": 0.3608,
+        "hit@5": 0.6082,
+        "hit@10": 0.6186,
+        "mrr": 0.4603,
+        "main_group_hit@5": 0.8557,
+        "zero_result_rate": 0.0,
+        "n": 97
+      },
+      "subset:neu_technik": {
+        "hit@1": 0.3306,
+        "hit@5": 0.4919,
+        "hit@10": 0.5282,
+        "mrr": 0.3981,
+        "main_group_hit@5": 0.7823,
+        "zero_result_rate": 0.0,
+        "n": 248
+      },
+      "subset:neu_andere": {
+        "hit@1": 0.141,
+        "hit@5": 0.2436,
+        "hit@10": 0.3013,
+        "mrr": 0.1916,
+        "main_group_hit@5": 0.5128,
+        "zero_result_rate": 0.0,
+        "n": 156
+      }
+    },
+    "dev_fast": {
+      "mrr": 0.3427001080709775,
+      "hit@10": 0.4701195219123506,
+      "hit@5": 0.4342629482071713,
+      "hit@1": 0.2788844621513944
+    }
+  },
+  "same_as_current": false,
+  "decision": {
+    "accepted": false,
+    "conditions": {
+      "hit@10_not_worse": true,
+      "mrr_not_worse": true,
+      "gain_ge_min": false
+    },
+    "diffs": {
+      "hit@10": 0.0,
+      "mrr": 0.0052
+    },
+    "min_gain": 0.01,
+    "reason": "Nicht übernommen: keine Kennzahl um ≥ 0.01 besser (hit@10 0.48 → 0.48 (+0.0), mrr 0.3438 → 0.349 (+0.0052))."
+  }
+}

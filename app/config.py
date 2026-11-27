@@ -149,16 +149,20 @@ class Config:
             },
             "path_bonus": 0.1,
             "path_bonus_cap": 0.15,
-            # Fünf Stufen (P11): reports/scoring-stufen-2026-11-27-67827ac-3.md, abgeleitet mit
-            # scripts/tune_scoring.py --tiers-only auf der Entwicklungshälfte. Die Anteilsregel
-            # (80/65/50/30 % passend, gesetzte Annahme) war für „sehr hoch“ und „hoch“ nicht
-            # erreichbar; daher Quintile der Scores der ersten 10 Treffer: reine Rangordnung,
-            # NICHT kalibriert (auf der Testhälfte überlappen alle Nachbarstufen).
+            # Fünf Stufen, P12 neu abgeleitet auf 501 Anfragen (Verfahren wie P11):
+            # reports/scoring-stufen-2026-11-27-fd6f0d3.md, scripts/tune_scoring.py --tiers-only
+            # auf der Entwicklungshälfte. Die Anteilsregel (80/65/50/30 % passend, gesetzte
+            # Annahme) war für „sehr hoch“ weiter nicht erreichbar; daher Quintile der Scores der
+            # ersten 10 Treffer: reine Rangordnung, NICHT kalibriert. Testhälfte: Anteil passend
+            # fällt von Stufe zu Stufe (0.47 / 0.36 / 0.36 / 0.22 / 0.18), getrennt sind nur
+            # „hoch / sehr hoch“ und „schwach / mittel“.
+            # P11-Werte zum Vergleich: 0.8291 / 0.5848 / 0.5218 / 0.4304
+            # (reports/scoring-stufen-2026-11-27-67827ac-3.md).
             "tiers": {
-                "tier_very_high": 0.8291,
-                "tier_high": 0.5848,
-                "tier_medium": 0.5218,
-                "tier_weak": 0.4304,
+                "tier_very_high": 0.6347,
+                "tier_high": 0.5526,
+                "tier_medium": 0.4714,
+                "tier_weak": 0.3822,
             },
         },
         # Stufen wie bisher (P5, siehe oben); Gewichte spielen bei „legacy“ keine Rolle
@@ -287,6 +291,14 @@ class Config:
     SYNC_GOLD_PATH = os.environ.get(
         "SYNC_GOLD_PATH", str(BASE_DIR / "eval" / "goldstandard.csv")
     )
+    # P12: Teilmengen von eval/goldstandard.csv nach Zeilenreihenfolge (scripts/evaluate.py):
+    # 97 Anfragen bis P11, dann die Erweiterung 2026-11 – Technik bis „Firmware“, danach die
+    # anderen Fachgebiete ab „Mietrecht“. Ausgezählt von scripts/merge_gold_extension.py.
+    GOLD_SUBSET_SIZES: ClassVar[dict[str, int]] = {
+        "alt": 97,
+        "neu_technik": 248,
+        "neu_andere": 156,
+    }
 
     # Info-Mail; Zugangsdaten ausschließlich aus .env, nie im Log
     SMTP_HOST = os.environ.get("SMTP_HOST", "")

@@ -315,6 +315,45 @@ def test_five_tier_shares_reports_overlap_honestly():
     assert shares["separated"]["mittel|hoch"] is False
 
 
+def test_accept_p12_exactly_min_gain_is_accepted():
+    current = {"hit@10": 0.6, "mrr": 0.45}
+    result = tuning.accept_p12({"hit@10": 0.61, "mrr": 0.45}, current)
+    assert result["accepted"] is True
+    assert result["diffs"] == {"hit@10": 0.01, "mrr": 0.0}
+    assert "Übernommen" in result["reason"]
+
+
+def test_accept_p12_one_metric_worse_is_rejected():
+    current = {"hit@10": 0.6, "mrr": 0.45}
+    result = tuning.accept_p12({"hit@10": 0.65, "mrr": 0.4499}, current)
+    assert result["accepted"] is False
+    assert result["conditions"]["mrr_not_worse"] is False
+    assert "schlechter" in result["reason"]
+
+
+def test_accept_p12_equal_or_small_gain_is_rejected():
+    current = {"hit@10": 0.6, "mrr": 0.45}
+    assert tuning.accept_p12(dict(current), current)["accepted"] is False
+    small = tuning.accept_p12({"hit@10": 0.6099, "mrr": 0.4599}, current)
+    assert small["accepted"] is False
+    assert small["conditions"]["gain_ge_min"] is False
+
+
+def test_accept_p12_rounds_to_four_places():
+    current = {"hit@10": 0.60004, "mrr": 0.45}
+    result = tuning.accept_p12({"hit@10": 0.61001, "mrr": 0.44996}, current)
+    assert result["accepted"] is True  # 0.45 vs 0.45 gerundet, Hit@10 +0.01
+
+
+def test_accept_p12_other_keys():
+    result = tuning.accept_p12(
+        {"sense@1": 0.5, "sense_mrr": 0.7},
+        {"sense@1": 0.4, "sense_mrr": 0.7},
+        keys=("sense@1", "sense_mrr"),
+    )
+    assert result["accepted"] is True
+
+
 def test_derive_tier_thresholds_quantile_fallback():
     rows = [(i / 30, i % 4 == 0, False) for i in range(30)]  # nie 50 % passend
     result = tuning.derive_tier_thresholds(rows)

@@ -249,6 +249,73 @@ def test_compare_adds_differences(setup, tmp_path):
     assert report["compare_per_query"] == []
 
 
+def _run_with_subsets(setup, tmp_path, monkeypatch, sizes, reference):
+    gold, out, _ = setup
+    config = FakeConfig(tmp_path, tmp_path / "rvk.sqlite3")
+    config.GOLD_SUBSET_SIZES = sizes
+    monkeypatch.setattr(evaluate, "get_config", lambda: config)
+    if reference is not None:
+        ref = tmp_path / "p11.json"
+        ref.write_text(json.dumps(reference), encoding="utf-8")
+        monkeypatch.setattr(evaluate, "REGRESSION_REFERENCE_FILE", str(ref))
+    else:
+        monkeypatch.setattr(
+            evaluate, "REGRESSION_REFERENCE_FILE", str(tmp_path / "fehlt.json")
+        )
+    assert evaluate.main(["--gold", str(gold), "--out", str(out)]) == 0
+    (json_path,) = out.glob("eval-*.json")
+    return json.loads(json_path.read_text(encoding="utf-8")), json_path
+
+
+def test_report_has_subsets_and_regression_block(setup, tmp_path, monkeypatch):
+    reference = {
+        "metrics": {"hit@1": 1.0, "hit@5": 1.0, "hit@10": 1.0, "mrr": 1.0},
+        "scoring": {},
+        "per_query": [{"query": "Getriebe", "rank": 1, "top3": ["ZL 4100", "ZL 4140"]}],
+    }
+    report, json_path = _run_with_subsets(
+        setup, tmp_path, monkeypatch, {"alt": 1, "neu_technik": 1}, reference
+    )
+    assert set(report["metrics_by_subset"]) == {"alt", "neu_technik"}
+    assert report["metrics_by_subset"]["alt"]["n"] == 1
+    assert report["by_typ_by_subset"]["neu_technik"] == {
+        "Mehrdeutig": report["metrics_by_subset"]["neu_technik"]
+    }
+    assert "Maschinenbau" in report["by_fachgebiet_by_subset"]["alt"]
+    reg = report["regression_old"]
+    assert reg["ok"] is True
+    assert reg["same_settings"] is False  # Bezug ohne Scoring-Angaben
+    assert reg["changed"] == []
+    # Vertrag des Gates bleibt erfüllt
+    assert extract_metrics(report)["hit@10"] == report["metrics"]["hit@10"]
+    datetime.fromisoformat(report["timestamp"])
+    md = json_path.with_suffix(".md").read_text(encoding="utf-8")
+    assert "## Kennzahlen je Teilmenge" in md and "## Regressionsschutz" in md
+
+
+def test_regression_block_fails_on_difference(setup, tmp_path, monkeypatch):
+    reference = {"metrics": {"hit@1": 0.0, "hit@5": 1.0, "hit@10": 1.0, "mrr": 1.0}}
+    report, _ = _run_with_subsets(
+        setup, tmp_path, monkeypatch, {"alt": 1, "neu_technik": 1}, reference
+    )
+    assert report["regression_old"]["ok"] is False
+    assert report["regression_old"]["metrics"]["hit@1"]["diff"] == 1.0
+
+
+def test_regression_block_without_reference_file(setup, tmp_path, monkeypatch):
+    report, _ = _run_with_subsets(
+        setup, tmp_path, monkeypatch, {"alt": 1, "neu_technik": 1}, None
+    )
+    assert report["regression_old"]["ok"] is False
+    assert "unlesbar" in report["regression_old"]["error"]
+
+
+def test_subsets_omitted_when_sizes_do_not_match(setup, tmp_path, monkeypatch):
+    report, _ = _run_with_subsets(setup, tmp_path, monkeypatch, {"alt": 97}, None)
+    assert "metrics_by_subset" not in report
+    assert "regression_old" not in report
+
+
 def test_compare_lists_queries_with_changed_ranking(setup, tmp_path):
     gold, out, _ = setup
     old = tmp_path / "old.json"
