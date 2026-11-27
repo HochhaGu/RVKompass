@@ -232,6 +232,19 @@ class Gates:
         report.metrics = extract_metrics(new_data)
         report.report_path = str(new_path.relative_to(worktree))
 
+        if (baseline or {}).get("neue_basis"):
+            new_hit = report.metrics.get("hit@10")
+            ok = new_hit is not None
+            msg = (
+                f"Hit@10 = {new_hit:.3f} – neue Basismessung (Goldstandard geändert), "
+                "kein Vergleich mit dem alten Stand"
+                if ok
+                else "Hit@10 fehlt im neuen Bericht"
+            )
+            report.results.append(GateResult("Hit@10-Vergleich", ok, msg))
+            report.ok = ok
+            return report
+
         old_metrics = (baseline or {}).get("metrics")
         if (
             old_metrics is None

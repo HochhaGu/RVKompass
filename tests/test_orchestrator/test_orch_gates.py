@@ -157,3 +157,15 @@ def test_secrets_are_redacted_from_gate_output(tmp_path):
     )
     rep = g.run(tmp_path, evaluation=False, baseline=None)
     assert "sk-ant" not in rep.failure_text()
+
+
+def test_new_baseline_skips_comparison_even_with_older_report(tmp_path):
+    (tmp_path / "reports").mkdir()
+    (tmp_path / "reports" / "eval-2026-11-01-alt.json").write_text(
+        json.dumps({"metrics": {"hit@10": 0.80}})
+    )
+    rep = _gates(ScriptedRun(write_report=_writer(0.40))).run(
+        tmp_path, True, {"metrics": None, "neue_basis": True}
+    )
+    assert rep.ok and rep.metrics["hit@10"] == 0.40
+    assert "neue Basismessung" in rep.results[-1].summary

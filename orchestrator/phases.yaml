@@ -177,3 +177,29 @@ phasen:
       P10 (Design Variante A) ist fertig und nach develop gemergt. Bitte die neue Oberfläche
       prüfen (Desktop und Handy) und danach die Live-Schaltung laut docs/deployment.md selbst
       ausführen.
+  - id: P11
+    stichwort: scoring-feinschliff
+    titel: Scoring max_plus, LLM aus, Feinschliff Oberfläche
+    evaluation: true
+    web:
+      - htmx.org
+      - www.w3.org
+      - developer.mozilla.org
+    haltepunkt: >-
+      P11 (Scoring max_plus, LLM aus, Feinschliff Oberfläche) ist fertig und nach develop
+      gemergt. Bitte Kennzahlen im Bericht und die Oberfläche ansehen. Live schalten kannst du
+      jetzt oder gemeinsam mit P12; danach P12 starten (Goldstandard-Erweiterung).
+  - id: P12
+    stichwort: goldstandard-501
+    titel: Goldstandard erweitert, neue Basismessung
+    evaluation: true
+    neue_basis: true
+    web:
+      - d-nb.info
+      - www.dnb.de
+      - rvk.uni-regensburg.de
+    haltepunkt: >-
+      P12 (Goldstandard erweitert, neue Basismessung) ist fertig und nach develop gemergt.
+      Bitte zuerst die Prüfliste docs/goldstandard/pruefliste-2026-11.md durchsehen (vor allem
+      nicht gefundene Notationen und Hauptgruppen-Ausreißer), dann Kennzahlen im Bericht prüfen
+      und die Live-Schaltung selbst ausführen.

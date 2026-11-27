@@ -1,0 +1,405 @@
+query;erwartete_notationen;quelle;fachgebiet;typ;anmerkung
+Pneumatik;ZL 4680;RVK-Online;Maschinenbau;Fachbegriff;
+Kupplung;ZL 4230;RVK-Online;Maschinenbau;Fachbegriff;
+Dichtungstechnik;ZL 4400;Verbundkatalog;Maschinenbau;Fachbegriff;
+Verdichter;ZL 5800;RVK-Online;Maschinenbau;Fachbegriff;
+Kreiselpumpe;ZL 5930;RVK-Online;Maschinenbau;Fachbegriff;
+Tribologie;ZL 3750;RVK-Online;Maschinenbau;Fachbegriff;
+Fördertechnik;ZO 9410;RVK-Online;Maschinenbau;Fachbegriff;
+Werkzeugmaschine;ZL 6100;RVK-Online;Maschinenbau;Fachbegriff;
+Technische Mechanik;UF 1500;RVK-Online;Maschinenbau;Fachbegriff;
+Konstruktionslehre;ZL 3200;RVK-Online;Maschinenbau;Fachbegriff;
+Verbrennungsmotor;ZL 5500;RVK-Online;Maschinenbau;Fachbegriff;
+Dampfturbine;ZL 5470;RVK-Online;Maschinenbau;Fachbegriff;
+Gusseisen;ZM 4570;RVK-Online;Werkstoffe;Fachbegriff;
+Aluminium;ZM 4610|UN 4042|VH 8042|VK 7742;RVK-Online;Werkstoffe;Fachbegriff;
+Zerspanung;ZM 5100;Verbundkatalog;Werkstoffe;Fachbegriff;
+Umformtechnik;ZM 8200;Verbundkatalog;Werkstoffe;Fachbegriff;
+Wärmebehandlung;ZM 7610;RVK-Online;Werkstoffe;Fachbegriff;
+Kunststoffverarbeitung;ZM 5250;RVK-Online;Werkstoffe;Fachbegriff;
+Spritzgießen;ZM 8160;RVK-Online;Werkstoffe;Fachbegriff;
+Werkstoffprüfung;ZM 3500;RVK-Online;Werkstoffe;Fachbegriff;
+Titan;UN 4064|VH 8064|VK 7764;RVK-Online;Werkstoffe;Fachbegriff;
+Beschichtung;ZM 7630;RVK-Online;Werkstoffe;Fachbegriff;
+Elektrische Maschine;ZN 8200;RVK-Online;Elektrotechnik;Fachbegriff;
+Mikrocontroller;ZN 4980;RVK-Online;Elektrotechnik;Fachbegriff;
+Leiterplatte;ZN 4120;RVK-Online;Elektrotechnik;Fachbegriff;
+Operationsverstärker;ZN 5470;RVK-Online;Elektrotechnik;Fachbegriff;
+Elektrische Messtechnik;ZQ 3200;RVK-Online;Elektrotechnik;Fachbegriff;
+Signalverarbeitung;ZN 6025;RVK-Online;Elektrotechnik;Fachbegriff;
+Hochfrequenztechnik;ZN 4400;RVK-Online;Elektrotechnik;Fachbegriff;
+Leistungselektronik;ZN 8340;RVK-Online;Elektrotechnik;Fachbegriff;
+Elektroinstallation;ZN 8950;RVK-Online;Elektrotechnik;Fachbegriff;
+Windenergie;ZP 3710;RVK-Online;Energietechnik;Fachbegriff;
+Wasserkraft;ZP 3400;RVK-Online;Energietechnik;Fachbegriff;
+Brennstoffzelle;ZP 4150|ZN 8750;RVK-Online;Energietechnik;Fachbegriff;
+Wasserstoff;ZP 4150;RVK-Online;Energietechnik;Fachbegriff;
+Biogas;ZP 3775|ZE 37100;RVK-Online;Energietechnik;Fachbegriff;
+Solarthermie;ZP 3725;RVK-Online;Energietechnik;Fachbegriff;
+Kraftwerk;ZP 3500;RVK-Online;Energietechnik;Fachbegriff;
+Geothermie;ZP 3735;RVK-Online;Energietechnik;Fachbegriff;
+Betriebssystem;ST 260;RVK-Online;Informatik;Fachbegriff;
+Compiler;ST 255;RVK-Online;Informatik;Fachbegriff;
+Softwaretechnik;ST 230;Verbundkatalog;Informatik;Fachbegriff;
+Rechnernetz;ST 201;RVK-Online;Informatik;Fachbegriff;
+Kryptologie;ST 276;RVK-Online;Informatik;Fachbegriff;
+Computergrafik;ST 320;RVK-Online;Informatik;Fachbegriff;
+Holzbau;ZI 7400;RVK-Online;Bauwesen;Fachbegriff;
+Stahlbau;ZI 7200;RVK-Online;Bauwesen;Fachbegriff;
+Grundbau;ZI 6150;RVK-Online;Bauwesen;Fachbegriff;
+Straßenbau;ZI 6430;RVK-Online;Bauwesen;Fachbegriff;
+Bauphysik;ZI 4050;RVK-Online;Bauwesen;Fachbegriff;
+Wasserbau;ZI 6700;RVK-Online;Bauwesen;Fachbegriff;
+Speicherprogrammierbare Steuerung;ZQ 5450;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Messtechnik;ZQ 3100;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Prozessleittechnik;ZQ 6200;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Mechatronik;ZQ 7000;RVK-Online;Mess- und Regelungstechnik;Fachbegriff;
+Controlling;QP 361;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Marketing;QP 600;Verbundkatalog;Wirtschaft und Management;Fachbegriff;
+Investitionsrechnung;QP 720;RVK-Online;Wirtschaft und Management;Fachbegriff;
+Personalmanagement;QV 578;Verbundkatalog;Wirtschaft und Management;Fachbegriff;
+Lebensdauerberechnung von Wälzlagern;ZL 4140;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;
+Festigkeitsberechnung mit der Finite-Elemente-Methode;ZI 3310;RVK-Online;Maschinenbau;Spezifisch/Kompositum;
+Welle-Nabe-Verbindungen;ZL 4150;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;
+Kavitation in Kreiselpumpen;ZL 5930;RVK-Online;Maschinenbau;Spezifisch/Kompositum;
+Druckluftaufbereitung in Industrieanlagen;ZL 3330;Verbundkatalog;Maschinenbau;Spezifisch/Kompositum;
+Toleranzen und Passungen im Maschinenbau;ZL 2550;RVK-Online;Maschinenbau;Spezifisch/Kompositum;
+Vorrichtungsbau für die Serienfertigung;ZM 9830;RVK-Online;Maschinenbau;Spezifisch/Kompositum;
+Schmierstoffe für Hochtemperaturanwendungen;ZL 3800;RVK-Online;Maschinenbau;Spezifisch/Kompositum;
+Wärmebehandlung von Werkzeugstählen;ZM 7610;RVK-Online;Werkstoffe;Spezifisch/Kompositum;
+Laserstrahlschweißen von Aluminium;ZM 8430;Verbundkatalog;Werkstoffe;Spezifisch/Kompositum;
+Spritzgießen von Thermoplasten;ZM 8160;Verbundkatalog;Werkstoffe;Spezifisch/Kompositum;
+Recycling von Faserverbundwerkstoffen;ZM 5400;RVK-Online;Werkstoffe;Spezifisch/Kompositum;
+Rissbildung in Schweißnähten;ZM 8420;Verbundkatalog;Werkstoffe;Spezifisch/Kompositum;
+Pulverbeschichtung von Metalloberflächen;ZM 7635;Verbundkatalog;Werkstoffe;Spezifisch/Kompositum;
+Zerstörungsfreie Prüfung mit Ultraschall;ZM 3700;RVK-Online;Werkstoffe;Spezifisch/Kompositum;
+Regelung von Synchronmotoren;ZN 8285;Verbundkatalog;Elektrotechnik;Spezifisch/Kompositum;
+Batteriemanagementsysteme für Elektrofahrzeuge;ZN 8730;Verbundkatalog;Elektrotechnik;Spezifisch/Kompositum;
+Schutztechnik in Mittelspannungsnetzen;ZN 8550;Verbundkatalog;Elektrotechnik;Spezifisch/Kompositum;
+Entwurf digitaler Filter;ZN 5760;Verbundkatalog;Elektrotechnik;Spezifisch/Kompositum;
+Leiterplattenlayout für Hochfrequenzschaltungen;ZN 4120;RVK-Online;Elektrotechnik;Spezifisch/Kompositum;
+Ladeinfrastruktur für Elektroautos;ZN 8565|ZO 4480;Verbundkatalog;Elektrotechnik;Spezifisch/Kompositum;
+Netzintegration von Windparks;ZP 3710;Verbundkatalog;Energietechnik;Spezifisch/Kompositum;
+Wasserstoffspeicherung in Kavernen;ZP 4150;Verbundkatalog;Energietechnik;Spezifisch/Kompositum;
+Kraft-Wärme-Kopplung in Industriebetrieben;ZP 3280;RVK-Online;Energietechnik;Spezifisch/Kompositum;
+Pumpspeicherkraftwerke in den Alpen;ZP 3400;Verbundkatalog;Energietechnik;Spezifisch/Kompositum;
+Agri-Photovoltaik auf landwirtschaftlichen Flächen;ZP 3730;Verbundkatalog;Energietechnik;Spezifisch/Kompositum;
+Objektorientierte Programmierung in Java;ST 250;RVK-Online;Informatik;Spezifisch/Kompositum;
+Relationale Datenbanken mit SQL;ST 270;Verbundkatalog;Informatik;Spezifisch/Kompositum;
+Versionsverwaltung mit Git;ST 230;Verbundkatalog;Informatik;Spezifisch/Kompositum;
+Penetrationstests für Webanwendungen;ST 276;Verbundkatalog;Informatik;Spezifisch/Kompositum;
+Bemessung von Holz-Beton-Verbunddecken;ZI 7400;Verbundkatalog;Bauwesen;Spezifisch/Kompositum;
+Sanierung von Stahlbetonbrücken;ZI 7130;RVK-Online;Bauwesen;Spezifisch/Kompositum;
+Wärmedämmung von Altbauten;ZH 3063;RVK-Online;Bauwesen;Spezifisch/Kompositum;
+Schallschutz im Wohnungsbau;ZI 4080|ZI 8500;Verbundkatalog;Bauwesen;Spezifisch/Kompositum;
+Zustandsüberwachung von Windkraftgetrieben;ZL 4200;Verbundkatalog;Mess- und Regelungstechnik;Spezifisch/Kompositum;
+Kalibrierung von Drucksensoren;ZQ 3120;Verbundkatalog;Mess- und Regelungstechnik;Spezifisch/Kompositum;
+Modellprädiktive Regelung in der Verfahrenstechnik;ZQ 9910;RVK-Online;Mess- und Regelungstechnik;Spezifisch/Kompositum;
+Kamerabasierte Qualitätskontrolle in der Fertigung;ZM 9300;RVK-Online;Mess- und Regelungstechnik;Spezifisch/Kompositum;
+Prozesskostenrechnung in der Produktion;QP 830;Verbundkatalog;Wirtschaft und Management;Spezifisch/Kompositum;
+Nachhaltigkeitsberichterstattung in Industrieunternehmen;QP 820;Verbundkatalog;Wirtschaft und Management;Spezifisch/Kompositum;
+Lebenszykluskosten von Produktionsanlagen;QP 544;Verbundkatalog;Wirtschaft und Management;Spezifisch/Kompositum;
+Abwasserreinigung in Kläranlagen;AR 22580;Verbundkatalog;Verfahrens- und Umwelttechnik;Spezifisch/Kompositum;
+Lebensmittelkonservierung durch Hochdruck;VN 8000|ZE 60000;Verbundkatalog;Lebensmitteltechnik;Spezifisch/Kompositum;
+Destillation in der chemischen Industrie;VN 7000;Verbundkatalog;Verfahrens- und Umwelttechnik;Spezifisch/Kompositum;
+Warum Schrauben sich von selbst lösen;ZL 4620;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Schraubensicherung
+Wie man Reibung in Maschinen verringert;ZL 3760;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Tribologie, Schmierung
+Teile, die sich drehen, ohne zu quietschen;ZL 3800|UF 1500;RVK-Online / Verbundkatalog;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Lagerung, Schmierung
+Wie eine Pumpe Wasser nach oben bringt;ZL 5900;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Pumpe
+Mit Luftdruck Maschinen bewegen;ZL 4680;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Pneumatik
+Wie man schwere Lasten in einer Halle transportiert;ZO 9410;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Fördertechnik, Kran
+Wie man technische Zeichnungen liest;ZG 9140;Verbundkatalog;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Technisches Zeichnen
+Warum Achsen nach langer Zeit brechen;UF 3150;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Dauerfestigkeit, Bruchmechanik
+Ein Bauteil am Computer entwerfen;ZG 9146;Verbundkatalog;Maschinenbau;Fachfremd umschrieben;Kernbegriff: CAD, Konstruktion
+Wie ein Kühlschrank kalt macht;ZI 8700;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Kältetechnik
+Wie ein Getriebe die Geschwindigkeit ändert;ZL 4100;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Übersetzung, Getriebe
+Maschinen leiser machen;ZL 3050;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Maschinenakustik, Lärmminderung
+Wie Flüssigkeiten durch Rohre fließen;UF 4560;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Rohrströmung, Strömungsmechanik
+Maschinen pflegen, damit sie nicht ausfallen;ZL 3600;RVK-Online;Maschinenbau;Fachfremd umschrieben;Kernbegriff: Instandhaltung
+Metall in Form biegen;ZM 8200;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Umformtechnik
+Metall gießen wie Kerzenwachs;ZM 8130;Verbundkatalog;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Gießereitechnik
+Warum manche Metalle nicht magnetisch sind;ZM 4000;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Werkstoffkunde, Magnetismus
+Die Oberfläche von Metall härter machen;ZM 7610;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Oberflächenhärten, Randschichthärten
+Plastik, das in der Natur verrottet;AR 25340|ZM 5400;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Biologisch abbaubare Kunststoffe
+Material, das bei großer Hitze nicht schmilzt;ZM 4640;Verbundkatalog;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Hochtemperaturwerkstoffe
+Holz im Freien haltbar machen;ZC 81800;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Holzschutz
+Löcher genau in Metall bohren;ZM 8322;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Bohren, Spanende Fertigung
+Metall mit dem Laser schneiden;ZM 8312;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Laserschneiden
+Kunststoffteile in großer Stückzahl herstellen;ZM 9830;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Spritzgießen
+Prüfen, ob ein Bauteil innen Risse hat;ZM 3500;RVK-Online;Werkstoffe;Fachfremd umschrieben;Kernbegriff: Zerstörungsfreie Werkstoffprüfung
+Warum Beton mit der Zeit Risse bekommt;ZI 4500;RVK-Online;Bauwesen;Fachfremd umschrieben;Kernbegriff: Betontechnologie, Schwinden
+Wie Strom vom Kraftwerk ins Haus kommt;ZP 3300;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Energieübertragung, Stromnetz
+Warum die Sicherung herausfliegt;ZN 8580;RVK-Online;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Überstromschutz
+Kleine Computer, die in Geräten stecken;ZN 4980|ST 160;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Eingebettete Systeme, Mikrocontroller
+Wie ein Handy ohne Kabel lädt;ZN 3600;RVK-Online;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Induktive Energieübertragung
+Funkverbindung zwischen Geräten;ZN 6400;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Funktechnik, Nachrichtentechnik
+Wie Licht aus einer LED entsteht;ZN 8990|ZN 5040;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Leuchtdiode, Optoelektronik
+Wie ein Elektroauto angetrieben wird;ZO 4480;RVK-Online;Fahrzeugtechnik;Fachfremd umschrieben;Kernbegriff: Elektrofahrzeug, Elektrischer Antrieb
+Störungen zwischen elektrischen Geräten vermeiden;ZN 4050;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Elektromagnetische Verträglichkeit
+Stromleitungen im Haus verlegen;ZN 8950;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Elektroinstallation
+Bauteile, die Strom nur in eine Richtung lassen;ZN 8340;Verbundkatalog;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Diode
+Wie ein Lautsprecher Töne macht;ZN 6810;RVK-Online;Elektrotechnik;Fachfremd umschrieben;Kernbegriff: Elektroakustik
+Wärme aus der Erde nutzen;ZP 3750|ZP 3700;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Geothermie
+Strom aus Wind gewinnen;ZP 3710|ZP 3700;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Windenergie
+Strom aus fließendem Wasser;ZP 3405;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Wasserkraft
+Mit Wasserstoff Auto fahren;ZO 4280|ZO 4270|ZP 4150;Verbundkatalog;Fahrzeugtechnik;Fachfremd umschrieben;Kernbegriff: Brennstoffzellenfahrzeug
+Heizen mit Holzpellets;ZP 3700;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Biomasseheizung, Pelletfeuerung
+Warmwasser mit der Sonne machen;ZP 3720|ZP 3725;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Solarthermie
+Strom und Wärme gleichzeitig erzeugen;ZP 3585;RVK-Online;Energietechnik;Fachfremd umschrieben;Kernbegriff: Kraft-Wärme-Kopplung
+Energie sparen in der Fabrik;ZP 3200|ZP 4400;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Energieeffizienz, Industrie
+Wie ein Atomkraftwerk funktioniert;AR 26380|ZP 3600|UN 5200;Verbundkatalog;Energietechnik;Fachfremd umschrieben;Kernbegriff: Kernkraftwerk, Kerntechnik
+Überschüssigen Solarstrom für den Abend aufheben;ZP 3734|ZP 4100;RVK-Online;Energietechnik;Fachfremd umschrieben;Kernbegriff: Stromspeicher, Batteriespeicher
+Programme, die selbst Texte schreiben;ST 300;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Sprachverarbeitung, Sprachmodell
+Daten vor Hackern schützen;ST 276;RVK-Online;Informatik;Fachfremd umschrieben;Kernbegriff: IT-Sicherheit, Datensicherung
+Wie das Internet Daten verschickt;ST 273;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Rechnernetz, Protokoll
+Eine Webseite selbst bauen;ST 252;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Webentwicklung
+Riesige Datenmengen auswerten;ST 530|ST 274;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Data Mining, Big Data
+Apps fürs Handy programmieren;ST 230;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Mobile Computing, App
+Geheime Nachrichten verschlüsseln;ST 276;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Kryptologie
+Wie eine Suchmaschine die Treffer sortiert;ST 261;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Information Retrieval, Ranking
+Programme schreiben, die keine Fehler haben;ST 250;Verbundkatalog;Informatik;Fachfremd umschrieben;Kernbegriff: Softwaretest, Softwarequalität
+Computer, die Bilder erkennen;ST 330;RVK-Online;Informatik;Fachfremd umschrieben;Kernbegriff: Bildverarbeitung, Maschinelles Sehen
+Warum Brücken schwingen;UF 5200;RVK-Online;Bauwesen;Fachfremd umschrieben;Kernbegriff: Baudynamik, Schwingung
+Ein Haus aus Holz bauen;ZI 7400|ZH 4400;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Holzbau
+Straßen, die länger halten;ZI 6430;RVK-Online;Bauwesen;Fachfremd umschrieben;Kernbegriff: Straßenbau, Asphalt
+Regenwasser vom Grundstück ableiten;ZI 6870;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Entwässerung, Siedlungswasserwirtschaft
+Den Boden prüfen, bevor man baut;ZI 6520;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Baugrunderkundung, Geotechnik
+Häuser vor Hochwasser schützen;TZ 9540|ZI 6725;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Hochwasserschutz
+Ein altes Haus wieder herrichten;ZH 7050;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Altbausanierung
+Gebäude für Rollstuhlfahrer planen;ZH 3045;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Barrierefreies Bauen
+Warum Flachdächer undicht werden;ZH 7600|ZI 4940;RVK-Online;Bauwesen;Fachfremd umschrieben;Kernbegriff: Dachabdichtung, Flachdach
+Frische Luft in Büroräumen;ZI 8040;Verbundkatalog;Bauwesen;Fachfremd umschrieben;Kernbegriff: Raumlufttechnik, Lüftung
+Wie ein Thermostat die Heizung steuert;ZE 80500;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Regelkreis, Heizungsregelung
+Maschinen, die sich selbst richtig einstellen;ZQ 5260;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Adaptive Regelung
+Wie genau ein Messgerät misst;ZQ 3115;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Messgenauigkeit, Messunsicherheit
+Kameras, die fehlerhafte Teile aussortieren;ZQ 6270;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Industrielle Bildverarbeitung
+Wie ein Roboterarm weiß, wo er gerade ist;ZQ 3120;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Robotersteuerung, Positionsmessung
+Messen, wie voll ein Tank ist;ZQ 3700;Verbundkatalog;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Füllstandmessung
+Wie eine Ampelanlage gesteuert wird;ZQ 9940;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Steuerungstechnik, Verkehrssteuerung
+Eine Fabrik am Bildschirm überwachen;ZM 9240;RVK-Online;Mess- und Regelungstechnik;Fachfremd umschrieben;Kernbegriff: Prozessleittechnik, Prozessvisualisierung
+Was ein Produkt in der Herstellung kostet;QP 830;RVK-Online;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Kalkulation, Kostenrechnung
+Das Lager so klein wie möglich halten;QP 530;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Lagerhaltung, Bestandsmanagement
+Ein eigenes Unternehmen gründen;QP 230;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Unternehmensgründung
+Kunden zufriedener machen;QP 340;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Kundenzufriedenheit
+Entscheiden, ob sich eine neue Maschine lohnt;QP 720;RVK-Online;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Investitionsrechnung
+Gute Teams zusammenstellen;QV 584;Verbundkatalog;Wirtschaft und Management;Fachfremd umschrieben;Kernbegriff: Teamarbeit, Personalführung
+Wie Joghurt lange haltbar bleibt;ZE 60000;RVK-Online;Lebensmitteltechnik;Fachfremd umschrieben;Kernbegriff: Lebensmittelkonservierung
+Schadstoffe aus Abgasen filtern;ZP 3250;RVK-Online;Verfahrens- und Umwelttechnik;Fachfremd umschrieben;Kernbegriff: Abgasreinigung
+Wie man aus Flusswasser Trinkwasser macht;ZI 6846;RVK-Online;Verfahrens- und Umwelttechnik;Fachfremd umschrieben;Kernbegriff: Wasseraufbereitung
+Zufall mit Zahlen beschreiben;SK 800;Verbundkatalog;Mathematik und Physik;Fachfremd umschrieben;Kernbegriff: Wahrscheinlichkeitsrechnung, Statistik
+Lager;ZL 4140;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Maschinenelement (nicht Lagerhaltung)
+Welle;ZL 4150;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Antriebswelle (nicht Physik/Wellenlehre)
+Kolben;ZL 5150;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Motorkolben (nicht Laborkolben)
+Leiter;ZN 8200;RVK-Online;Elektrotechnik;Mehrdeutig;gemeint: elektrischer Leiter (nicht Steigleiter, Führungskraft)
+Strom;ZN 8500|ZN 3000|AR 22160|RB 10357|WI 4820;Verbundkatalog;Elektrotechnik / Geographie und Raumplanung;Mehrdeutig;Homonym über Fachgrenzen: elektrischer Strom (nicht Fluss) | Fluss/großes Fließgewässer (nicht elektrischer Strom) – beide Bedeutungen zählen
+Ladung;ZN 3000;Verbundkatalog;Elektrotechnik;Mehrdeutig;gemeint: elektrische Ladung (nicht Fracht)
+Zelle;ZN 5160|ZN 8750|ZP 4130|ZP 4150|WD 4150|WE 2000;RVK-Online / Verbundkatalog;Energietechnik / Biologie und Chemie;Mehrdeutig;Homonym über Fachgrenzen: Solar-/Batteriezelle (nicht Biologie) | biologische Zelle/Zellbiologie (nicht Batteriezelle, nicht Gefängniszelle) – beide Bedeutungen zählen
+Netz;ZN 5300;RVK-Online;Elektrotechnik;Mehrdeutig;gemeint: Stromnetz (nicht Rechnernetz)
+Schnecke;ZL 4000;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Schneckengetriebe/Förderschnecke (nicht Tier)
+Bogen;ZI 3300;Verbundkatalog;Bauwesen;Mehrdeutig;gemeint: Bogentragwerk (nicht Sport, Papier)
+Fuge;ZI 4820|ZI 3550;Verbundkatalog;Bauwesen;Mehrdeutig;gemeint: Bauwerksfuge (nicht Musik)
+Maus;AP 99492;RVK-Online;Informatik;Mehrdeutig;gemeint: Eingabegerät (nicht Tier)
+Fenster;ZH 7920;Verbundkatalog;Bauwesen;Mehrdeutig;gemeint: Bauteil Fenster (nicht Benutzeroberfläche)
+Wurm;ST 276;Verbundkatalog;Informatik;Mehrdeutig;gemeint: Schadprogramm (nicht Tier, Schneckengetriebe)
+Bus;ST 185;Verbundkatalog;Informatik;Mehrdeutig;gemeint: Bussystem/Feldbus (nicht Fahrzeug)
+Speicher;ST 175;Verbundkatalog;Informatik;Mehrdeutig;gemeint: Arbeitsspeicher (nicht Energiespeicher)
+Druck;UP 2500|UX 6000|ZL 7200|ZM 8200|AN 28000|AM 23000|AN 25400;RVK-Online;Maschinenbau / Kunst, Medien und Kommunikation;Mehrdeutig;Homonym über Fachgrenzen: Druck in Fluiden (nicht Drucktechnik) | Druckgrafik/Buchdruck (nicht physikalischer Druck) – beide Bedeutungen zählen
+Spule;ZN 4420;RVK-Online;Elektrotechnik;Mehrdeutig;gemeint: Induktivität (nicht Textil)
+Linse;ZS 4520;Verbundkatalog;Mathematik und Physik;Mehrdeutig;gemeint: optische Linse (nicht Hülsenfrucht)
+Filter;ZN 5700;Verbundkatalog;Elektrotechnik;Mehrdeutig;gemeint: elektrischer Filter (nicht Verfahrenstechnik)
+Rost;ZM 7500;RVK-Online;Werkstoffe;Mehrdeutig;gemeint: Korrosion (nicht Grill-/Feuerrost)
+Widerstand;ZN 4422;RVK-Online;Elektrotechnik;Mehrdeutig;gemeint: elektrisches Bauteil (nicht politisch)
+Leistung;ZN 8340;RVK-Online;Elektrotechnik;Mehrdeutig;gemeint: elektrische Leistung (nicht Arbeitsleistung)
+Moment;ZQ 3740;RVK-Online;Maschinenbau;Mehrdeutig;gemeint: Drehmoment (nicht Zeitpunkt)
+Träger;UF 1570|ZH 7400;RVK-Online;Bauwesen;Mehrdeutig;gemeint: Tragwerksteil (nicht Kostenträger)
+Gelenk;ZL 4230;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Maschinengelenk/Getriebeglied (nicht Anatomie)
+Wirbel;UF 4300;Verbundkatalog;Mathematik und Physik;Mehrdeutig;gemeint: Strömungswirbel (nicht Wirbelsäule)
+Satz;SK 130|ET 600;Verbundkatalog;Mathematik und Physik / Sprache und Literatur;Mehrdeutig;Homonym über Fachgrenzen: mathematischer Satz (nicht Sprache, Druck) | grammatischer Satz/Syntax (nicht Satz in Musik, Mathematik oder Typografie) – beide Bedeutungen zählen
+Kette;ZL 4100;Verbundkatalog;Maschinenbau;Mehrdeutig;gemeint: Kettentrieb (nicht Lieferkette, Schmuck)
+Zug;ZM 8220;RVK-Online;Maschinenbau;Mehrdeutig;gemeint: Zugbeanspruchung (nicht Eisenbahn)
+Predictive Maintenance;ZL 3600;Verbundkatalog;Mess- und Regelungstechnik;Englisch/Jargon;Kernbegriff: Vorausschauende Instandhaltung
+Digital Twin;ZQ 5000;RVK-Online;Mess- und Regelungstechnik;Englisch/Jargon;Kernbegriff: Digitaler Zwilling
+Edge Computing;ST 200;Verbundkatalog;Informatik;Englisch/Jargon;
+Cloud Computing;ST 200;Verbundkatalog;Informatik;Englisch/Jargon;
+IoT;ST 205;Verbundkatalog;Informatik;Englisch/Jargon;Kernbegriff: Internet der Dinge
+Blockchain;ST 610;Verbundkatalog;Informatik;Englisch/Jargon;
+DevOps;ST 230;Verbundkatalog;Informatik;Englisch/Jargon;
+Big Data;ST 530;Verbundkatalog;Informatik;Englisch/Jargon;
+Deep Learning;ST 301;Verbundkatalog;Informatik;Englisch/Jargon;
+Cybersecurity;ST 276;Verbundkatalog;Informatik;Englisch/Jargon;Kernbegriff: IT-Sicherheit
+Six Sigma;QP 321;Verbundkatalog;Wirtschaft und Management;Englisch/Jargon;
+Kanban;QP 542;Verbundkatalog;Wirtschaft und Management;Englisch/Jargon;
+Scrum;QP 360;Verbundkatalog;Informatik;Englisch/Jargon;Kernbegriff: Agile Softwareentwicklung
+KPI;QP 880;Verbundkatalog;Wirtschaft und Management;Englisch/Jargon;Kernbegriff: Kennzahl
+Lean Management;QP 300;Verbundkatalog;Wirtschaft und Management;Englisch/Jargon;
+Rapid Prototyping;ZM 9045;Verbundkatalog;Werkstoffe;Englisch/Jargon;
+CNC;ZL 6300;Verbundkatalog;Werkstoffe;Englisch/Jargon;Kernbegriff: CNC-Maschine, Werkzeugmaschine
+FEM;ZI 3310;RVK-Online;Maschinenbau;Englisch/Jargon;Kernbegriff: Finite-Elemente-Methode
+PLM;ZL 3250;Verbundkatalog;Maschinenbau;Englisch/Jargon;Kernbegriff: Product-Lifecycle-Management
+Retrofit;QR 523;RVK-Online;Maschinenbau;Englisch/Jargon;Kernbegriff: Modernisierung von Maschinen
+Vehicle-to-Grid;ZO 4480;Verbundkatalog;Energietechnik;Englisch/Jargon;Kernbegriff: Bidirektionales Laden
+E-Mobility;ZO 4480;Verbundkatalog;Fahrzeugtechnik;Englisch/Jargon;Kernbegriff: Elektromobilität
+Plug-in-Hybrid;ZO 4280|ZO 4490;Verbundkatalog;Fahrzeugtechnik;Englisch/Jargon;Kernbegriff: Hybridfahrzeug
+Heat Pipe;ZP 3280;Verbundkatalog;Energietechnik;Englisch/Jargon;Kernbegriff: Wärmerohr
+Green Steel;ZK 8200;Verbundkatalog;Werkstoffe;Englisch/Jargon;Kernbegriff: Klimaneutraler Stahl
+Carbon Capture;ZP 3250;RVK-Online;Energietechnik;Englisch/Jargon;Kernbegriff: CO2-Abscheidung
+LCA;QP 510;Verbundkatalog;Verfahrens- und Umwelttechnik;Englisch/Jargon;Kernbegriff: Ökobilanz
+HMI;ST 185;RVK-Online;Mess- und Regelungstechnik;Englisch/Jargon;Kernbegriff: Mensch-Maschine-Schnittstelle
+SCADA;ZQ 3030;Verbundkatalog;Mess- und Regelungstechnik;Englisch/Jargon;Kernbegriff: Prozessleittechnik
+Firmware;ST 170;Verbundkatalog;Informatik;Englisch/Jargon;
+Mietrecht;PU 2345.4560;Verbundkatalog;Recht;Fachbegriff;
+Urheberrecht;PE 743;RVK-Online;Recht;Fachbegriff;
+Datenschutzrecht;PZ 4910;Verbundkatalog;Recht;Fachbegriff;
+Kündigungsschutz bei Elternzeit;PF 530|PF 381;Verbundkatalog;Recht;Spezifisch/Kompositum;Kernbegriff: Kündigungsschutz + Elternzeit
+Haftung von Vereinsvorständen;PD 3160;RVK-Online;Recht;Spezifisch/Kompositum;Kernbegriff: Vereinsrecht + Haftung
+Was tun, wenn der Vermieter die Kaution nicht zurückgibt;PU 2345.4540;Verbundkatalog;Recht;Fachfremd umschrieben;Kernbegriff: Mietkaution · Gegenprobe zu „Mietrecht“
+Wer erbt, wenn kein Testament da ist;PD 8160|PU 2335.8160;Verbundkatalog;Recht;Fachfremd umschrieben;Kernbegriff: gesetzliche Erbfolge
+Darf ich Fotos von fremden Leuten ins Netz stellen;PZ 3700;Verbundkatalog;Recht;Fachfremd umschrieben;Kernbegriff: Recht am eigenen Bild
+Verfassung;PS 3852;RVK-Online;Recht;Mehrdeutig;gemeint: Verfassungsrecht/Staatsverfassung (nicht körperliche Verfassung)
+Compliance;PE 380|QP 341;Verbundkatalog;Recht;Englisch/Jargon;Kernbegriff: Regeltreue im Unternehmen, Compliance-Management
+Diabetes mellitus;YC 6400;Verbundkatalog;Medizin und Pflege;Fachbegriff;
+Demenz;YH 5400;Verbundkatalog;Medizin und Pflege;Fachbegriff;
+Palliativpflege;XC 5926;Verbundkatalog;Medizin und Pflege;Fachbegriff;
+Sturzprophylaxe im Pflegeheim;QX 915;RVK-Online;Medizin und Pflege;Spezifisch/Kompositum;Kernbegriff: Sturzprophylaxe + stationäre Altenpflege
+Wundversorgung bei Dekubitus;YF 4516;Verbundkatalog;Medizin und Pflege;Spezifisch/Kompositum;Kernbegriff: Dekubitus + Wundbehandlung
+Wenn der Blutzucker dauerhaft zu hoch ist;YC 6400;RVK-Online;Medizin und Pflege;Fachfremd umschrieben;Kernbegriff: Diabetes mellitus · Gegenprobe zu „Diabetes mellitus“
+Vergesslichkeit im Alter;YH 5425;RVK-Online;Medizin und Pflege;Fachfremd umschrieben;Kernbegriff: Demenz · Gegenprobe zu „Demenz“
+Warum Antibiotika nicht mehr wirken;VS 8720;RVK-Online;Medizin und Pflege;Fachfremd umschrieben;Kernbegriff: Antibiotikaresistenz
+Krone;YP 6200;RVK-Online;Medizin und Pflege;Mehrdeutig;gemeint: Zahnkrone/Zahnersatz (nicht Monarchie, nicht Baumkrone)
+Evidence-based Nursing;XC 5911;Verbundkatalog;Medizin und Pflege;Englisch/Jargon;Kernbegriff: evidenzbasierte Pflege
+Inklusion;DT 1420;Verbundkatalog;Pädagogik und Bildung;Fachbegriff;Kernbegriff: inklusive Pädagogik
+Frühpädagogik;DK 2000;Verbundkatalog;Pädagogik und Bildung;Fachbegriff;
+Erwachsenenbildung;DW 1000;Verbundkatalog;Pädagogik und Bildung;Fachbegriff;
+Sprachförderung im Kindergarten;DP 3000|DP 6700;Verbundkatalog;Pädagogik und Bildung;Spezifisch/Kompositum;Kernbegriff: Sprachförderung + Elementarpädagogik
+Elternarbeit in der Grundschule;DO 1550;Verbundkatalog;Pädagogik und Bildung;Spezifisch/Kompositum;Kernbegriff: Elternarbeit + Grundschule
+Unterricht für Kinder mit und ohne Behinderung gemeinsam;DT 1420;Verbundkatalog;Pädagogik und Bildung;Fachfremd umschrieben;Kernbegriff: inklusiver Unterricht · Gegenprobe zu „Inklusion“
+Wie Kinder lesen lernen;DP 4000;Verbundkatalog;Pädagogik und Bildung;Fachfremd umschrieben;Kernbegriff: Leseerwerb, Lesedidaktik
+Lernen ein Leben lang;AL 43900;RVK-Online;Pädagogik und Bildung;Fachfremd umschrieben;Kernbegriff: lebenslanges Lernen · Gegenprobe zu „Erwachsenenbildung“
+Note;DO 1200|FB 3760;RVK-Online;Pädagogik und Bildung;Mehrdeutig;gemeint: Schulnote/Leistungsbeurteilung (nicht Musiknote, nicht diplomatische Note)
+Blended Learning;DP 2050;Verbundkatalog;Pädagogik und Bildung;Englisch/Jargon;Kernbegriff: Kombination Präsenz- und Online-Lernen
+Resilienz;CU 7500;RVK-Online;Psychologie;Fachbegriff;Kernbegriff: psychische Widerstandsfähigkeit
+Prokrastination;CU 4000;Verbundkatalog;Psychologie;Fachbegriff;
+Gedächtnis;CP 4400;Verbundkatalog;Psychologie;Fachbegriff;Kernbegriff: Gedächtnispsychologie
+Prüfungsangst bei Studierenden;CX 1000|CP 3700;Verbundkatalog;Psychologie;Spezifisch/Kompositum;Kernbegriff: Prüfungsangst + Studierende
+Arbeitszufriedenheit im öffentlichen Dienst;QV 574;Verbundkatalog;Psychologie;Spezifisch/Kompositum;Kernbegriff: Arbeitszufriedenheit + öffentlicher Dienst
+Warum man Dinge immer aufschiebt;CU 4000|CP 3100;Verbundkatalog;Psychologie;Fachfremd umschrieben;Kernbegriff: Prokrastination · Gegenprobe zu „Prokrastination“
+Ausgebrannt sein im Job;CU 3000;RVK-Online;Psychologie;Fachfremd umschrieben;Kernbegriff: Burnout
+Wie man schwierige Zeiten seelisch übersteht;CU 7500;RVK-Online;Psychologie;Fachfremd umschrieben;Kernbegriff: Resilienz, Bewältigung · Gegenprobe zu „Resilienz“
+Projektion;CU 5500;RVK-Online;Psychologie;Mehrdeutig;gemeint: psychologischer Abwehrmechanismus (nicht Kartenprojektion, nicht Beamer)
+Mindfulness;CU 8000;Verbundkatalog;Psychologie;Englisch/Jargon;Kernbegriff: Achtsamkeit
+Ehrenamt;DS 5400|DS 6500;Verbundkatalog;Soziologie;Fachbegriff;Kernbegriff: freiwilliges Engagement
+Migration;RK 60594|LB 56160;Verbundkatalog;Soziologie;Fachbegriff;
+Armut;MS 6430;Verbundkatalog;Soziologie;Fachbegriff;
+Altersarmut bei Frauen;MS 6440|MS 2700;Verbundkatalog;Soziologie;Spezifisch/Kompositum;Kernbegriff: Altersarmut + Frauen
+Integration von Geflüchteten in den Arbeitsmarkt;MS 3600|DS 7400;Verbundkatalog;Soziologie;Spezifisch/Kompositum;Kernbegriff: Flüchtlinge + Arbeitsmarktintegration
+Warum Menschen freiwillig ohne Bezahlung helfen;BL 6127|MS 5900;RVK-Online;Soziologie;Fachfremd umschrieben;Kernbegriff: Ehrenamt, freiwilliges Engagement · Gegenprobe zu „Ehrenamt“
+Wenn das Geld trotz Arbeit nicht reicht;MS 6430|LB 45000;RVK-Online;Soziologie;Fachfremd umschrieben;Kernbegriff: Erwerbsarmut, Working Poor · Gegenprobe zu „Armut“
+Wie sich das Leben auf dem Land verändert;ZB 57600;RVK-Online;Soziologie;Fachfremd umschrieben;Kernbegriff: ländlicher Raum, Landsoziologie
+Kultur;MR 7100;Verbundkatalog;Soziologie;Mehrdeutig;gemeint: Gesellschaft/Kultursoziologie (nicht Bakterienkultur, nicht Ackerkultur)
+Gender Pay Gap;MS 3050|QV 221;Verbundkatalog;Soziologie;Englisch/Jargon;Kernbegriff: geschlechtsspezifische Lohnlücke
+Kommunalpolitik;ME 9000;Verbundkatalog;Politik und Verwaltung;Fachbegriff;
+Föderalismus;ME 8000;Verbundkatalog;Politik und Verwaltung;Fachbegriff;
+Bürgerbeteiligung;MD 6500;Verbundkatalog;Politik und Verwaltung;Fachbegriff;
+Gemeindefinanzen in Österreich;QL 020|MG 33910;Verbundkatalog;Politik und Verwaltung;Spezifisch/Kompositum;Kernbegriff: Gemeindehaushalt + Österreich
+Wahlbeteiligung junger Menschen;MS 2300|MS 4500;Verbundkatalog;Politik und Verwaltung;Spezifisch/Kompositum;Kernbegriff: Wahlbeteiligung + Jugend
+Wie eine Gemeinde ihr Geld einteilt;QL 020;RVK-Online;Politik und Verwaltung;Fachfremd umschrieben;Kernbegriff: Gemeindehaushalt, kommunale Finanzen · Gegenprobe zu „Gemeindefinanzen in Österreich“
+Warum viele nicht mehr wählen gehen;MF 4800|MS 4500;Verbundkatalog;Politik und Verwaltung;Fachfremd umschrieben;Kernbegriff: Wahlenthaltung, Nichtwähler
+Wie die EU Gesetze macht;MK 5100;Verbundkatalog;Politik und Verwaltung;Fachfremd umschrieben;Kernbegriff: Gesetzgebungsverfahren der EU
+Partei;MB 2588|MF 3000;RVK-Online;Politik und Verwaltung;Mehrdeutig;gemeint: politische Partei (nicht Prozesspartei, nicht Vertragspartei)
+Lobbying;MS 4650|MF 2100;Verbundkatalog;Politik und Verwaltung;Englisch/Jargon;Kernbegriff: Interessenvertretung, Lobbyismus
+Habsburgermonarchie;NT 6050|ND 7360;Verbundkatalog;Geschichte;Fachbegriff;
+Industrialisierung;QF 500|NW 3100;Verbundkatalog;Geschichte;Fachbegriff;
+Kalter Krieg;MK 2300;RVK-Online;Geschichte;Fachbegriff;
+Alltag im Zweiten Weltkrieg in Oberösterreich;NR 8281|NQ 2280;Verbundkatalog;Geschichte;Spezifisch/Kompositum;Kernbegriff: Zweiter Weltkrieg + Alltagsgeschichte + Oberösterreich
+Frauenwahlrecht in Österreich;PL 673.399|MS 3155|F 4320;Verbundkatalog;Geschichte;Spezifisch/Kompositum;Kernbegriff: Frauenwahlrecht + Österreich
+Wie die Menschen im Mittelalter lebten;NM 1200;Verbundkatalog;Geschichte;Fachfremd umschrieben;Kernbegriff: Alltagsgeschichte Mittelalter
+Als Fabriken und Dampfmaschinen alles veränderten;NW 3900|NW 3100;Verbundkatalog;Geschichte;Fachfremd umschrieben;Kernbegriff: Industrialisierung, industrielle Revolution · Gegenprobe zu „Industrialisierung“
+Die Teilung Europas nach 1945;NQ 5910|MK 2300;Verbundkatalog;Geschichte;Fachfremd umschrieben;Kernbegriff: Kalter Krieg, Ost-West-Konflikt · Gegenprobe zu „Kalter Krieg“
+Wende;MG 15086|NQ 7290;Verbundkatalog;Geschichte;Mehrdeutig;gemeint: deutsche Wiedervereinigung 1989/90 (nicht Wendepunkt, nicht Wendemanöver)
+Oral History;NB 5600;Verbundkatalog;Geschichte;Englisch/Jargon;Kernbegriff: Zeitzeugenbefragung, mündliche Geschichte
+Deutsche Grammatik;GB 1602|GC 6009;Verbundkatalog;Sprache und Literatur;Fachbegriff;
+Mehrsprachigkeit;ER 930|ES 132;Verbundkatalog;Sprache und Literatur;Fachbegriff;
+Kinder- und Jugendliteratur;EC 8300|GE 6267;Verbundkatalog;Sprache und Literatur;Fachbegriff;
+Dialekte in Oberösterreich;LC 60160|GD 2420;Verbundkatalog;Sprache und Literatur;Spezifisch/Kompositum;Kernbegriff: Mundart + Oberösterreich
+Rechtschreibreform 1996;GC 6697;RVK-Online;Sprache und Literatur;Spezifisch/Kompositum;Kernbegriff: Rechtschreibreform + deutsche Orthographie
+Wenn Kinder mit zwei Sprachen aufwachsen;ER 930|ES 862;Verbundkatalog;Sprache und Literatur;Fachfremd umschrieben;Kernbegriff: Zweisprachigkeit, Mehrsprachigkeit · Gegenprobe zu „Mehrsprachigkeit“
+Bücher für junge Leser;DX 4000|EC 8300|GE 6267;Verbundkatalog;Sprache und Literatur;Fachfremd umschrieben;Kernbegriff: Kinder- und Jugendliteratur · Gegenprobe zu „Kinder- und Jugendliteratur“
+Wie man Texte leichter verständlich schreibt;ET 785|GC 7370;Verbundkatalog;Sprache und Literatur;Fachfremd umschrieben;Kernbegriff: Leichte Sprache, Verständlichkeit
+Storytelling;ET 790;Verbundkatalog;Sprache und Literatur;Englisch/Jargon;Kernbegriff: Erzählen, Narration
+Fotografie;AP 93450;Verbundkatalog;Kunst, Medien und Kommunikation;Fachbegriff;
+Barock;LH 65760|GH 1004;Verbundkatalog;Kunst, Medien und Kommunikation;Fachbegriff;Kernbegriff: Barockkunst
+Journalismus;AP 12800;Verbundkatalog;Kunst, Medien und Kommunikation;Fachbegriff;
+Streetart im öffentlichen Raum;LH 70720;RVK-Online;Kunst, Medien und Kommunikation;Spezifisch/Kompositum;Kernbegriff: Streetart + öffentlicher Raum
+Denkmalpflege von Kirchenbauten;BR 5890|LH 60300|NZ 28042;RVK-Online;Kunst, Medien und Kommunikation;Spezifisch/Kompositum;Kernbegriff: Denkmalpflege + Kirchenbau
+Falsche Nachrichten im Internet erkennen;AP 14250|MD 8460;RVK-Online;Kunst, Medien und Kommunikation;Fachfremd umschrieben;Kernbegriff: Desinformation, Fake News, Medienkompetenz
+Alte Gebäude erhalten;LH 60310;Verbundkatalog;Kunst, Medien und Kommunikation;Fachfremd umschrieben;Kernbegriff: Denkmalpflege · Gegenprobe zu „Denkmalpflege von Kirchenbauten“
+Wie Zeitungen ihre Nachrichten auswählen;AP 24560|AP 17800;RVK-Online;Kunst, Medien und Kommunikation;Fachfremd umschrieben;Kernbegriff: Nachrichtenauswahl, Nachrichtenwert · Gegenprobe zu „Journalismus“
+Social Media;AP 15965|MS 7965;Verbundkatalog;Kunst, Medien und Kommunikation;Englisch/Jargon;Kernbegriff: soziale Medien
+Harmonielehre;LR 55170;Verbundkatalog;Musik;Fachbegriff;
+Oper;LR 54170;Verbundkatalog;Musik;Fachbegriff;
+Volkslied;EC 8210|LS 16300;RVK-Online;Musik;Fachbegriff;
+Blasmusikkapellen in Österreich;LC 87160|LS 20390;Verbundkatalog;Musik;Spezifisch/Kompositum;Kernbegriff: Blasmusik + Österreich
+Instrumentalunterricht an Musikschulen;LR 57020|LR 56980;Verbundkatalog;Musik;Spezifisch/Kompositum;Kernbegriff: Musikschule + Instrumentalunterricht
+Warum Akkorde zusammen gut klingen;LR 56900;Verbundkatalog;Musik;Fachfremd umschrieben;Kernbegriff: Harmonielehre, Konsonanz · Gegenprobe zu „Harmonielehre“
+Musik als Hilfe bei Krankheit;LR 57800|LR 56650|CU 8550;Verbundkatalog;Musik;Fachfremd umschrieben;Kernbegriff: Musiktherapie
+Lieder, die man früher im Dorf sang;LS 16300;RVK-Online;Musik;Fachfremd umschrieben;Kernbegriff: Volkslied · Gegenprobe zu „Volkslied“
+Flügel;LR 11340|LT 11340;RVK-Online;Musik;Mehrdeutig;gemeint: Konzertflügel/Tasteninstrument (nicht Gebäudeflügel, Vogelflügel, Parteiflügel)
+Songwriting;LR 55000;Verbundkatalog;Musik;Englisch/Jargon;Kernbegriff: Liedermachen, Komposition populärer Musik
+Ethik;BF 1470|CC 7100;Verbundkatalog;Theologie und Philosophie;Fachbegriff;
+Bibelauslegung;BC 6080|BC 6200;Verbundkatalog;Theologie und Philosophie;Fachbegriff;Kernbegriff: Exegese
+Diakonie;BL 6120|BQ 8240;Verbundkatalog;Theologie und Philosophie;Fachbegriff;
+Medizinethik am Lebensende;XC 2800;Verbundkatalog;Theologie und Philosophie;Spezifisch/Kompositum;Kernbegriff: Medizinethik + Sterben
+Kirchliche Jugendarbeit;BU 3200;Verbundkatalog;Theologie und Philosophie;Spezifisch/Kompositum;Kernbegriff: Jugendarbeit + Kirche
+Was ist ein gutes Leben;CC 7250;Verbundkatalog;Theologie und Philosophie;Fachfremd umschrieben;Kernbegriff: Glück, Eudaimonie, Ethik · Gegenprobe zu „Ethik“
+Darf man Sterbenden beim Sterben helfen;BK 6130|MS 6300|PH 3850|PJ 2300;RVK-Online;Theologie und Philosophie;Fachfremd umschrieben;Kernbegriff: Sterbehilfe, assistierter Suizid · Gegenprobe zu „Medizinethik am Lebensende“
+Wie die Kirche Armen hilft;BK 4200|BL 6120;RVK-Online;Theologie und Philosophie;Fachfremd umschrieben;Kernbegriff: Diakonie, Caritas · Gegenprobe zu „Diakonie“
+Messe;BS 7410|BQ 2420;RVK-Online;Theologie und Philosophie;Mehrdeutig;gemeint: Gottesdienst/Liturgie (nicht Handelsmesse, nicht Messung)
+Spiritual Care;BQ 6010;Verbundkatalog;Theologie und Philosophie;Englisch/Jargon;Kernbegriff: spirituelle Begleitung in Medizin und Pflege
+Raumplanung;PN 981.520|RB 10903|ZH 9000;Verbundkatalog;Geographie und Raumplanung;Fachbegriff;Kernbegriff: Raumordnung
+Tourismus;QR 562|RB 10783;Verbundkatalog;Geographie und Raumplanung;Fachbegriff;
+Hochwasser;AR 14140|TZ 9540|ZI 6725;RVK-Online;Geographie und Raumplanung;Fachbegriff;
+Hochwasserschutz an der Donau;AR 22160|RF 10363|WI 4820|ZI 6720;Verbundkatalog;Geographie und Raumplanung;Spezifisch/Kompositum;Kernbegriff: Hochwasserschutz + Donau
+Zersiedelung in Oberösterreich;AR 27500|RB 10912|MS 9100|QR 800|ZO 3100;Verbundkatalog;Geographie und Raumplanung;Spezifisch/Kompositum;Kernbegriff: Zersiedelung + Oberösterreich
+Warum Dörfer immer weiter in die Landschaft wachsen;ZH 4735|ZH 4920|ZH 5750;Verbundkatalog;Geographie und Raumplanung;Fachfremd umschrieben;Kernbegriff: Zersiedelung, Flächenverbrauch · Gegenprobe zu „Zersiedelung in Oberösterreich“
+Wenn Flüsse über die Ufer treten;ZI 6870|AR 14140;Verbundkatalog;Geographie und Raumplanung;Fachfremd umschrieben;Kernbegriff: Hochwasser, Überschwemmung · Gegenprobe zu „Hochwasser“
+Urlaub, ohne der Natur zu schaden;AR 14300|CC 7267;Verbundkatalog;Geographie und Raumplanung;Fachfremd umschrieben;Kernbegriff: nachhaltiger Tourismus · Gegenprobe zu „Tourismus“
+Overtourism;QQ 955|RB 10783;Verbundkatalog;Geographie und Raumplanung;Englisch/Jargon;Kernbegriff: Übertourismus
+Biodiversität;ZC 73300|WI 2000;Verbundkatalog;Biologie und Chemie;Fachbegriff;
+Genetik;WB 1080|WG 1000;Verbundkatalog;Biologie und Chemie;Fachbegriff;
+Mikroplastik;AR 25340|VG 6700;Verbundkatalog;Biologie und Chemie;Fachbegriff;
+Bienensterben durch Pestizide;AR 13540|WQ 3075|WH 5600;Verbundkatalog;Biologie und Chemie;Spezifisch/Kompositum;Kernbegriff: Bienen + Pestizide
+Mikroplastik in Gewässern;AR 25340;RVK-Online;Biologie und Chemie;Spezifisch/Kompositum;Kernbegriff: Mikroplastik + Gewässerbelastung
+Warum Insekten verschwinden;WQ 3000|WH 5600;Verbundkatalog;Biologie und Chemie;Fachfremd umschrieben;Kernbegriff: Insektensterben · Gegenprobe zu „Bienensterben durch Pestizide“
+Wie Eigenschaften von Eltern auf Kinder vererbt werden;WG 7000;Verbundkatalog;Biologie und Chemie;Fachfremd umschrieben;Kernbegriff: Vererbung, Genetik · Gegenprobe zu „Genetik“
+Kleine Plastikteile im Wasser;AR 22570|ZI 6834;Verbundkatalog;Biologie und Chemie;Fachfremd umschrieben;Kernbegriff: Mikroplastik · Gegenprobe zu „Mikroplastik“
+CRISPR;WG 3450|WC 4460;Verbundkatalog;Biologie und Chemie;Englisch/Jargon;Kernbegriff: Genomeditierung, Genschere
+Ökologischer Landbau;ZA 55300;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Fachbegriff;
+Nutztierhaltung;ZD 16000;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Fachbegriff;
+Obstbau;ZC 54000;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Fachbegriff;
+Direktvermarktung landwirtschaftlicher Produkte;QS 400|ZB 89700;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Spezifisch/Kompositum;Kernbegriff: Direktvermarktung + Landwirtschaft
+Bodenerosion im Ackerbau;AR 18100|RB 10672|ZA 55300|ZC 12000;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Spezifisch/Kompositum;Kernbegriff: Bodenerosion + Ackerbau
+Bauern verkaufen ihre Produkte selbst;QS 400|ZB 89700;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Fachfremd umschrieben;Kernbegriff: Direktvermarktung · Gegenprobe zu „Direktvermarktung landwirtschaftlicher Produkte“
+Landwirtschaft ohne Kunstdünger und Spritzmittel;ZC 17600|ZA 55300;RVK-Online;Land- und Forstwirtschaft, Ernährung;Fachfremd umschrieben;Kernbegriff: ökologischer Landbau · Gegenprobe zu „Ökologischer Landbau“
+Wie viel Fleisch ist gesund;AR 19000|ZE 40000;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Fachfremd umschrieben;Kernbegriff: Fleischkonsum, Ernährung
+Kiefer;ZC 72800;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Mehrdeutig;gemeint: Baumart Pinus/Forstwirtschaft (nicht Kieferknochen)
+Vertical Farming;QS 000|WN 3600|ZC 23000|ZC 51300;Verbundkatalog;Land- und Forstwirtschaft, Ernährung;Englisch/Jargon;Kernbegriff: vertikale Landwirtschaft
+Trainingslehre;ZX 8500;Verbundkatalog;Sport;Fachbegriff;
+Sportverletzung;ZX 9660|YI 4300;Verbundkatalog;Sport;Fachbegriff;
+Sportverein;PD 3180|ZX 7200|ZX 6500;Verbundkatalog;Sport;Fachbegriff;
+Nachwuchsarbeit im Fußballverein;ZX 6930|ZY 2023|QQ 980;Verbundkatalog;Sport;Spezifisch/Kompositum;Kernbegriff: Fußball + Nachwuchsförderung + Verein
+Ausdauertraining im Alter;ZX 7550;Verbundkatalog;Sport;Spezifisch/Kompositum;Kernbegriff: Ausdauertraining + Seniorensport
+Wie man richtig für einen Marathon trainiert;ZY 3009|ZX 7159;Verbundkatalog;Sport;Fachfremd umschrieben;Kernbegriff: Lauftraining, Ausdauertraining · Gegenprobe zu „Trainingslehre“
+Warum Kinder im Sportverein aufhören;CW 6980|ZX 7352|ZX 7162;Verbundkatalog;Sport;Fachfremd umschrieben;Kernbegriff: Drop-out im Jugendsport · Gegenprobe zu „Sportverein“
+Sport, damit der Rücken nicht weh tut;ZX 9830;RVK-Online;Sport;Fachfremd umschrieben;Kernbegriff: Rückenschule, Gesundheitssport
+Abseits;ZY 2021;RVK-Online;Sport;Mehrdeutig;gemeint: Abseitsregel im Fußball (nicht soziale Ausgrenzung)
+Wearables im Sport;ZX 6749;Verbundkatalog;Sport;Englisch/Jargon;Kernbegriff: Fitnesstracker, Leistungsdiagnostik
+Katalogisierung;AN 74000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachbegriff;Kernbegriff: Formalerschließung
+Bestandsentwicklung;AN 71000|AN 70000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachbegriff;
+Informationskompetenz;AN 76400|AN 95000|AP 14000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachbegriff;
+Open Access an Fachhochschulen;AK 54410;RVK-Online;Bibliotheks- und Informationswesen;Spezifisch/Kompositum;Kernbegriff: Open Access + Fachhochschule
+Makerspace in Öffentlichen Bibliotheken;AN 77000;Verbundkatalog;Bibliotheks- und Informationswesen;Spezifisch/Kompositum;Kernbegriff: Makerspace + Öffentliche Bibliothek
+Wie man Bücher in der Bibliothek sinnvoll aufstellt;AN 74000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachfremd umschrieben;Kernbegriff: systematische Aufstellung, Klassifikation
+Studierenden beibringen, gute Quellen zu finden;AN 95000|DW 4000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachfremd umschrieben;Kernbegriff: Informationskompetenz, Teaching Library · Gegenprobe zu „Informationskompetenz“
+Dinge ausleihen statt kaufen;QR 790|ZH 9317|AN 66100|AN 73000;Verbundkatalog;Bibliotheks- und Informationswesen;Fachfremd umschrieben;Kernbegriff: Library of Things, Bibliothek der Dinge
+Register;AP 42100|AN 93550|AN 95100;Verbundkatalog;Bibliotheks- und Informationswesen;Mehrdeutig;gemeint: Sachregister/Index (nicht Orgelregister, nicht Sprachregister)
+Discovery System;AN 74195|AN 95000;Verbundkatalog;Bibliotheks- und Informationswesen;Englisch/Jargon;Kernbegriff: Resource-Discovery-System, Suchmaschinentechnologie in Bibliotheken

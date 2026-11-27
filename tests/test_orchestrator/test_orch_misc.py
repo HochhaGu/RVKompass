@@ -22,8 +22,17 @@ from orchestrator.status_page import render_status
 
 def test_phases_yaml_matches_plan():
     s = load_settings()
-    assert [p.id for p in s.phases] == [f"P{i}" for i in range(9)] + ["P10"]
-    assert [p.id for p in s.phases if p.halt_message] == ["P0", "P8", "P10"]
+    ids = [p.id for p in s.phases]
+    # Grundplan P0–P8; später angehängte Phasen (P10, P11, …) mit aufsteigender Nummer
+    assert ids[:9] == [f"P{i}" for i in range(9)]
+    numbers = [int(i[1:]) for i in ids]
+    assert numbers == sorted(set(numbers)) and all(i.startswith("P") for i in ids)
+    halts = [p.id for p in s.phases if p.halt_message]
+    assert halts[:2] == ["P0", "P8"]
+    # Jede angehängte Phase endet mit Haltepunkt: live schaltet nur Günther
+    assert all(p.halt_message for p in s.phases[9:])
+    # Neue Basismessung nur dort, wo der Goldstandard wechselt
+    assert [p.id for p in s.phases if p.new_baseline] == ["P12"]
     assert s.phase("P0").branch == "phase-0-audit" and not s.phase("P0").evaluation
     assert all(p.evaluation for p in s.phases[1:])
     assert s.hit10_tolerance == 0.02 and s.base_branch == "develop"
@@ -34,9 +43,9 @@ def test_every_phase_prompt_is_extracted():
     p0 = extract_phase_prompt(md, "P0")
     assert p0.startswith("P0 – Onboarding und Audit") and "audit-2026-11.md" in p0
     assert "P1 –" not in p0
-    for i in [*range(9), 10]:
-        assert len(extract_phase_prompt(md, f"P{i}")) > 200
-    assert extract_phase_prompt(md, "P10").startswith("P10 – Design")
+    for p in load_settings().phases:
+        assert extract_phase_prompt(md, p.id).startswith(f"{p.id} – ")
+        assert len(extract_phase_prompt(md, p.id)) > 200
     assert "Container" in extract_phase_prompt(md, "P8")
     with pytest.raises(KeyError):
         extract_phase_prompt(md, "P42")
