@@ -464,6 +464,50 @@ def accept(
     }
 
 
+P12_MIN_GAIN = 0.01
+P12_KEYS = ("hit@10", "mrr")
+
+
+def accept_p12(
+    candidate_test: dict,
+    current_test: dict,
+    min_gain: float = P12_MIN_GAIN,
+    keys: Sequence[str] = P12_KEYS,
+) -> dict:
+    """Entscheidungsregel P12, vorab festgelegt (Phasen-Auftrag C2, auch für C3 verwendet).
+
+    Neue Werte werden nur übernommen, wenn auf der Testhälfte jede Kennzahl aus `keys`
+    (Standard: Hit@10 und MRR) nicht schlechter ist als der aktuelle Stand und mindestens eine
+    um `min_gain` (0.01) oder mehr besser ist. Verglichen wird auf 4 Stellen gerundet.
+    Rückgabe: {"accepted", "conditions", "diffs", "reason"}.
+    """
+    diffs = {
+        k: round(round(candidate_test[k], 4) - round(current_test[k], 4), 4)
+        for k in keys
+    }
+    conditions = {f"{k}_not_worse": diffs[k] >= 0 for k in keys}
+    conditions["gain_ge_min"] = any(diffs[k] >= round(min_gain, 4) for k in keys)
+    accepted = all(conditions.values())
+    shown = ", ".join(
+        f"{k} {round(current_test[k], 4)} → {round(candidate_test[k], 4)} "
+        f"({'+' if diffs[k] >= 0 else ''}{diffs[k]})"
+        for k in keys
+    )
+    if accepted:
+        reason = f"Übernommen: keine Kennzahl schlechter, mindestens eine ≥ +{min_gain} ({shown})."
+    elif not all(conditions[f"{k}_not_worse"] for k in keys):
+        reason = f"Nicht übernommen: eine Kennzahl ist schlechter ({shown})."
+    else:
+        reason = f"Nicht übernommen: keine Kennzahl um ≥ {min_gain} besser ({shown})."
+    return {
+        "accepted": accepted,
+        "conditions": conditions,
+        "diffs": diffs,
+        "min_gain": min_gain,
+        "reason": reason,
+    }
+
+
 # --- Stufen ----------------------------------------------------------------------------------
 
 

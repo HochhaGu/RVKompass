@@ -21,6 +21,15 @@ P11, ohne Grid (wiederholbar für P12 mit größerem Goldstandard):
         Entwicklungshälfte ableiten, auf der Testhälfte prüfen.
         Bericht reports/scoring-stufen-<datum>-<hash>.json/.md
     --formula max_plus|legacy|… wählt die Formel statt SCORING_FORMULA aus der Konfiguration.
+
+P12, Grid nur für die eingestellte Formel:
+    python scripts/tune_scoring.py --gold eval/goldstandard.csv --retune
+        Grid auf der Entwicklungshälfte (Start und Gleichstand: aktuelle Profilgewichte),
+        Vergleich mit den aktuellen Gewichten auf der Testhälfte nach der vorab festgelegten
+        Regel scoring_tuning.accept_p12 (Hit@10 und MRR nicht schlechter, eine ≥ +0.01).
+        Kennzahlen auch je Teilmenge (GOLD_SUBSET_SIZES). Trägt nichts in app/config.py ein.
+        Bericht reports/scoring-retune-<datum>-<hash>.json/.md
+    --diagnose enthält in P12 zusätzlich die Werte je Teilmenge („diagnose_by_subset“).
 """
 
 from __future__ import annotations
@@ -506,6 +515,27 @@ def render_diagnose_markdown(report: dict) -> str:
             f"{_fmt(d['hit@5_fast'])} | {_fmt(d['hit@10_fast'])} | {d['rank_6_to_10']} | "
             f"{_fmt(d['fast_matches_reference'])} |"
         )
+    for name, d in (report.get("diagnose_by_subset") or {}).items():
+        lines.append(
+            f"| Teilmenge {evaluation.SUBSET_LABELS.get(name, name)} | {_fmt(d['hit@5'])} | "
+            f"{_fmt(d['hit@10'])} | {_fmt(d['hit@5_fast'])} | {_fmt(d['hit@10_fast'])} | "
+            f"{d['rank_6_to_10']} | {_fmt(d['fast_matches_reference'])} |"
+        )
+    subsets = report.get("diagnose_by_subset") or {}
+    if subsets:
+        lines += [
+            "",
+            "| Teilmenge | Gleichstand 5/6 | erste erwartete Stelle gefunden | davon nur Vektor | abgeschnitten nach Platz 20 | nicht unter den Kandidaten |",
+            "|---|---|---|---|---|---|",
+        ]
+        for name, d in subsets.items():
+            hist = d["histogram"]
+            lines.append(
+                f"| {evaluation.SUBSET_LABELS.get(name, name)} | {d['ties_at_5_6']} | "
+                f"{d['expected_found']} | {d['expected_vector_only']} | "
+                f"{hist['nach Platz 20 (abgeschnitten)']} | "
+                f"{hist['nicht unter den Kandidaten']} |"
+            )
     lines += [
         "",
         "## Rang der ersten erwarteten Stelle (voller Bestand)",
@@ -625,6 +655,15 @@ def run_p11_mode(args, config, entries, collected, source) -> int:
         report["diagnose"] = {
             part: tuning.rank_diagnostics(qfs, settings) for part, qfs in parts.items()
         }
+        # P12: Kennwerte je Teilmenge (ohne Einzelwerte, die stehen unter „full“)
+        report["diagnose_by_subset"] = {
+            name: {
+                k: v
+                for k, v in tuning.rank_diagnostics(qfs, settings).items()
+                if k != "per_query"
+            }
+            for name, qfs in subset_parts(config, entries, all_qfs).items()
+        }
         legacy = tuning.START_SETTINGS.replace(formula="legacy")
         legacy_per_query = tuning.per_query_for(all_qfs, legacy)
         max_plus_full = tuning.metrics_for(all_qfs, settings)
@@ -685,8 +724,178 @@ def run_p11_mode(args, config, entries, collected, source) -> int:
     return 0
 
 
+# --- P12: Gewichte der eingestellten Formel neu abstimmen --------------------------------------
+
+
+def subset_parts(config, entries, all_qfs) -> dict[str, list]:
+    """Merkmale je Teilmenge (GOLD_SUBSET_SIZES); leer, wenn die Größen nicht passen."""
+    sizes = getattr(config, "GOLD_SUBSET_SIZES", None)
+    if not sizes:
+        return {}
+    try:
+        labels = evaluation.subset_labels(len(entries), sizes)
+    except ValueError:
+        return {}
+    parts: dict[str, list] = {}
+    for qf, label in zip(all_qfs, labels, strict=True):
+        parts.setdefault(label, []).append(qf)
+    return parts
+
+
+def render_retune_markdown(report: dict) -> str:
+    decision = report["decision"]
+    lines = [
+        "# RVKompass – Gewichte neu abgestimmt (P12)",
+        "",
+        "## Übersicht",
+        "",
+        f"- Zeitpunkt: {report['timestamp']}",
+        f"- Git-Stand: {report['git_commit']}"
+        + (" (mit ungespeicherten Änderungen)" if report.get("git_dirty") else ""),
+        f"- Goldstandard: {report['gold_file']} ({report['gold_count']} Anfragen)",
+        (
+            f"- Aufteilung: Entwicklung {report['split']['dev_count']}, Test "
+            f"{report['split']['test_count']} (je Anfragetyp abwechselnd, wie in P5)"
+        ),
+        (
+            f"- Suchwege: GND {_fmt(report['gnd_enabled'])}, Sprachmodell "
+            f"{_fmt(report['llm_enabled'])}"
+        ),
+        f"- Formel: {report['formula']}, Bewertungen im Grid: {report['grid_size']}",
+        "",
+        (
+            "> Relevanzmaße, keine Wahrscheinlichkeiten. Gewichte nur auf der "
+            "Entwicklungshälfte abgestimmt (Ziel MRR, dann Hit@10, dann Nähe zu den "
+            "aktuellen Gewichten); entschieden wird auf der Testhälfte."
+        ),
+        "",
+        "## Gewichte",
+        "",
+        f"- aktuell (Profil in app/config.py): {report['current']['settings_text']}",
+        f"- bestes Grid-Ergebnis: {report['candidate']['settings_text']}",
+        "",
+        "## Kennzahlen",
+        "",
+        "| Teil | Variante | "
+        + " | ".join(evaluation.METRIC_LABELS[k] for k in TABLE_KEYS)
+        + " |",
+        "|---|---" + "|---" * len(TABLE_KEYS) + "|",
+    ]
+    part_titles = {
+        "test": "Testhälfte",
+        "dev": "Entwicklungshälfte",
+        "full": "Voller Bestand",
+        **{
+            f"subset:{k}": f"Teilmenge {v}" for k, v in evaluation.SUBSET_LABELS.items()
+        },
+    }
+    for part in report["current"]["metrics"]:
+        for key, title in (("current", "aktuell"), ("candidate", "Grid")):
+            m = report[key]["metrics"][part]
+            lines.append(
+                f"| {part_titles.get(part, part)} | {title} | "
+                + " | ".join(_fmt(m[k]) for k in TABLE_KEYS)
+                + " |"
+            )
+    lines += [
+        "",
+        "## Entscheidung",
+        "",
+        (
+            "Regel (vorab festgelegt): Neue Gewichte werden nur Standard, wenn auf der "
+            "Testhälfte Hit@10 und MRR jeweils nicht schlechter sind und mindestens eine der "
+            f"beiden um ≥ {_fmt(decision['min_gain'])} besser ist (4 Stellen gerundet)."
+        ),
+        "",
+        "| Bedingung | erfüllt |",
+        "|---|---|",
+    ]
+    for name, ok in decision["conditions"].items():
+        lines.append(f"| {name} | {_fmt(ok)} |")
+    lines += ["", f"**{decision['reason']}**", ""]
+    return "\n".join(lines)
+
+
+def run_retune(args, config, entries, collected, source) -> int:
+    """--retune: Grid nur für die eingestellte Formel, Entscheidung mit accept_p12."""
+    all_qfs = [c["qf"] for c in collected]
+    dev_idx, test_idx = tuning.split_indices(entries)
+    parts = {
+        "dev": [all_qfs[i] for i in dev_idx],
+        "test": [all_qfs[i] for i in test_idx],
+        "full": all_qfs,
+    }
+    for name, qfs in subset_parts(config, entries, all_qfs).items():
+        parts[f"subset:{name}"] = qfs
+    current = _settings_for_formula(config, args.formula)
+    if current.formula not in scoring.NEW_FORMULAS:
+        print(f"Fehler: kein Grid für Formel {current.formula!r}.", file=sys.stderr)
+        return 1
+    found = tuning.grid_search(parts["dev"], current.formula, current)
+    candidate = found["settings"]
+    metrics = {
+        key: {part: tuning.metrics_for(qfs, s) for part, qfs in parts.items()}
+        for key, s in (("current", current), ("candidate", candidate))
+    }
+    decision = tuning.accept_p12(
+        metrics["candidate"]["test"], metrics["current"]["test"]
+    )
+    commit, dirty = git_info()
+    now = datetime.now(UTC)
+    report = {
+        "timestamp": now.isoformat(timespec="seconds"),
+        "git_commit": commit,
+        "git_dirty": dirty,
+        "gold_file": str(args.gold),
+        "gold_count": len(entries),
+        "gnd_enabled": source is not None,
+        "llm_enabled": llm_enabled(config),
+        "formula": current.formula,
+        "grid_size": found["combos"],
+        "grid": {
+            "weights": {k: list(v) for k, v in tuning.WEIGHT_GRID.items()},
+            "path_bonus": list(tuning.PATH_BONUS_GRID),
+        },
+        "split": {"dev_count": len(dev_idx), "test_count": len(test_idx)},
+        "current": {
+            "settings": current.to_dict(),
+            "settings_text": _settings_text(current),
+            "metrics": metrics["current"],
+        },
+        "candidate": {
+            "settings": candidate.to_dict(),
+            "settings_text": _settings_text(candidate),
+            "metrics": metrics["candidate"],
+            "dev_fast": found["dev_fast"],
+        },
+        "same_as_current": candidate.to_dict() == current.to_dict(),
+        "decision": decision,
+    }
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    name = report_basename(out_dir, now.date().isoformat(), commit, "scoring-retune")
+    json_path = out_dir / f"{name}.json"
+    md_path = out_dir / f"{name}.md"
+    json_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    md_path.write_text(render_retune_markdown(report), encoding="utf-8")
+    print(f"Bericht: {json_path}")
+    print(f"Bericht: {md_path}")
+    for key in ("current", "candidate"):
+        m = metrics[key]
+        print(
+            f"  {key}: Test Hit@10 {m['test']['hit@10']}, MRR {m['test']['mrr']} | "
+            f"Dev MRR {m['dev']['mrr']} | voll Hit@10 {m['full']['hit@10']}, MRR "
+            f"{m['full']['mrr']}"
+        )
+    print(f"Grid-Gewichte: {_settings_text(candidate)}")
+    print(decision["reason"])
+    return 0
+
+
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Abstimmung des Scorings (P5/P11)")
+    parser = argparse.ArgumentParser(description="Abstimmung des Scorings (P5/P11/P12)")
     parser.add_argument(
         "--gold", required=True, help="Goldstandard-CSV (Trennzeichen ;)"
     )
@@ -702,6 +911,11 @@ def parse_args(argv=None):
         "--tiers-only",
         action="store_true",
         help="ohne Grid: fünf Relevanzstufen für die eingestellte Formel ableiten",
+    )
+    mode.add_argument(
+        "--retune",
+        action="store_true",
+        help="P12: Grid nur für die eingestellte Formel, Entscheidung nach accept_p12",
     )
     parser.add_argument(
         "--formula",
@@ -735,6 +949,8 @@ def main(argv=None) -> int:
 
     if args.diagnose or args.tiers_only:
         return run_p11_mode(args, config, entries, collected, source)
+    if args.retune:
+        return run_retune(args, config, entries, collected, source)
 
     all_qfs = [c["qf"] for c in collected]
     dev_idx, test_idx = tuning.split_indices(entries)

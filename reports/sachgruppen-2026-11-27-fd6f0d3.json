@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-11-27T09:43:18+00:00",
+  "git_commit": "fd6f0d3",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 501,
+  "split": {
+    "dev_count": 251,
+    "test_count": 250
+  },
+  "thresholds": {
+    "min_queries": 3,
+    "min_share": 0.8,
+    "min_senses": 2
+  },
+  "vocabulary": {
+    "available": true,
+    "source": "https://d-nb.info/standards/vocab/gnd/gnd-sc.nt",
+    "labels_total": 483,
+    "gnd_version": "20261013",
+    "gnd_source_file": "authorities-gnd-sachbegriff_lds_20261013.jsonld.gz",
+    "loaded_at": "2026-11-12T09:50:08.339529+00:00"
+  },
+  "current_mapping": {
+    "30": [
+      "ST"
+    ],
+    "31.1d": [
+      "ZM"
+    ],
+    "31.3b": [
+      "ZI",
+      "ZH"
+    ],
+    "31.5": [
+      "ZP"
+    ],
+    "31.6": [
+      "ZL"
+    ],
+    "10.11*": [
+      "QP"
+    ]
+  },
+  "proposals": {
+    "31.9a": {
+      "groups": [
+        "ZN",
+        "ZP"
+      ],
+      "queries": 11,
+      "support": 9,
+      "share": 0.8182,
+      "per_group": {
+        "ZN": 7,
+        "ZP": 3
+      },
+      "examples": [
+        "Transformator",
+        "Spannung",
+        "Photovoltaik",
+        "Elektromotor",
+        "Akkumulator"
+      ],
+      "label": "Elektrotechnik, Elektrische Energietechnik",
+      "verified": true
+    },
+    "31.9b": {
+      "groups": [
+        "ZN"
+      ],
+      "queries": 6,
+      "support": 5,
+      "share": 0.8333,
+      "per_group": {
+        "ZN": 5
+      },
+      "examples": [
+        "Operationsverstärker",
+        "Signalverarbeitung",
+        "Leistungselektronik",
+        "Netz",
+        "Maus"
+      ],
+      "label": "Elektronik, Kommunikationstechnik",
+      "verified": true
+    }
+  },
+  "extended_mapping": {
+    "30": [
+      "ST"
+    ],
+    "31.1d": [
+      "ZM"
+    ],
+    "31.3b": [
+      "ZI",
+      "ZH"
+    ],
+    "31.5": [
+      "ZP"
+    ],
+    "31.6": [
+      "ZL"
+    ],
+    "10.11*": [
+      "QP"
+    ],
+    "31.9a": [
+      "ZN",
+      "ZP"
+    ],
+    "31.9b": [
+      "ZN"
+    ]
+  },
+  "metrics": {
+    "current": {
+      "dev": {
+        "n": 51,
+        "sense@1": 0.2941,
+        "sense_mrr": 0.3497
+      },
+      "test": {
+        "n": 38,
+        "sense@1": 0.3947,
+        "sense_mrr": 0.4298
+      },
+      "full": {
+        "n": 89,
+        "sense@1": 0.3371,
+        "sense_mrr": 0.3839
+      }
+    },
+    "extended": {
+      "dev": {
+        "n": 51,
+        "sense@1": 0.3137,
+        "sense_mrr": 0.3595
+      },
+      "test": {
+        "n": 38,
+        "sense@1": 0.3947,
+        "sense_mrr": 0.4298
+      },
+      "full": {
+        "n": 89,
+        "sense@1": 0.3483,
+        "sense_mrr": 0.3895
+      }
+    }
+  },
+  "decision": {
+    "accepted": false,
+    "conditions": {
+      "sense@1_not_worse": true,
+      "sense_mrr_not_worse": true,
+      "gain_ge_min": false
+    },
+    "diffs": {
+      "sense@1": 0.0,
+      "sense_mrr": 0.0
+    },
+    "min_gain": 0.01,
+    "reason": "Nicht übernommen: keine Kennzahl um ≥ 0.01 besser (sense@1 0.3947 → 0.3947 (+0.0), sense_mrr 0.4298 → 0.4298 (+0.0))."
+  },
+  "queries_with_senses": 227,
+  "queries_with_2_senses": 89,
+  "self_check": {
+    "order_matches_current": true,
+    "order_matches_extended": true,
+    "hits_identical": true,
+    "hits_compared": 250
+  }
+}
