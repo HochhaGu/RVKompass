@@ -1,6 +1,6 @@
 # RVKompass
 
-Werkzeug zur Unterstützung bei der Klassifikation bibliographischer Ressourcen mit der RVK (Regensburger Verbundklassifikation): Freitext-Suchbegriff eingeben, semantisch angereicherte Vorschläge für passende RVK-Systemstellen erhalten.
+Werkzeug zur Unterstützung bei der Klassifikation bibliographischer Ressourcen mit der RVK (Regensburger Verbundklassifikation): Freitext-Suchbegriff eingeben, Vorschläge für passende RVK-Systemstellen erhalten. Gesucht wird per Stichwortsuche und semantischer Suche (Vektorsuche über Text-Embeddings), erweitert um Begriffe aus der Gemeinsamen Normdatei (GND). Eine Erweiterung durch ein Sprachmodell ist optional und im Auslieferungszustand ausgeschaltet (`ENABLE_QUERY_EXPANSION=false`).
 
 Privates Projekt von Günther Hochhauser.
 

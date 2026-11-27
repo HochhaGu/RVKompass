@@ -98,9 +98,11 @@ class Config:
     # (Stand P4), "sum", "max_plus", "sum_capped" – siehe app/services/scoring.py.
     # Entscheidung P5 (reports/scoring-2026-11-11-c877270-2.json, docs/phasen/phase-5.md): Keine
     # neue Formel hat auf der Testhälfte Hit@10 >= 0.5567 (P4-Wert) erreicht, alle lagen wie
-    # „legacy“ bei 0.5532. Nach Günthers Regel gilt Option (b): Rangfolge bleibt „legacy“, neu sind
-    # nur die Stufen. Umschalten zum Ausprobieren per .env (SCORING_FORMULA=max_plus usw.).
-    SCORING_FORMULA = os.environ.get("SCORING_FORMULA", "legacy")
+    # „legacy“ bei 0.5532; „legacy“ blieb Standard.
+    # Entscheidung P11 (docs/phasen/phase-11.md): „max_plus“ ist Standard – in P5 auf allen
+    # Hälften besser als „legacy“, Prüfauftrag „Hit@5 = Hit@10“ ohne Rechenfehler
+    # (reports/scoring-diagnose-2026-11-27-67827ac.md). Zurück per .env: SCORING_FORMULA=legacy.
+    SCORING_FORMULA = os.environ.get("SCORING_FORMULA", "max_plus")
     # Pfadgewicht je Pfadtyp: Beitrag = Gewicht × Evidenzstärke (Vektor: Gewicht × Cosine).
     # Startgewichte des Phasen-Auftrags; bei Formel „legacy“ ohne Wirkung. Die auf der
     # Entwicklungshälfte abgestimmten Gewichte je Formel stehen im Bericht oben.
@@ -126,6 +128,47 @@ class Config:
     # Scores der ersten 10 Treffer. Gilt nur für die eingestellte Formel.
     SCORE_TIER_HIGH = 0.6551
     SCORE_TIER_MEDIUM = 0.5754
+    # P11: Profil je Formel. Hat die eingestellte Formel ein Profil, gelten dessen Gewichte,
+    # Zuschlag und Stufen (app/services/scoring.py, ScoringSettings.from_config); die SCORE_*-Werte
+    # oben bleiben die Startwerte für „sum“ und „sum_capped“ (scripts/tune_scoring.py startet
+    # ohnehin von scoring_tuning.START_SETTINGS).
+    SCORE_PROFILES: ClassVar[dict[str, dict]] = {
+        # Quelle der Gewichte: reports/scoring-2026-11-11-c877270-2.md, Abschnitt „Gewählte
+        # Gewichte je Variante“ (auf der Entwicklungshälfte abgestimmt, P5).
+        "max_plus": {
+            "weights": {
+                "register_exact": 1.0,
+                "gnd_synonym": 0.9,
+                "gnd_narrower": 0.75,
+                "gnd_broader": 0.55,
+                "gnd_related": 0.6,
+                "llm_verified": 0.5,
+                "label_fts": 0.4,
+                "register_similar": 0.4,
+                "vector": 0.2,
+            },
+            "path_bonus": 0.1,
+            "path_bonus_cap": 0.15,
+            # Fünf Stufen (P11): reports/scoring-stufen-2026-11-27-67827ac-3.md, abgeleitet mit
+            # scripts/tune_scoring.py --tiers-only auf der Entwicklungshälfte. Die Anteilsregel
+            # (80/65/50/30 % passend, gesetzte Annahme) war für „sehr hoch“ und „hoch“ nicht
+            # erreichbar; daher Quintile der Scores der ersten 10 Treffer: reine Rangordnung,
+            # NICHT kalibriert (auf der Testhälfte überlappen alle Nachbarstufen).
+            "tiers": {
+                "tier_very_high": 0.8291,
+                "tier_high": 0.5848,
+                "tier_medium": 0.5218,
+                "tier_weak": 0.4304,
+            },
+        },
+        # Stufen wie bisher (P5, siehe oben); Gewichte spielen bei „legacy“ keine Rolle
+        "legacy": {"tiers": {"tier_high": 0.6551, "tier_medium": 0.5754}},
+    }
+
+    # P11: Obergrenze der Vorschlagsliste (ranking.MAX_RESULTS). Die Oberfläche zeigt Zahlen
+    # darüber als „20+“. Ein anderer Wert ändert die Evaluation (Hit@k bis 20, MRR) – nur mit
+    # Vorher/Nachher-Messung umstellen.
+    MAX_RESULTS = int(os.environ.get("MAX_RESULTS", "20"))
 
     # Oberfläche (P6): Voreinstellung für den Filter „Hauptgruppen einschränken“. In .env als
     # kommagetrennte RVK-Hauptgruppen, z. B. DEFAULT_MAIN_GROUPS="ZL,ZM"; leer = kein Filter.
@@ -134,6 +177,66 @@ class Config:
     DEFAULT_MAIN_GROUPS: ClassVar[tuple[str, ...]] = parse_main_groups_env(
         os.environ.get("DEFAULT_MAIN_GROUPS", "")
     )
+    # P11: Überschriften der Hauptgruppen-Facette („S – Mathematik · Informatik“). Vorrang hat
+    # die oberste Ebene aus der Datenbank (rvk_repository.list_top_level). Nur für Buchstaben,
+    # für die die Datenbank keinen Eintrag der obersten Ebene liefert, gilt diese Liste.
+    # Quelle: RVK-API v3, https://rvk.uni-regensburg.de/api3/json/notation/children (CC0),
+    # abgerufen am 27.11.2026; Notation und Benennung wörtlich, Reihenfolge wie geliefert.
+    MAIN_GROUP_TOP_LEVEL_FALLBACK: ClassVar[tuple[tuple[str, str], ...]] = (
+        ("A", "Allgemeines"),
+        ("B", "Theologie und Religionswissenschaften"),
+        ("CA - CK", "Philosophie"),
+        ("CL - CZ", "Psychologie"),
+        ("D", "Pädagogik"),
+        (
+            "E",
+            (
+                "Allgemeine und vergleichende Sprach- und Literaturwissenschaft. "
+                "Indogermanistik. Außereuropäische Sprachen und Literaturen"
+            ),
+        ),
+        (
+            "F",
+            (
+                "Klassische Philologie. Byzantinistik. Mittellateinische und "
+                "Neugriechische Philologie. Neulatein"
+            ),
+        ),
+        ("G", "Germanistik. Niederlandistik. Skandinavistik"),
+        ("H", "Anglistik. Amerikanistik"),
+        ("I", "Romanistik"),
+        ("K", "Slawistik"),
+        ("LA - LC", "Sozial- und Kulturanthropologie. Empirische Kulturwissenschaft"),
+        ("LD - LG", "Klassische Archäologie"),
+        ("LD,LH - LO", "Kunstgeschichte"),
+        ("LD,LP - LY", "Musikwissenschaft"),
+        ("MA - ML", "Politologie"),
+        ("MN - MS", "Soziologie"),
+        ("MT", "Gesundheitswissenschaften"),
+        ("MX - MZ", "Militärwissenschaft"),
+        ("N", "Geschichte"),
+        ("P", "Rechtswissenschaft"),
+        ("Q", "Wirtschaftswissenschaften"),
+        ("R", "Geografie"),
+        ("SA - SP", "Mathematik"),
+        ("SQ - SU", "Informatik"),
+        ("TA - TD", "Allgemeine Naturwissenschaft"),
+        ("TE - TZ", "Geowissenschaften"),
+        ("U", "Physik"),
+        ("V", "Chemie und Pharmazie"),
+        ("W", "Biologie"),
+        ("X - Y", "Medizin"),
+        (
+            "ZA - ZE",
+            (
+                "Agrar- und Forstwissenschaft, Gartenbau, Ernährungs- und "
+                "Haushaltswissenschaft"
+            ),
+        ),
+        ("ZG - ZS", "Technik"),
+        ("ZX - ZY", "Sport"),
+    )
+
     # --- Betrieb (P8) ------------------------------------------------------------------------
     # Lokaler GND-Abzug (Sachschlagwörter, CC0) in eigener Datei; lobid-gnd nur Rückfallebene.
     GND_SOURCE = os.environ.get("GND_SOURCE", "local").strip().lower()

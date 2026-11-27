@@ -1,0 +1,7991 @@
+{
+  "timestamp": "2026-11-27T08:44:04+00:00",
+  "mode": "with_expansion",
+  "metrics": {
+    "hit@1": 0.3608,
+    "hit@5": 0.6082,
+    "hit@10": 0.6082,
+    "mrr": 0.4536,
+    "main_group_hit@5": 0.8454,
+    "mean_response_ms": 223.0,
+    "zero_result_rate": 0.0,
+    "n": 97
+  },
+  "metrics_no_expansion": {
+    "hit@1": 0.3608,
+    "hit@5": 0.5567,
+    "hit@10": 0.5773,
+    "mrr": 0.4409,
+    "main_group_hit@5": 0.8041,
+    "mean_response_ms": 180.7,
+    "zero_result_rate": 0.0,
+    "n": 97
+  },
+  "git_commit": "67827ac",
+  "git_dirty": true,
+  "gold_file": "eval/goldstandard.csv",
+  "gold_count": 97,
+  "expansion": {
+    "enabled": false,
+    "api_key_present": false,
+    "queries_with_terms": 0,
+    "gnd_enabled": true,
+    "queries_with_gnd_senses": 47
+  },
+  "rvk_version": "2026-11-10T13:37:59.079540+00:00 rvko_marcxml_2026_2.xml success",
+  "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+  "scoring": {
+    "formula": "max_plus",
+    "weights": {
+      "register_exact": 1.0,
+      "gnd_synonym": 0.9,
+      "gnd_narrower": 0.75,
+      "gnd_broader": 0.55,
+      "gnd_related": 0.6,
+      "llm_verified": 0.5,
+      "label_fts": 0.4,
+      "register_similar": 0.4,
+      "vector": 0.2
+    },
+    "path_bonus": 0.1,
+    "path_bonus_cap": 0.15,
+    "sum_cap": 1.2,
+    "tier_high": 0.5848,
+    "tier_medium": 0.5218,
+    "tier_very_high": 0.8291,
+    "tier_weak": 0.4304
+  },
+  "metrics_by_split": {
+    "dev": {
+      "hit@1": 0.42,
+      "hit@5": 0.64,
+      "hit@10": 0.64,
+      "mrr": 0.5027,
+      "main_group_hit@5": 0.86,
+      "mean_response_ms": 222.0,
+      "zero_result_rate": 0.0,
+      "n": 50
+    },
+    "test": {
+      "hit@1": 0.2979,
+      "hit@5": 0.5745,
+      "hit@10": 0.5745,
+      "mrr": 0.4013,
+      "main_group_hit@5": 0.8298,
+      "mean_response_ms": 224.1,
+      "zero_result_rate": 0.0,
+      "n": 47
+    }
+  },
+  "by_typ": {
+    "Englisch/Jargon": {
+      "hit@1": 0.5,
+      "hit@5": 0.625,
+      "hit@10": 0.625,
+      "mrr": 0.5417,
+      "main_group_hit@5": 0.875,
+      "mean_response_ms": 243.1,
+      "zero_result_rate": 0.0,
+      "n": 8
+    },
+    "Fachbegriff": {
+      "hit@1": 0.5143,
+      "hit@5": 0.8286,
+      "hit@10": 0.8286,
+      "mrr": 0.6358,
+      "main_group_hit@5": 0.9143,
+      "mean_response_ms": 280.5,
+      "zero_result_rate": 0.0,
+      "n": 35
+    },
+    "Fachfremd umschrieben": {
+      "hit@1": 0.1429,
+      "hit@5": 0.3333,
+      "hit@10": 0.3333,
+      "mrr": 0.2076,
+      "main_group_hit@5": 0.7619,
+      "mean_response_ms": 187.6,
+      "zero_result_rate": 0.0,
+      "n": 21
+    },
+    "Mehrdeutig": {
+      "hit@1": 0.2857,
+      "hit@5": 0.7143,
+      "hit@10": 0.7143,
+      "mrr": 0.4238,
+      "main_group_hit@5": 0.8571,
+      "mean_response_ms": 340.5,
+      "zero_result_rate": 0.0,
+      "n": 7
+    },
+    "Spezifisch/Kompositum": {
+      "hit@1": 0.3077,
+      "hit@5": 0.5,
+      "hit@10": 0.5,
+      "mrr": 0.3878,
+      "main_group_hit@5": 0.8077,
+      "mean_response_ms": 136.3,
+      "zero_result_rate": 0.0,
+      "n": 26
+    }
+  },
+  "by_fachgebiet": {
+    "Bauwesen": {
+      "hit@1": 0.6923,
+      "hit@5": 0.7692,
+      "hit@10": 0.7692,
+      "mrr": 0.7179,
+      "main_group_hit@5": 0.9231,
+      "mean_response_ms": 240.5,
+      "zero_result_rate": 0.0,
+      "n": 13
+    },
+    "Elektrotechnik": {
+      "hit@1": 0.4167,
+      "hit@5": 0.5833,
+      "hit@10": 0.5833,
+      "mrr": 0.4653,
+      "main_group_hit@5": 0.75,
+      "mean_response_ms": 215.3,
+      "zero_result_rate": 0.0,
+      "n": 12
+    },
+    "Energietechnik": {
+      "hit@1": 0.3,
+      "hit@5": 0.6,
+      "hit@10": 0.6,
+      "mrr": 0.45,
+      "main_group_hit@5": 0.9,
+      "mean_response_ms": 177.3,
+      "zero_result_rate": 0.0,
+      "n": 10
+    },
+    "Informatik": {
+      "hit@1": 0.4444,
+      "hit@5": 0.8889,
+      "hit@10": 0.8889,
+      "mrr": 0.6018,
+      "main_group_hit@5": 1.0,
+      "mean_response_ms": 221.3,
+      "zero_result_rate": 0.0,
+      "n": 9
+    },
+    "Maschinenbau": {
+      "hit@1": 0.3158,
+      "hit@5": 0.6316,
+      "hit@10": 0.6316,
+      "mrr": 0.4254,
+      "main_group_hit@5": 1.0,
+      "mean_response_ms": 242.6,
+      "zero_result_rate": 0.0,
+      "n": 19
+    },
+    "Mess- und Regelungstechnik": {
+      "hit@1": 0.2727,
+      "hit@5": 0.4545,
+      "hit@10": 0.4545,
+      "mrr": 0.3409,
+      "main_group_hit@5": 0.5455,
+      "mean_response_ms": 205.5,
+      "zero_result_rate": 0.0,
+      "n": 11
+    },
+    "Werkstoffe": {
+      "hit@1": 0.0,
+      "hit@5": 0.3077,
+      "hit@10": 0.3077,
+      "mrr": 0.122,
+      "main_group_hit@5": 0.6923,
+      "mean_response_ms": 246.4,
+      "zero_result_rate": 0.0,
+      "n": 13
+    },
+    "Wirtschaft und Management": {
+      "hit@1": 0.5,
+      "hit@5": 0.7,
+      "hit@10": 0.7,
+      "mrr": 0.5744,
+      "main_group_hit@5": 0.9,
+      "mean_response_ms": 208.0,
+      "zero_result_rate": 0.0,
+      "n": 10
+    }
+  },
+  "worst": [
+    {
+      "query": "Automatisierungstechnik",
+      "expected": [
+        "ZQ 6000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "QP 225",
+        "ZI 8860",
+        "MS 4850"
+      ],
+      "result_count": 20,
+      "response_ms": 243.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Automatisierungstechnik"
+      ],
+      "gnd_terms": [
+        "synonym: Automatisierungstechnik",
+        "synonym: Automationstechnik",
+        "related: Automation",
+        "related: Industrieelektronik",
+        "related: Leittechnik",
+        "related: Regelungstechnik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Halbleiter",
+      "expected": [
+        "ZN 4800"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UP 3250",
+        "UP 3200",
+        "UP 3050"
+      ],
+      "result_count": 20,
+      "response_ms": 277.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Halbleiter"
+      ],
+      "gnd_terms": [
+        "synonym: Halbleiter",
+        "synonym: Semiconductor",
+        "broader: Festkörper",
+        "broader: Halbleiterphysik",
+        "narrower: Silicen",
+        "narrower: Amorpher Halbleiter",
+        "narrower: Verbindungshalbleiter",
+        "narrower: MOS",
+        "narrower: Dotierter Halbleiter",
+        "narrower: Ferroelektrischer Halbleiter",
+        "narrower: Flüssiger Halbleiter",
+        "narrower: Halbmetall",
+        "narrower: Magnetischer Halbleiter",
+        "narrower: n-Halbleiter",
+        "related: Halbleiterwerkstoff"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Leichte Materialien für Flugzeuge",
+      "expected": [
+        "ZL 3230"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZO 7210",
+        "ZO 7205",
+        "ZO 7340"
+      ],
+      "result_count": 20,
+      "response_ms": 89.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Messunsicherheit bestimmen",
+      "expected": [
+        "ZQ 3115"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "QC 020",
+        "QH 233",
+        "MT 23100"
+      ],
+      "result_count": 20,
+      "response_ms": 84.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "PID-Regler Auslegung",
+      "expected": [
+        "ZQ 5000"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "HF 571",
+        "EE 1650",
+        "EE 1660"
+      ],
+      "result_count": 20,
+      "response_ms": 91.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Smart Grid",
+      "expected": [
+        "ZP 4450"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZN 8500",
+        "ZG 9225",
+        "ZN 8550"
+      ],
+      "result_count": 20,
+      "response_ms": 243.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Intelligentes Stromnetz"
+      ],
+      "gnd_terms": [
+        "synonym: Intelligentes Stromnetz",
+        "synonym: Smart Grid",
+        "synonym: Smart Power Grid",
+        "synonym: Intelligentes Energiesystem",
+        "broader: Elektrizitätsversorgungsnetz",
+        "narrower: Vehicle to Grid",
+        "narrower: Microgrid <Energietechnik>",
+        "narrower: Demand Response"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Spannung",
+      "expected": [
+        "ZQ 3400"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UF 1800",
+        "TG 3500",
+        "UF 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 262.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Spannung",
+        "Spannung <Geologie>",
+        "Elektrische Spannung",
+        "Mechanische Spannung"
+      ],
+      "gnd_terms": [
+        "synonym: Spannung",
+        "synonym: Suspense",
+        "synonym: Spannung <Geologie>",
+        "synonym: Stress <Geologie>",
+        "related: Deformation <Geologie>",
+        "synonym: Elektrische Spannung",
+        "synonym: Spannung <Elektrotechnik>",
+        "narrower: Mischspannung",
+        "narrower: Hochvolt",
+        "narrower: Sperrspannung",
+        "narrower: Fehlerspannung",
+        "narrower: Wechselspannung",
+        "narrower: Gleichspannung",
+        "narrower: Störspannung",
+        "narrower: Berührungsspannung",
+        "narrower: Blindleistungsspannung",
+        "narrower: Elektromotorische Kraft",
+        "related: Elektrisches Potenzial",
+        "synonym: Mechanische Spannung",
+        "synonym: Elastische Spannung",
+        "synonym: Spannung <Mechanik>",
+        "synonym: Verspannung <Physik>",
+        "broader: Kontinuumsmechanik",
+        "narrower: Eigenspannung",
+        "narrower: Schubspannung",
+        "narrower: Zwängsspannung",
+        "narrower: Verbundspannung",
+        "narrower: Oberflächenspannung",
+        "narrower: Biegespannung",
+        "narrower: Fließgrenze",
+        "narrower: Kerbspannung",
+        "narrower: Spannungswelle",
+        "narrower: Vorspannung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Temperaturmessung in Industrieöfen",
+      "expected": [
+        "ZP 3279"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZQ 3800",
+        "UH 5740",
+        "ZL 7400"
+      ],
+      "result_count": 20,
+      "response_ms": 143.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Häuser nicht einstürzen",
+      "expected": [
+        "ZI 3300"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZH 5000",
+        "ZH 5260",
+        "ZH 8950"
+      ],
+      "result_count": 20,
+      "response_ms": 93.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Metall rostet",
+      "expected": [
+        "ZM 7510"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UQ 7000",
+        "UQ 7360",
+        "UQ 7020"
+      ],
+      "result_count": 20,
+      "response_ms": 213.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    }
+  ],
+  "missing_notations": [],
+  "per_query": [
+    {
+      "query": "Getriebe",
+      "expected": [
+        "ZL 4100"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4150",
+        "ZL 4140",
+        "ZL 4100"
+      ],
+      "result_count": 20,
+      "response_ms": 386.2,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Getriebe"
+      ],
+      "gnd_terms": [
+        "synonym: Getriebe",
+        "narrower: Schrittgetriebe",
+        "narrower: Planetenrollengewindetrieb",
+        "narrower: Galaxie-Getriebe",
+        "narrower: Hebelgetriebe",
+        "narrower: Hülltrieb",
+        "narrower: Sphärisches Getriebe",
+        "narrower: Rädergetriebe",
+        "narrower: Fahrzeuggetriebe",
+        "narrower: Flüssigkeitsgetriebe",
+        "narrower: Großgetriebe",
+        "related: Mechanismus <Maschinendynamik>",
+        "related: Kinematische Kette"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wälzlager",
+      "expected": [
+        "ZL 4140"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4140",
+        "ZL 6130",
+        "ND 9350"
+      ],
+      "result_count": 20,
+      "response_ms": 345.3,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Wälzlager"
+      ],
+      "gnd_terms": [
+        "synonym: Wälzlager",
+        "synonym: Antifriction bearings",
+        "broader: Lager <Maschinenbau>",
+        "narrower: Kugellager",
+        "narrower: Nadellager",
+        "narrower: Rollenlager",
+        "narrower: Wälzlagerring"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Gleitlagerschmierung",
+      "expected": [
+        "ZL 4140"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 3800",
+        "ZM 8336",
+        "ZM 8311"
+      ],
+      "result_count": 20,
+      "response_ms": 79.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie Kräfte in Maschinen übertragen werden",
+      "expected": [
+        "ZL 4200"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5150",
+        "ZL 4000",
+        "ZL 5000"
+      ],
+      "result_count": 20,
+      "response_ms": 235.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Feder",
+      "expected": [
+        "ZL 4300"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4300",
+        "ZL 4000",
+        "LK 85170"
+      ],
+      "result_count": 20,
+      "response_ms": 393.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Feder",
+        "Vogelfeder"
+      ],
+      "gnd_terms": [
+        "synonym: Feder",
+        "synonym: Metallfeder",
+        "broader: Maschinenelement",
+        "narrower: Schraubenfeder",
+        "narrower: Biegefeder",
+        "narrower: Achsfeder",
+        "narrower: Blattfeder",
+        "narrower: Elastomerfeder",
+        "narrower: Gummifeder",
+        "narrower: Spannfeder",
+        "narrower: Passfeder",
+        "narrower: Drehstabfeder",
+        "narrower: Luftfeder",
+        "synonym: Vogelfeder",
+        "synonym: Vogelfedern",
+        "synonym: Federn <Biologie>",
+        "synonym: Feder <Biologie>",
+        "narrower: Straußenfedern",
+        "narrower: Schwungfeder",
+        "narrower: Dunen"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mutter",
+      "expected": [
+        "ZL 4620"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Maschinenbau",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "MS 1990",
+        "QV 221",
+        "ZL 4620"
+      ],
+      "result_count": 20,
+      "response_ms": 328.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Mutter",
+        "Mutter <Motiv>",
+        "Mutter <Technik>",
+        "Tagesmutter"
+      ],
+      "gnd_terms": [
+        "synonym: Mutter",
+        "synonym: Mütter",
+        "broader: Eltern",
+        "narrower: Alleinerziehende Mutter",
+        "narrower: Das @Mütterliche",
+        "narrower: Stiefmutter",
+        "narrower: Leihmutter",
+        "narrower: Junge Mutter",
+        "narrower: Nichteheliche Mutter",
+        "narrower: Ersatzmutter",
+        "narrower: Pflegemutter",
+        "narrower: Adoptivmutter",
+        "narrower: Leibliche Mutter",
+        "related: Mutterschaft",
+        "synonym: Mutter <Motiv>",
+        "synonym: Mutterrolle <Motiv>",
+        "synonym: Mutterbild / Literatur",
+        "broader: Frau <Motiv>",
+        "broader: Motiv",
+        "narrower: Mutterschaft <Motiv>",
+        "synonym: Mutter <Technik>",
+        "broader: Verbindungselement",
+        "synonym: Tagesmutter",
+        "synonym: Mutter <Tagesmutter>",
+        "broader: Pädagogischer Beruf",
+        "related: Kindermädchen",
+        "related: Tagesbetreuung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "CAD",
+      "expected": [
+        "ZG 9147"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZG 9147",
+        "ZL 3250",
+        "ST 308"
+      ],
+      "result_count": 20,
+      "response_ms": 259.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "CAD",
+        "Kaltes Plasma"
+      ],
+      "gnd_terms": [
+        "synonym: CAD",
+        "synonym: Computer aided design",
+        "synonym: Computerunterstützte Konstruktion",
+        "synonym: Computerunterstütztes Entwerfen",
+        "synonym: Computerunterstütztes Konstruieren",
+        "synonym: Konstruieren / Computerunterstütztes Verfahren",
+        "synonym: Konstruktion / Computerunterstütztes Verfahren",
+        "synonym: Entwurf / Computerunterstütztes Verfahren",
+        "synonym: Computerunterstützter Entwurf",
+        "synonym: Rechnerunterstützter Entwurf",
+        "synonym: CAD-System",
+        "broader: Konstruieren",
+        "narrower: Digital Mock-Up",
+        "narrower: Geometrische Modellierung",
+        "narrower: UNISURF",
+        "narrower: MEGA",
+        "narrower: ICEM-DDN",
+        "narrower: Geometrieverarbeitung",
+        "narrower: MIMOLA-CAD-System",
+        "narrower: Dreidimensionales CAD",
+        "narrower: MegaCAD 2.0",
+        "narrower: PC-DRAFT plus",
+        "related: CADD",
+        "synonym: Kaltes Plasma",
+        "synonym: Low Temperature Plasma",
+        "synonym: Kaltplasma",
+        "synonym: Niedrigtemperaturplasma",
+        "synonym: Niedertemperaturplasma",
+        "synonym: Cold Atmospheric Pressure Plasma",
+        "synonym: CAD",
+        "synonym: Kaltes Atmosphärendruckplasma",
+        "synonym: Nonthermal Plasma",
+        "synonym: NTP",
+        "broader: Plasma"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Transformator",
+      "expected": [
+        "ZN 8330"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8330",
+        "ZN 8200",
+        "ZN 8970"
+      ],
+      "result_count": 20,
+      "response_ms": 304.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Transformator"
+      ],
+      "gnd_terms": [
+        "synonym: Transformator",
+        "synonym: Umspanner",
+        "broader: Elektrische Maschine",
+        "narrower: Ortsnetztransformator",
+        "narrower: Funkeninduktor",
+        "narrower: Drehstromtransformator",
+        "narrower: Differentialtransformator",
+        "narrower: Großtransformator",
+        "narrower: Messwandler",
+        "narrower: Leistungstransformator",
+        "narrower: Leitungstransformator",
+        "narrower: Netztransformator",
+        "narrower: Öltransformator"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Halbleiter",
+      "expected": [
+        "ZN 4800"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UP 3250",
+        "UP 3200",
+        "UP 3050"
+      ],
+      "result_count": 20,
+      "response_ms": 277.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Halbleiter"
+      ],
+      "gnd_terms": [
+        "synonym: Halbleiter",
+        "synonym: Semiconductor",
+        "broader: Festkörper",
+        "broader: Halbleiterphysik",
+        "narrower: Silicen",
+        "narrower: Amorpher Halbleiter",
+        "narrower: Verbindungshalbleiter",
+        "narrower: MOS",
+        "narrower: Dotierter Halbleiter",
+        "narrower: Ferroelektrischer Halbleiter",
+        "narrower: Flüssiger Halbleiter",
+        "narrower: Halbmetall",
+        "narrower: Magnetischer Halbleiter",
+        "narrower: n-Halbleiter",
+        "related: Halbleiterwerkstoff"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Leistungselektronik für Elektroautos",
+      "expected": [
+        "ZN 8340"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8970",
+        "ZO 4480",
+        "ZO 4250"
+      ],
+      "result_count": 20,
+      "response_ms": 84.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Spannung",
+      "expected": [
+        "ZQ 3400"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UF 1800",
+        "TG 3500",
+        "UF 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 262.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Spannung",
+        "Spannung <Geologie>",
+        "Elektrische Spannung",
+        "Mechanische Spannung"
+      ],
+      "gnd_terms": [
+        "synonym: Spannung",
+        "synonym: Suspense",
+        "synonym: Spannung <Geologie>",
+        "synonym: Stress <Geologie>",
+        "related: Deformation <Geologie>",
+        "synonym: Elektrische Spannung",
+        "synonym: Spannung <Elektrotechnik>",
+        "narrower: Mischspannung",
+        "narrower: Hochvolt",
+        "narrower: Sperrspannung",
+        "narrower: Fehlerspannung",
+        "narrower: Wechselspannung",
+        "narrower: Gleichspannung",
+        "narrower: Störspannung",
+        "narrower: Berührungsspannung",
+        "narrower: Blindleistungsspannung",
+        "narrower: Elektromotorische Kraft",
+        "related: Elektrisches Potenzial",
+        "synonym: Mechanische Spannung",
+        "synonym: Elastische Spannung",
+        "synonym: Spannung <Mechanik>",
+        "synonym: Verspannung <Physik>",
+        "broader: Kontinuumsmechanik",
+        "narrower: Eigenspannung",
+        "narrower: Schubspannung",
+        "narrower: Zwängsspannung",
+        "narrower: Verbundspannung",
+        "narrower: Oberflächenspannung",
+        "narrower: Biegespannung",
+        "narrower: Fließgrenze",
+        "narrower: Kerbspannung",
+        "narrower: Spannungswelle",
+        "narrower: Vorspannung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Smart Grid",
+      "expected": [
+        "ZP 4450"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZN 8500",
+        "ZG 9225",
+        "ZN 8550"
+      ],
+      "result_count": 20,
+      "response_ms": 243.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Intelligentes Stromnetz"
+      ],
+      "gnd_terms": [
+        "synonym: Intelligentes Stromnetz",
+        "synonym: Smart Grid",
+        "synonym: Smart Power Grid",
+        "synonym: Intelligentes Energiesystem",
+        "broader: Elektrizitätsversorgungsnetz",
+        "narrower: Vehicle to Grid",
+        "narrower: Microgrid <Energietechnik>",
+        "narrower: Demand Response"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Photovoltaik",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3730",
+        "ZN 8190",
+        "AR 26360"
+      ],
+      "result_count": 20,
+      "response_ms": 244.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Fotovoltaik"
+      ],
+      "gnd_terms": [
+        "synonym: Fotovoltaik",
+        "synonym: Photovoltaik",
+        "broader: Solartechnik",
+        "broader: Energiedirektumwandlung",
+        "broader: Elektrizitätserzeugung",
+        "narrower: Konzentrator <Solartechnik>",
+        "narrower: Thermofotovoltaik",
+        "related: Solarzelle",
+        "related: Fotovoltaikanlage"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wärmepumpe",
+      "expected": [
+        "ZI 8694"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 263.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Wärmepumpe"
+      ],
+      "gnd_terms": [
+        "synonym: Wärmepumpe",
+        "broader: Pumpe",
+        "narrower: Solarwärmepumpe",
+        "narrower: Hochtemperatur-Wärmepumpe",
+        "narrower: Großwärmepumpe",
+        "narrower: Elektrowärmepumpe",
+        "narrower: Absorptionswärmepumpe",
+        "narrower: Adsorptionswärmepumpe",
+        "narrower: Kompressionswärmepumpe",
+        "narrower: Sorptionswärmepumpe",
+        "narrower: Gaswärmepumpe"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wärmepumpenregelung",
+      "expected": [
+        "ZI 8694"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 79.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Rotorblätter von Windkraftanlagen",
+      "expected": [
+        "ZP 3712"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5410",
+        "ZP 3712",
+        "AR 26355"
+      ],
+      "result_count": 20,
+      "response_ms": 96.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Strom aus Sonnenlicht",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8985",
+        "ZH 7985",
+        "ZP 3725"
+      ],
+      "result_count": 20,
+      "response_ms": 222.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Energie speichern für später",
+      "expected": [
+        "ZP 4100"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4100",
+        "ZP 4400",
+        "ZP 4450"
+      ],
+      "result_count": 20,
+      "response_ms": 229.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Power-to-X",
+      "expected": [
+        "ZP 3700"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3240",
+        "ZP 3280",
+        "ZP 4100"
+      ],
+      "result_count": 20,
+      "response_ms": 241.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Power-to-X"
+      ],
+      "gnd_terms": [
+        "synonym: Power-to-X",
+        "synonym: PtX",
+        "synonym: P2X",
+        "broader: Energieumwandlung",
+        "broader: Erneuerbare Energien",
+        "narrower: Power-to-Gas",
+        "narrower: Power-to-Heat",
+        "narrower: Power-to-Liquid",
+        "related: Sektorkopplung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Stahl",
+      "expected": [
+        "ZM 4530"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 19,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0526,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4550",
+        "QR 522",
+        "ZM 4550"
+      ],
+      "result_count": 20,
+      "response_ms": 255.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Stahl",
+        "Stahl <Druckschrift>"
+      ],
+      "gnd_terms": [
+        "synonym: Stahl",
+        "synonym: Stahlwerkstoff",
+        "broader: Eisenlegierung",
+        "narrower: Austenitischer Stahl",
+        "narrower: Bandstahl",
+        "narrower: Baustahl",
+        "narrower: Legierter Stahl",
+        "narrower: Profilstahl",
+        "narrower: Warmfester Stahl",
+        "narrower: Korrosionsbeständiger Stahl",
+        "narrower: Ferritischer Stahl",
+        "narrower: Schweißbarer Stahl",
+        "narrower: Edelstahl",
+        "synonym: Stahl <Druckschrift>",
+        "broader: Druckschrift"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Faserverbundwerkstoffe",
+      "expected": [
+        "ZM 5000",
+        "ZI 4200",
+        "ZI 4700"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 8420",
+        "ZM 7040",
+        "ZM 8400"
+      ],
+      "result_count": 20,
+      "response_ms": 99.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Korrosionsschutz von Aluminium",
+      "expected": [
+        "ZM 7530"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4550",
+        "ZM 4610",
+        "ZL 3235"
+      ],
+      "result_count": 20,
+      "response_ms": 119.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Metall rostet",
+      "expected": [
+        "ZM 7510"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UQ 7000",
+        "UQ 7360",
+        "UQ 7020"
+      ],
+      "result_count": 20,
+      "response_ms": 213.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kunststoff, der sich selbst repariert",
+      "expected": [
+        "ZM 3000"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZM 7650",
+        "ZI 4700",
+        "ZM 5200"
+      ],
+      "result_count": 20,
+      "response_ms": 232.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Ermüdung",
+      "expected": [
+        "ZM 3200"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Werkstoffe",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "CW 2000",
+        "ZM 3400",
+        "UQ 7400"
+      ],
+      "result_count": 20,
+      "response_ms": 261.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Ermüdung",
+        "Ermüdung <Motiv>",
+        "Materialermüdung"
+      ],
+      "gnd_terms": [
+        "synonym: Ermüdung",
+        "synonym: Müdigkeit",
+        "synonym: Abgeschlagenheit",
+        "narrower: Hörermüdung",
+        "narrower: Psychische Ermüdung",
+        "narrower: Übermüdung",
+        "narrower: Tagesmüdigkeit",
+        "related: Erschöpfung",
+        "synonym: Ermüdung <Motiv>",
+        "broader: Motiv",
+        "synonym: Materialermüdung",
+        "synonym: Ermüdung <Material>",
+        "synonym: Werkstoff / Ermüdung",
+        "synonym: Werkstoffermüdung",
+        "synonym: Fatigue",
+        "broader: Werkstoffschädigung",
+        "narrower: Ermüdung bei sehr hohen Lastspielzahlen",
+        "narrower: Dehnungswechselermüdung",
+        "narrower: Pitting",
+        "narrower: Dauerbruch",
+        "narrower: Reibermüdung",
+        "narrower: Ermüdung bei niedrigen Lastspielzahlen",
+        "narrower: Thermische Ermüdung",
+        "narrower: Ermüdung bei hohen Lastspielzahlen"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Datenbank",
+      "expected": [
+        "ST 270"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "AN 96900",
+        "AL 27200",
+        "ND 3550"
+      ],
+      "result_count": 20,
+      "response_ms": 258.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Datenbank"
+      ],
+      "gnd_terms": [
+        "synonym: Datenbank",
+        "synonym: Datenbasis <Informatik>",
+        "synonym: Informationsbank",
+        "synonym: Datenbanken",
+        "broader: Informationssystem",
+        "narrower: Matrikeldatenbank",
+        "narrower: Datenherkunft",
+        "narrower: Graphdatenbank",
+        "narrower: Wasserzeichen-Informationssystem",
+        "narrower: The @Lindex",
+        "narrower: Lithos <Datenbank>",
+        "narrower: Wissensgraph",
+        "narrower: Forschungsinformationssystem",
+        "narrower: Hamburger Matrikelportal",
+        "narrower: Relationale Datenbank"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Algorithmus",
+      "expected": [
+        "ST 134"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 134",
+        "QH 500",
+        "QH 425"
+      ],
+      "result_count": 20,
+      "response_ms": 266.8,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Algorithmus",
+        "Therapieplan"
+      ],
+      "gnd_terms": [
+        "synonym: Algorithmus",
+        "synonym: Algorithmen",
+        "narrower: LLL-Algorithmus",
+        "narrower: k-Means-Algorithmus",
+        "narrower: MM-Algorithmus",
+        "narrower: Nichtnegative Matrixfaktorisierung",
+        "narrower: Quantenalgorithmus",
+        "narrower: Effizienter Algorithmus",
+        "narrower: Algebraischer Algorithmus",
+        "narrower: Gauß-Algorithmus",
+        "narrower: GMDH-Algorithmus",
+        "narrower: Post-Algorithmus",
+        "synonym: Therapieplan",
+        "synonym: Behandlungsplan",
+        "synonym: Heilplan",
+        "synonym: Algorithmus <Therapieplan>",
+        "synonym: Entscheidungsfindung / Therapie",
+        "synonym: Entscheidungsprozess / Therapie",
+        "synonym: Clinical reasoning",
+        "broader: Plan",
+        "broader: Klinischer Behandlungspfad",
+        "narrower: Bestrahlungsplan"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Neuronale Netze zur Bilderkennung",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "WC 7782",
+        "ST 301",
+        "ST 152"
+      ],
+      "result_count": 20,
+      "response_ms": 94.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Datensicherheit in Unternehmensnetzwerken",
+      "expected": [
+        "ST 276"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 276",
+        "ZN 8580",
+        "ST 200"
+      ],
+      "result_count": 20,
+      "response_ms": 216.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Computer lernt aus Beispielen",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Informatik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "AL 40450",
+        "AL 34330",
+        "SR 9000"
+      ],
+      "result_count": 20,
+      "response_ms": 104.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Machine Learning",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Informatik",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 300",
+        "WC 7722",
+        "ST 301"
+      ],
+      "result_count": 20,
+      "response_ms": 252.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Maschinelles Lernen"
+      ],
+      "gnd_terms": [
+        "synonym: Maschinelles Lernen",
+        "synonym: Algorithmisches Lernen",
+        "synonym: Lernen <Künstliche Intelligenz>",
+        "synonym: Automated learning",
+        "synonym: Machine learning",
+        "narrower: Deep Learning",
+        "narrower: Transfer Learning",
+        "narrower: Großes Sprachmodell",
+        "narrower: Föderales Lernen",
+        "narrower: Überwachtes Lernen",
+        "narrower: Unüberwachtes Lernen",
+        "narrower: Strukturlernen",
+        "narrower: Bayes-Lernen",
+        "narrower: Teilüberwachtes Lernen",
+        "narrower: Induktive logische Programmierung",
+        "related: Deepfake"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Stahlbeton",
+      "expected": [
+        "ZI 4502"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4502",
+        "ZI 4503",
+        "ZI 7160"
+      ],
+      "result_count": 20,
+      "response_ms": 223.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Stahlbeton"
+      ],
+      "gnd_terms": [
+        "synonym: Stahlbeton",
+        "synonym: Bewehrter Beton",
+        "synonym: Eisenbeton",
+        "broader: Beton",
+        "narrower: Spannbeton",
+        "related: Stahlbetonbau"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Brückenbau",
+      "expected": [
+        "ZI 6600"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 6653",
+        "ZI 6650",
+        "ZI 6600"
+      ],
+      "result_count": 20,
+      "response_ms": 254.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Brückenbau"
+      ],
+      "gnd_terms": [
+        "synonym: Brückenbau",
+        "broader: Ingenieurbau",
+        "narrower: Freivorbau",
+        "narrower: Quereinschieben",
+        "narrower: Taktschiebeverfahren"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mehrgeschossiger Holzbau",
+      "expected": [
+        "ZI 7400"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 7400",
+        "ZM 8405",
+        "ZS 5040"
+      ],
+      "result_count": 20,
+      "response_ms": 154.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Häuser, die kaum Energie verbrauchen",
+      "expected": [
+        "ZH 3061"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 3061",
+        "ZH 5000",
+        "ZH 3064"
+      ],
+      "result_count": 20,
+      "response_ms": 91.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie man Gebäude erdbebensicher macht",
+      "expected": [
+        "ZI 3480"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4900",
+        "ZH 7050",
+        "ZH 7080"
+      ],
+      "result_count": 20,
+      "response_ms": 325.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "BIM",
+      "expected": [
+        "ZI 3100"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 3100",
+        "ZG 9147",
+        "ST 308"
+      ],
+      "result_count": 20,
+      "response_ms": 195.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Building Information Modeling"
+      ],
+      "gnd_terms": [
+        "synonym: Building Information Modeling",
+        "synonym: Gebäudedaten-Modellierung",
+        "synonym: BIM <CAD>",
+        "broader: CAD"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Regelungstechnik",
+      "expected": [
+        "UX 9000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 5020",
+        "UX 9000",
+        "QH 721"
+      ],
+      "result_count": 20,
+      "response_ms": 304.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Regelungstechnik"
+      ],
+      "gnd_terms": [
+        "synonym: Regelungstechnik",
+        "synonym: Regeltechnik",
+        "narrower: Elektrische Regelungstechnik",
+        "narrower: Reglerentwurf",
+        "narrower: Anti-Windup",
+        "narrower: Closed Loop Identification",
+        "related: Regelung",
+        "related: Regelungstheorie",
+        "related: Automatisierungstechnik",
+        "related: Leittechnik",
+        "related: Regelungssystem"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Sensor",
+      "expected": [
+        "VG 6820"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 3120",
+        "ZQ 5830",
+        "VG 6880"
+      ],
+      "result_count": 20,
+      "response_ms": 299.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Sensor"
+      ],
+      "gnd_terms": [
+        "synonym: Sensor",
+        "synonym: Aufnehmer <Messtechnik>",
+        "synonym: Fühler <Messtechnik>",
+        "synonym: Geber <Messtechnik>",
+        "synonym: Messaufnehmer",
+        "synonym: Messfühler",
+        "synonym: Messgrößenaufnehmer",
+        "synonym: Messsensor",
+        "synonym: Messwertaufnehmer",
+        "synonym: Messwertgeber",
+        "narrower: Bewegungsmelder",
+        "narrower: Nanosensor",
+        "narrower: Optischer Sensor",
+        "narrower: U 705 D",
+        "narrower: U 710 D",
+        "narrower: U 711 D",
+        "narrower: Induktiver Sensor",
+        "narrower: Lichtschranke",
+        "narrower: Akustischer Sensor",
+        "narrower: Beschleunigungssensor",
+        "related: Sonde",
+        "related: Sensortechnik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "PID-Regler Auslegung",
+      "expected": [
+        "ZQ 5000"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "HF 571",
+        "EE 1650",
+        "EE 1660"
+      ],
+      "result_count": 20,
+      "response_ms": 91.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Messunsicherheit bestimmen",
+      "expected": [
+        "ZQ 3115"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "QC 020",
+        "QH 233",
+        "MT 23100"
+      ],
+      "result_count": 20,
+      "response_ms": 84.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "expected": [
+        "ZL 3300",
+        "ZL 3600"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 7130",
+        "ZL 3050",
+        "ZL 3400"
+      ],
+      "result_count": 20,
+      "response_ms": 229.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Industrie 4.0",
+      "expected": [
+        "ZG 9225"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZG 9225",
+        "QP 505",
+        "ZM 9070"
+      ],
+      "result_count": 20,
+      "response_ms": 232.7,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Industrie 4.0"
+      ],
+      "gnd_terms": [
+        "synonym: Industrie 4.0",
+        "synonym: Industry 4.0",
+        "synonym: Vierte industrielle Revolution",
+        "narrower: Smart Factory",
+        "related: Intelligente Fertigung",
+        "related: Factory of the Future",
+        "related: Digitale Fabrik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Projektmanagement",
+      "expected": [
+        "SR 8700"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 3800",
+        "MT 21300",
+        "SR 8700"
+      ],
+      "result_count": 20,
+      "response_ms": 240.3,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Projektmanagement"
+      ],
+      "gnd_terms": [
+        "synonym: Projektmanagement",
+        "synonym: Projekt / Management",
+        "broader: Management",
+        "narrower: Projektanalyse",
+        "narrower: Istaufnahme",
+        "narrower: Venture-Management",
+        "narrower: Multiprojektmanagement",
+        "related: Projektsteuerung",
+        "related: Projektmanager"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Qualitätsmanagement",
+      "expected": [
+        "QP 321"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 321",
+        "MT 21400",
+        "AL 24800"
+      ],
+      "result_count": 20,
+      "response_ms": 249.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Qualitätsmanagement"
+      ],
+      "gnd_terms": [
+        "synonym: Qualitätsmanagement",
+        "synonym: Quality Management",
+        "synonym: Total Quality Management",
+        "synonym: Unternehmen / Qualitätsmanagement",
+        "synonym: TQM",
+        "synonym: Qualitätssicherungssystem",
+        "synonym: Qualitätsmanagementsystem",
+        "synonym: Umfassendes Qualitätsmanagement",
+        "synonym: QM-System",
+        "broader: Management",
+        "narrower: Störungsmanagement",
+        "narrower: 8D-Report",
+        "narrower: Qualitätskontrolle",
+        "narrower: Qualitätssicherung",
+        "narrower: Qualitätsplanung",
+        "narrower: Qualitätsaudit",
+        "narrower: Quality Function Deployment",
+        "related: Qualitätsmanager",
+        "related: Qualitätsmanagerin"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Lean Production in der Automobilindustrie",
+      "expected": [
+        "QP 500"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 500",
+        "PF 264",
+        "QP 300"
+      ],
+      "result_count": 8,
+      "response_ms": 166.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie Firmen ihre Abläufe verbessern",
+      "expected": [
+        "QP 340"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 13,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0769,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 321",
+        "QP 320",
+        "QP 210"
+      ],
+      "result_count": 20,
+      "response_ms": 80.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Bank",
+      "expected": [
+        "QK 000"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 20,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.05,
+      "main_group_hit@5": true,
+      "top3": [
+        "QK 310",
+        "QK 340",
+        "QK 950"
+      ],
+      "result_count": 20,
+      "response_ms": 418.1,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Bank",
+        "Bank <Möbel>",
+        "Turnbank",
+        "Untiefe"
+      ],
+      "gnd_terms": [
+        "synonym: Bank",
+        "synonym: Bankbetrieb",
+        "synonym: Banken",
+        "narrower: Kreditgenossenschaft",
+        "narrower: Landesbank",
+        "narrower: Notenbank",
+        "narrower: Sparkasse",
+        "narrower: Geschäftsbank",
+        "narrower: Universalbank",
+        "narrower: Großbank",
+        "narrower: Internationale Bank",
+        "narrower: Diskontbank",
+        "narrower: Effektenbank",
+        "related: Kreditinstitut",
+        "related: Kreditwesen",
+        "synonym: Bank <Möbel>",
+        "synonym: Sitzbank",
+        "synonym: Bänke",
+        "broader: Sitzmöbel",
+        "narrower: Ruhstein",
+        "narrower: Rasenbank",
+        "narrower: Klavierbank",
+        "narrower: Napoleonsbank",
+        "synonym: Turnbank",
+        "synonym: Bank <Geräteturnen>",
+        "synonym: Langbank",
+        "broader: Turngerät",
+        "synonym: Untiefe",
+        "synonym: Bank <Geomorphologie>",
+        "narrower: Kiesbank",
+        "narrower: Sandbank"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Supply Chain",
+      "expected": [
+        "QP 530"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 530",
+        "QP 550",
+        "ZL 3930"
+      ],
+      "result_count": 20,
+      "response_ms": 108.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Hydraulik",
+      "expected": [
+        "UF 4550"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4650",
+        "ZI 6710",
+        "UF 4550"
+      ],
+      "result_count": 20,
+      "response_ms": 393.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Hydraulik",
+        "Ölhydraulik"
+      ],
+      "gnd_terms": [
+        "synonym: Hydraulik",
+        "broader: Hydrodynamik",
+        "broader: Fluidtechnik",
+        "narrower: Elektrohydraulik",
+        "narrower: Ölhydraulik",
+        "narrower: Wasserhydraulik",
+        "narrower: Thermohydraulik",
+        "narrower: Servohydraulik",
+        "synonym: Ölhydraulik",
+        "synonym: Hydraulik <Kraftübertragung>",
+        "broader: Hydraulik",
+        "related: Hydrauliköl"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schweißtechnik",
+      "expected": [
+        "ZM 8420"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZM 8435",
+        "ZM 8430",
+        "ZM 8420"
+      ],
+      "result_count": 20,
+      "response_ms": 298.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Schweißen"
+      ],
+      "gnd_terms": [
+        "synonym: Schweißen",
+        "synonym: Metallschweißen",
+        "synonym: Schweißtechnik",
+        "synonym: Schweißverfahren",
+        "broader: Fügen",
+        "narrower: Elektromagnetisches Pulsschweißen",
+        "narrower: Tandemschweißen",
+        "narrower: Prägeelementschweißen",
+        "narrower: Elektroschweißen",
+        "narrower: Gasschweißen",
+        "narrower: Kunststoffschweißen",
+        "narrower: Lichtbogenschweißen",
+        "narrower: Reparaturschweißen",
+        "narrower: Stumpfschweißen",
+        "narrower: Pressschweißen"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Zahnrad",
+      "expected": [
+        "ZL 4175"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4175",
+        "ZL 4160",
+        "ZL 4000"
+      ],
+      "result_count": 20,
+      "response_ms": 273.3,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Zahnrad"
+      ],
+      "gnd_terms": [
+        "synonym: Zahnrad",
+        "broader: Maschinenelement",
+        "narrower: Kegelrad",
+        "narrower: Planetenrad",
+        "narrower: Schneckenrad",
+        "narrower: Stirnrad",
+        "narrower: Verzahnung",
+        "narrower: Hohlrad",
+        "narrower: Konisches Zahnrad",
+        "narrower: Losrad",
+        "narrower: Unrundes Zahnrad",
+        "narrower: Ritzel"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Strömungsmaschinen",
+      "expected": [
+        "ZL 5400"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5400",
+        "ZL 5475",
+        "ZL 5410"
+      ],
+      "result_count": 20,
+      "response_ms": 117.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Verschleiß an Zahnradgetrieben",
+      "expected": [
+        "ZL 4175"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4130",
+        "ZL 4160",
+        "ZL 4150"
+      ],
+      "result_count": 20,
+      "response_ms": 118.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Additive Fertigung von Metallbauteilen",
+      "expected": [
+        "ZM 9045"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZK 8200",
+        "ZL 3235",
+        "ZM 8475"
+      ],
+      "result_count": 20,
+      "response_ms": 251.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+      "expected": [
+        "ZL 4300"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 6350",
+        "ZL 6160",
+        "ZL 6120"
+      ],
+      "result_count": 20,
+      "response_ms": 256.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kühlung von Verbrennungsmotoren",
+      "expected": [
+        "ZL 5500"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5500",
+        "ZP 3550",
+        "ZL 5300"
+      ],
+      "result_count": 20,
+      "response_ms": 93.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie ein Motor im Auto funktioniert",
+      "expected": [
+        "ZL 5500"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZO 4230",
+        "ZL 5580",
+        "ZO 4280"
+      ],
+      "result_count": 20,
+      "response_ms": 215.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Teile mit dem 3D-Drucker herstellen",
+      "expected": [
+        "ZM 9045"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 7170",
+        "ZM 9045",
+        "ZL 3220"
+      ],
+      "result_count": 20,
+      "response_ms": 119.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Maschinen vibrieren",
+      "expected": [
+        "ZL 6130"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 3050",
+        "UF 5200",
+        "ZO 7272"
+      ],
+      "result_count": 20,
+      "response_ms": 222.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Metallteile dauerhaft verbinden",
+      "expected": [
+        "ZM 8420"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "UP 7560",
+        "ZM 4300",
+        "UQ 7250"
+      ],
+      "result_count": 20,
+      "response_ms": 220.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Elektromotor",
+      "expected": [
+        "ZN 8200"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8200",
+        "ZN 8260",
+        "ZN 8280"
+      ],
+      "result_count": 20,
+      "response_ms": 256.3,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Elektromotor"
+      ],
+      "gnd_terms": [
+        "synonym: Elektromotor",
+        "synonym: Elektrischer Motor",
+        "broader: Elektrische Maschine",
+        "broader: Motor",
+        "narrower: Dauermagneterregter Line-Start Motor",
+        "narrower: Trommelmotor",
+        "narrower: Drehmomentwelligkeit",
+        "narrower: Gleichstrommotor",
+        "narrower: Kleinmotor",
+        "narrower: Schrittmotor",
+        "narrower: Asynchronmotor",
+        "narrower: Elektrolinearmotor",
+        "narrower: Drehstrommotor",
+        "narrower: Drehfeldmotor",
+        "related: Elektroantrieb"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schaltungstechnik",
+      "expected": [
+        "ZN 5240"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 5240",
+        "ST 190",
+        "ZN 2551"
+      ],
+      "result_count": 20,
+      "response_ms": 238.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Schaltkreistechnik"
+      ],
+      "gnd_terms": [
+        "synonym: Schaltkreistechnik",
+        "synonym: Schaltungstechnik",
+        "narrower: Bipolartechnik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Akkumulator",
+      "expected": [
+        "ZP 4140"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4140",
+        "ZN 8730",
+        "ZP 4120"
+      ],
+      "result_count": 20,
+      "response_ms": 301.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Akkumulator",
+        "Akkumulator <Informatik>"
+      ],
+      "gnd_terms": [
+        "synonym: Akkumulator",
+        "synonym: Galvanisches Sekundärelement",
+        "synonym: Sekundärbatterie",
+        "synonym: Sekundärelement",
+        "synonym: Wiederaufladbare Batterie",
+        "synonym: Secondary cell",
+        "synonym: Battery",
+        "synonym: Akkumulatorbatterie",
+        "broader: Galvanisches Element",
+        "narrower: Metall-Luft-Batterie",
+        "narrower: Ladezustand",
+        "narrower: Festkörperakkumulator",
+        "narrower: Batteriemanagementsystem",
+        "narrower: Metall-Ionen-Akkumulator",
+        "narrower: Hybridbatterie",
+        "narrower: wässrige Batterie",
+        "narrower: Lithium-Metall-Akkumulator",
+        "narrower: Metall-Schwefel-Akkumulator",
+        "narrower: Bleiakkumulator",
+        "synonym: Akkumulator <Informatik>",
+        "synonym: Akkumulator <Computer>",
+        "broader: Register <Informatik>",
+        "broader: Zentraleinheit"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Hochspannungstechnik",
+      "expected": [
+        "ZN 8400"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8400",
+        "ZN 8110",
+        "ZN 8480"
+      ],
+      "result_count": 20,
+      "response_ms": 209.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Hochspannungstechnik"
+      ],
+      "gnd_terms": [
+        "synonym: Hochspannungstechnik",
+        "broader: Elektrische Energietechnik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wechselrichter für Photovoltaikanlagen",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "AR 26360",
+        "ZP 3731",
+        "ZP 3730"
+      ],
+      "result_count": 20,
+      "response_ms": 95.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "expected": [
+        "ZN 4120"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 4050",
+        "ZN 3240",
+        "UO 5200"
+      ],
+      "result_count": 20,
+      "response_ms": 95.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Steuerung von Drehstrommotoren",
+      "expected": [
+        "ZN 8280"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5580",
+        "ZL 5570",
+        "ZL 5560"
+      ],
+      "result_count": 20,
+      "response_ms": 215.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Lithium-Ionen-Batterien als Heimspeicher",
+      "expected": [
+        "ZP 4140"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4130",
+        "ZN 8730",
+        "ZO 4480"
+      ],
+      "result_count": 20,
+      "response_ms": 95.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Fernwärmenetze in Städten",
+      "expected": [
+        "ZP 3285"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3285",
+        "ZH 3063",
+        "UG 2500"
+      ],
+      "result_count": 20,
+      "response_ms": 205.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+      "expected": [
+        "ZL 5475"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZP 3300",
+        "ZP 3580",
+        "ZP 3275"
+      ],
+      "result_count": 20,
+      "response_ms": 95.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Keramik",
+      "expected": [
+        "ZM 6100"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZM 6230",
+        "ZM 6100",
+        "ZM 7024"
+      ],
+      "result_count": 20,
+      "response_ms": 409.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Keramik",
+        "Keramik <Motiv>",
+        "Keramik <Technik>"
+      ],
+      "gnd_terms": [
+        "synonym: Keramik",
+        "narrower: Inkrustierte Keramik",
+        "narrower: Wemyss Ware",
+        "narrower: Fustat Fatimid Sgraffito",
+        "narrower: Protoattische Vase",
+        "narrower: Basaltware",
+        "narrower: Förderpreis Keramik im Pulverturm",
+        "narrower: Bandkeramik",
+        "narrower: Fayence",
+        "narrower: Keramikgefäß",
+        "narrower: Bauernkeramik",
+        "related: Töpfern",
+        "related: Töpferei",
+        "synonym: Keramik <Motiv>",
+        "broader: Motiv",
+        "synonym: Keramik <Technik>",
+        "synonym: Technische Keramik",
+        "synonym: Keramische Technologie",
+        "synonym: Industriekeramik",
+        "narrower: Glaskeramik",
+        "narrower: Feinkeramik",
+        "narrower: Grobkeramik",
+        "related: Keramischer Werkstoff"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Polymere",
+      "expected": [
+        "ZM 5000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 12,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0833,
+      "main_group_hit@5": false,
+      "top3": [
+        "UV 1100",
+        "UV 1070",
+        "UV 1000"
+      ],
+      "result_count": 20,
+      "response_ms": 473.1,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Polymere"
+      ],
+      "gnd_terms": [
+        "synonym: Polymere",
+        "synonym: Makropolymere",
+        "synonym: Hochpolymere",
+        "synonym: Polymer",
+        "broader: Makromolekül",
+        "narrower: Foldamere",
+        "narrower: Elektroaktive Polymere",
+        "narrower: Cycloolefin-Copolymere",
+        "narrower: Thermoresponsive Polymere",
+        "narrower: Polymermatrix-Verbundwerkstoff",
+        "narrower: Magnetoaktive Polymere",
+        "narrower: Copolymere",
+        "narrower: Elastomer",
+        "narrower: Kautschuk",
+        "narrower: Silicone",
+        "related: Kunststoff"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Legierung",
+      "expected": [
+        "ZM 4300"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 7000",
+        "ZM 4300",
+        "ZM 4600"
+      ],
+      "result_count": 20,
+      "response_ms": 281.0,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Legierung"
+      ],
+      "gnd_terms": [
+        "synonym: Legierung",
+        "synonym: Metall / Legierung",
+        "broader: Metallischer Werkstoff",
+        "broader: Mehrstoffsystem",
+        "narrower: Halbmetalllegierung",
+        "narrower: Hochentropielegierung",
+        "narrower: Manganin",
+        "narrower: Eisenlegierung",
+        "narrower: Memory-Legierung",
+        "narrower: Nichteisenmetalllegierung",
+        "narrower: Knetlegierung",
+        "narrower: Binäre Legierung",
+        "narrower: Dämpfungslegierung",
+        "narrower: Edelmetallfreie Legierung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Zugversuch an Stahlproben",
+      "expected": [
+        "ZM 3600"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZK 8200",
+        "ZI 4941",
+        "ZI 7200"
+      ],
+      "result_count": 20,
+      "response_ms": 132.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Leichte Materialien für Flugzeuge",
+      "expected": [
+        "ZL 3230"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZO 7210",
+        "ZO 7205",
+        "ZO 7340"
+      ],
+      "result_count": 20,
+      "response_ms": 89.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Glas bricht",
+      "expected": [
+        "ZM 6620"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": 5,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 8600",
+        "ZM 6540",
+        "ZM 6520"
+      ],
+      "result_count": 20,
+      "response_ms": 225.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Smart Materials",
+      "expected": [
+        "ZM 7000"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 7500",
+        "ZL 3225",
+        "ZM 7010"
+      ],
+      "result_count": 20,
+      "response_ms": 410.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Intelligenter Werkstoff"
+      ],
+      "gnd_terms": [
+        "synonym: Intelligenter Werkstoff",
+        "synonym: Intelligent material",
+        "synonym: Smart material",
+        "synonym: Smart materials",
+        "broader: Funktionswerkstoff",
+        "narrower: Elektroaktive Polymere",
+        "narrower: Self-healing material",
+        "narrower: Adaptiver Werkstoff",
+        "narrower: Magnetoaktive Polymere",
+        "narrower: Funktionsgel",
+        "narrower: Intumeszenter Werkstoff",
+        "narrower: Intelligenter Baustoff",
+        "related: Hochleistungswerkstoff",
+        "related: Intelligente Konstruktion"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Programmiersprache",
+      "expected": [
+        "ST 240"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 240",
+        "ST 140",
+        "WC 7710"
+      ],
+      "result_count": 20,
+      "response_ms": 344.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Programmiersprache"
+      ],
+      "gnd_terms": [
+        "synonym: Programmiersprache",
+        "synonym: Programmierungssprache",
+        "broader: Kunstsprache",
+        "narrower: Erlang/OTP",
+        "narrower: ThetaML",
+        "narrower: Alloy <Programmiersprache>",
+        "narrower: CoffeeScript",
+        "narrower: Go 1",
+        "narrower: ABAP 7.2",
+        "narrower: Lite-C",
+        "narrower: Visual C sharp 2012",
+        "narrower: Nyquist <Programmiersprache>",
+        "narrower: ABAP 7.4"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "expected": [
+        "ST 153"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 153",
+        "ST 257",
+        "ZQ 3130"
+      ],
+      "result_count": 20,
+      "response_ms": 135.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Virus",
+      "expected": [
+        "ST 276"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Informatik",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "WF 3700",
+        "WF 3650",
+        "ST 276"
+      ],
+      "result_count": 20,
+      "response_ms": 318.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Viren",
+        "Computervirus"
+      ],
+      "gnd_terms": [
+        "synonym: Viren",
+        "synonym: Virus",
+        "narrower: Virus-like particles",
+        "narrower: Whispovirus",
+        "narrower: Baculoviren",
+        "narrower: Herpesviren",
+        "narrower: Parvoviren",
+        "narrower: Pflanzenviren",
+        "narrower: Poliomyelitisvirus",
+        "narrower: Reoviren",
+        "narrower: Rötelnvirus",
+        "narrower: Tumorviren",
+        "related: Virologie",
+        "synonym: Computervirus",
+        "synonym: Virus <Informatik>",
+        "synonym: Computerviren",
+        "related: Malware",
+        "related: Spyware"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Baustatik",
+      "expected": [
+        "ZI 3300"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 3300",
+        "ZI 3330",
+        "UF 1200"
+      ],
+      "result_count": 20,
+      "response_ms": 275.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Baustatik"
+      ],
+      "gnd_terms": [
+        "synonym: Baustatik",
+        "broader: Statik",
+        "broader: Baumechanik",
+        "narrower: Modellstatik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Baustoffe",
+      "expected": [
+        "ZI 4200"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4200",
+        "ZI 4450",
+        "ZI 4700"
+      ],
+      "result_count": 20,
+      "response_ms": 302.2,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Baustoff"
+      ],
+      "gnd_terms": [
+        "synonym: Baustoff",
+        "synonym: Baumaterial",
+        "synonym: Baubedarf",
+        "synonym: Baustoffe",
+        "synonym: Baumaterialien",
+        "broader: Bauprodukt",
+        "narrower: Geokunststoff",
+        "narrower: Beton",
+        "narrower: Dämmstoff",
+        "narrower: Natürlicher Baustoff",
+        "narrower: Mörtel",
+        "narrower: Baukeramik",
+        "narrower: Bituminöser Stoff",
+        "narrower: Nichtmetallischer Baustoff",
+        "narrower: Straßenbaustoff",
+        "narrower: Bimsbaustoff"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Tunnelbau",
+      "expected": [
+        "ZI 6500"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 6500",
+        "ZI 6540",
+        "ZI 6520"
+      ],
+      "result_count": 20,
+      "response_ms": 331.9,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Tunnelbau",
+        "Tunnelbau <Motiv>"
+      ],
+      "gnd_terms": [
+        "synonym: Tunnelbau",
+        "synonym: Tunnel / Tiefbau",
+        "broader: Tiefbau",
+        "narrower: Neue österreichische Tunnelbauweise",
+        "narrower: Oberflächennaher Tunnelbau",
+        "narrower: Leitungstunnelbau",
+        "narrower: Deckelbauweise",
+        "narrower: U-Bahnbau",
+        "narrower: Galerie <Straßenbau>",
+        "synonym: Tunnelbau <Motiv>",
+        "broader: Motiv"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Brandschutz im Hochbau",
+      "expected": [
+        "ZH 3920"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 3920",
+        "ZI 4090",
+        "ZB 72500"
+      ],
+      "result_count": 20,
+      "response_ms": 190.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Häuser nicht einstürzen",
+      "expected": [
+        "ZI 3300"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZH 5000",
+        "ZH 5260",
+        "ZH 8950"
+      ],
+      "result_count": 20,
+      "response_ms": 93.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Feuchte Wände im Keller",
+      "expected": [
+        "ZI 6150"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 7300",
+        "ZL 5500",
+        "ZL 5450"
+      ],
+      "result_count": 20,
+      "response_ms": 289.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Decke",
+      "expected": [
+        "ZH 7300"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 7300",
+        "LK 80160",
+        "LK 80200"
+      ],
+      "result_count": 20,
+      "response_ms": 400.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Decke",
+        "Decke <Geologie>",
+        "Decke <Textilien>",
+        "Tektonische Decke"
+      ],
+      "gnd_terms": [
+        "synonym: Decke",
+        "narrower: Flachdecke",
+        "narrower: Pilzdecke",
+        "narrower: Gewölbe",
+        "narrower: Kassettendecke",
+        "narrower: Abgehängte Decke",
+        "narrower: Balkendecke",
+        "narrower: Balkenlose Decke",
+        "narrower: Schlitzdecke",
+        "narrower: Massivdecke",
+        "synonym: Decke <Geologie>",
+        "narrower: Vulkanische Decke",
+        "narrower: Tektonische Decke",
+        "narrower: Magura-Decke",
+        "synonym: Decke <Textilien>",
+        "broader: Textilien",
+        "narrower: Bettdecke",
+        "narrower: Tischdecke",
+        "narrower: Satteldecke",
+        "narrower: Deckchen",
+        "narrower: Taufdecke",
+        "synonym: Tektonische Decke",
+        "synonym: Decke <Tektonik>",
+        "broader: Decke <Geologie>",
+        "narrower: Penninikum",
+        "narrower: Deckscholle"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Automatisierungstechnik",
+      "expected": [
+        "ZQ 6000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "QP 225",
+        "ZI 8860",
+        "MS 4850"
+      ],
+      "result_count": 20,
+      "response_ms": 243.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Automatisierungstechnik"
+      ],
+      "gnd_terms": [
+        "synonym: Automatisierungstechnik",
+        "synonym: Automationstechnik",
+        "related: Automation",
+        "related: Industrieelektronik",
+        "related: Leittechnik",
+        "related: Regelungstechnik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Robotik",
+      "expected": [
+        "ST 308"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 308",
+        "ZM 9050",
+        "CC 7270"
+      ],
+      "result_count": 20,
+      "response_ms": 255.5,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Robotik"
+      ],
+      "gnd_terms": [
+        "synonym: Robotik",
+        "synonym: Robotertechnik",
+        "synonym: Robotics",
+        "narrower: Programmierung durch Vormachen",
+        "narrower: Militärroboter",
+        "narrower: Biobotik",
+        "narrower: Biobot",
+        "narrower: Mikrorobotik",
+        "narrower: Nanorobotik",
+        "narrower: Nanoroboter",
+        "narrower: Exoskelett <Maschine>",
+        "narrower: Tensegrity-Roboter",
+        "narrower: Soziale Robotik",
+        "related: Roboter"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Temperaturmessung in Industrieöfen",
+      "expected": [
+        "ZP 3279"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZQ 3800",
+        "UH 5740",
+        "ZL 7400"
+      ],
+      "result_count": 20,
+      "response_ms": 143.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Roboter, die mit Menschen zusammenarbeiten",
+      "expected": [
+        "ST 308"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 308",
+        "ZQ 6230",
+        "QP 225"
+      ],
+      "result_count": 19,
+      "response_ms": 123.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie eine Fabrik von selbst läuft",
+      "expected": [
+        "ZQ 6000"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZL 3170",
+        "ZL 3180",
+        "ZM 9000"
+      ],
+      "result_count": 20,
+      "response_ms": 253.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kostenrechnung",
+      "expected": [
+        "QP 830"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 830",
+        "QP 810",
+        "QK 330"
+      ],
+      "result_count": 20,
+      "response_ms": 264.4,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Kostenrechnung"
+      ],
+      "gnd_terms": [
+        "synonym: Kostenrechnung",
+        "synonym: Unternehmen / Kostenrechnung",
+        "synonym: Kosten- und Leistungsrechnung",
+        "synonym: Leistungs- und Kostenrechnung",
+        "synonym: Kosten- und Erlösrechnung <Kostenrechnung>",
+        "synonym: KLR",
+        "broader: Rechnungswesen",
+        "narrower: Betriebsabrechnung",
+        "narrower: Kostenstellenrechnung",
+        "narrower: Plankostenrechnung",
+        "narrower: Teilkostenrechnung",
+        "narrower: Kostenschätzung",
+        "narrower: Kosteninformationssystem",
+        "narrower: Kostenträgerrechnung",
+        "narrower: Vollkostenrechnung",
+        "narrower: Normalkostenrechnung",
+        "narrower: Istkostenrechnung"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Logistik",
+      "expected": [
+        "QH 463"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 5,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 550",
+        "MY 8800",
+        "ZI 3820"
+      ],
+      "result_count": 20,
+      "response_ms": 276.6,
+      "expanded_terms": [],
+      "gnd_senses": [
+        "Logistik",
+        "Mathematische Logik"
+      ],
+      "gnd_terms": [
+        "synonym: Logistik",
+        "narrower: Reverse Logistik",
+        "narrower: Crowdshipping",
+        "narrower: Marketinglogistik",
+        "narrower: Distributionslogistik",
+        "narrower: Fertigungslogistik",
+        "narrower: Beschaffungslogistik",
+        "narrower: Informationslogistik",
+        "narrower: City-Logistik",
+        "narrower: Sendungsverfolgung",
+        "narrower: Intralogistik",
+        "synonym: Mathematische Logik",
+        "synonym: Logik <Mathematik>",
+        "synonym: Algebra der Logik",
+        "synonym: Algebraische Logik",
+        "synonym: Formale Logik",
+        "synonym: Logistik <Mathematik>",
+        "synonym: Symbolische Logik",
+        "broader: Logik",
+        "broader: Mathematik",
+        "narrower: Quantitative Logik",
+        "narrower: Logikspiel",
+        "narrower: Substrukturelle Logik",
+        "narrower: Prädikatenlogik",
+        "narrower: Modallogik",
+        "narrower: Aussagenlogik",
+        "narrower: Horn-Formel",
+        "narrower: Kombinatorische Logik",
+        "narrower: Dilemma",
+        "narrower: Algebraisierbare Logik"
+      ],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Innovationsmanagement in Technologieunternehmen",
+      "expected": [
+        "QP 210"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 210",
+        "QP 200",
+        "ZG 9080"
+      ],
+      "result_count": 20,
+      "response_ms": 152.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mitarbeitende gut führen",
+      "expected": [
+        "QV 584"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 12,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0833,
+      "main_group_hit@5": false,
+      "top3": [
+        "AK 40400",
+        "AL 47900",
+        "QP 450"
+      ],
+      "result_count": 20,
+      "response_ms": 122.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    }
+  ],
+  "per_query_no_expansion": [
+    {
+      "query": "Getriebe",
+      "expected": [
+        "ZL 4100"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4120",
+        "ZL 4150",
+        "ZL 4140"
+      ],
+      "result_count": 20,
+      "response_ms": 109.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wälzlager",
+      "expected": [
+        "ZL 4140"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ND 9350",
+        "NW 7900",
+        "GW 2030"
+      ],
+      "result_count": 20,
+      "response_ms": 222.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Gleitlagerschmierung",
+      "expected": [
+        "ZL 4140"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 3800",
+        "ZM 8336",
+        "ZM 8311"
+      ],
+      "result_count": 20,
+      "response_ms": 205.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie Kräfte in Maschinen übertragen werden",
+      "expected": [
+        "ZL 4200"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5150",
+        "ZL 4000",
+        "ZL 5000"
+      ],
+      "result_count": 20,
+      "response_ms": 251.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Feder",
+      "expected": [
+        "ZL 4300"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4300",
+        "LK 85170",
+        "SF 2570"
+      ],
+      "result_count": 20,
+      "response_ms": 204.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mutter",
+      "expected": [
+        "ZL 4620"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "MS 1990",
+        "QV 221",
+        "QX 300"
+      ],
+      "result_count": 20,
+      "response_ms": 215.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "CAD",
+      "expected": [
+        "ZG 9147"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZG 9147",
+        "ZL 3250",
+        "ST 308"
+      ],
+      "result_count": 20,
+      "response_ms": 86.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Transformator",
+      "expected": [
+        "ZN 8330"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8330",
+        "ZN 8180",
+        "ZN 4428"
+      ],
+      "result_count": 20,
+      "response_ms": 212.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Halbleiter",
+      "expected": [
+        "ZN 4800"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 14,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0714,
+      "main_group_hit@5": false,
+      "top3": [
+        "UP 3250",
+        "UP 3200",
+        "UP 3050"
+      ],
+      "result_count": 20,
+      "response_ms": 228.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Leistungselektronik für Elektroautos",
+      "expected": [
+        "ZN 8340"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8970",
+        "ZO 4480",
+        "ZO 4250"
+      ],
+      "result_count": 20,
+      "response_ms": 220.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Spannung",
+      "expected": [
+        "ZQ 3400"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UF 1800",
+        "ZM 8218",
+        "ZM 8230"
+      ],
+      "result_count": 20,
+      "response_ms": 88.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Smart Grid",
+      "expected": [
+        "ZP 4450"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZG 9225",
+        "ZN 8550",
+        "AR 27340"
+      ],
+      "result_count": 20,
+      "response_ms": 239.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Photovoltaik",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3730",
+        "ZN 8190",
+        "AR 26360"
+      ],
+      "result_count": 20,
+      "response_ms": 84.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wärmepumpe",
+      "expected": [
+        "ZI 8694"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 221.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wärmepumpenregelung",
+      "expected": [
+        "ZI 8694"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ],
+      "result_count": 20,
+      "response_ms": 212.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Rotorblätter von Windkraftanlagen",
+      "expected": [
+        "ZP 3712"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5410",
+        "ZP 3712",
+        "AR 26355"
+      ],
+      "result_count": 20,
+      "response_ms": 94.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Strom aus Sonnenlicht",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8985",
+        "ZH 7985",
+        "ZP 3725"
+      ],
+      "result_count": 20,
+      "response_ms": 221.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Energie speichern für später",
+      "expected": [
+        "ZP 4100"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4100",
+        "ZP 4400",
+        "ZP 4450"
+      ],
+      "result_count": 20,
+      "response_ms": 93.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Power-to-X",
+      "expected": [
+        "ZP 3700"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8160",
+        "ZN 8170",
+        "ZP 4200"
+      ],
+      "result_count": 20,
+      "response_ms": 235.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Stahl",
+      "expected": [
+        "ZM 4530"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 18,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0556,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZI 4550",
+        "QR 522",
+        "ZI 7200"
+      ],
+      "result_count": 20,
+      "response_ms": 86.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Faserverbundwerkstoffe",
+      "expected": [
+        "ZM 5000",
+        "ZI 4200",
+        "ZI 4700"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 8420",
+        "ZM 7040",
+        "ZM 8400"
+      ],
+      "result_count": 20,
+      "response_ms": 230.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Korrosionsschutz von Aluminium",
+      "expected": [
+        "ZM 7530"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4550",
+        "ZM 4610",
+        "ZL 3235"
+      ],
+      "result_count": 20,
+      "response_ms": 99.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Metall rostet",
+      "expected": [
+        "ZM 7510"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "UQ 7000",
+        "UQ 7360",
+        "UQ 7020"
+      ],
+      "result_count": 20,
+      "response_ms": 215.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kunststoff, der sich selbst repariert",
+      "expected": [
+        "ZM 3000"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZM 7650",
+        "ZI 4700",
+        "ZM 5200"
+      ],
+      "result_count": 20,
+      "response_ms": 219.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Ermüdung",
+      "expected": [
+        "ZM 3200"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Werkstoffe",
+      "rank": 8,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": true,
+      "rr": 0.125,
+      "main_group_hit@5": true,
+      "top3": [
+        "CW 2000",
+        "ZM 3400",
+        "UQ 7400"
+      ],
+      "result_count": 20,
+      "response_ms": 224.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Datenbank",
+      "expected": [
+        "ST 270"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 270",
+        "MT 21500",
+        "ST 271"
+      ],
+      "result_count": 20,
+      "response_ms": 85.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Algorithmus",
+      "expected": [
+        "ST 134"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 134",
+        "QH 500",
+        "QH 425"
+      ],
+      "result_count": 20,
+      "response_ms": 229.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Neuronale Netze zur Bilderkennung",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "WC 7782",
+        "ST 301",
+        "ST 152"
+      ],
+      "result_count": 20,
+      "response_ms": 231.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Datensicherheit in Unternehmensnetzwerken",
+      "expected": [
+        "ST 276"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 276",
+        "ZN 8580",
+        "ST 200"
+      ],
+      "result_count": 20,
+      "response_ms": 220.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Computer lernt aus Beispielen",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Informatik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "AL 40450",
+        "AL 34330",
+        "SR 9000"
+      ],
+      "result_count": 20,
+      "response_ms": 209.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Machine Learning",
+      "expected": [
+        "ST 301"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Informatik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "AL 40450",
+        "ST 301",
+        "ST 300"
+      ],
+      "result_count": 20,
+      "response_ms": 84.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Stahlbeton",
+      "expected": [
+        "ZI 4502"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4502",
+        "ZI 7130",
+        "ZI 7200"
+      ],
+      "result_count": 20,
+      "response_ms": 220.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Brückenbau",
+      "expected": [
+        "ZI 6600"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 6653",
+        "ZI 6650",
+        "ZI 6600"
+      ],
+      "result_count": 20,
+      "response_ms": 95.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mehrgeschossiger Holzbau",
+      "expected": [
+        "ZI 7400"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 7400",
+        "ZM 8405",
+        "ZS 5040"
+      ],
+      "result_count": 20,
+      "response_ms": 207.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Häuser, die kaum Energie verbrauchen",
+      "expected": [
+        "ZH 3061"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 3061",
+        "ZH 5000",
+        "ZH 3064"
+      ],
+      "result_count": 20,
+      "response_ms": 238.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie man Gebäude erdbebensicher macht",
+      "expected": [
+        "ZI 3480"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4900",
+        "ZH 7050",
+        "ZH 7080"
+      ],
+      "result_count": 20,
+      "response_ms": 109.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "BIM",
+      "expected": [
+        "ZI 3100"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Bauwesen",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "QK 230",
+        "QM 332",
+        "ZI 3100"
+      ],
+      "result_count": 20,
+      "response_ms": 219.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Regelungstechnik",
+      "expected": [
+        "UX 9000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 5020",
+        "UX 9000",
+        "QH 721"
+      ],
+      "result_count": 20,
+      "response_ms": 221.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Sensor",
+      "expected": [
+        "VG 6820"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 3120",
+        "VG 6880",
+        "VG 6850"
+      ],
+      "result_count": 20,
+      "response_ms": 90.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "PID-Regler Auslegung",
+      "expected": [
+        "ZQ 5000"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "HF 571",
+        "EE 1650",
+        "EE 1660"
+      ],
+      "result_count": 20,
+      "response_ms": 234.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Messunsicherheit bestimmen",
+      "expected": [
+        "ZQ 3115"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "QC 020",
+        "QH 233",
+        "MT 23100"
+      ],
+      "result_count": 20,
+      "response_ms": 224.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "expected": [
+        "ZL 3300",
+        "ZL 3600"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 7130",
+        "ZL 3050",
+        "ZL 3400"
+      ],
+      "result_count": 20,
+      "response_ms": 217.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Industrie 4.0",
+      "expected": [
+        "ZG 9225"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZG 9225",
+        "QP 505",
+        "MS 4850"
+      ],
+      "result_count": 20,
+      "response_ms": 226.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Projektmanagement",
+      "expected": [
+        "SR 8700"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 3800",
+        "MT 21300",
+        "SR 8700"
+      ],
+      "result_count": 20,
+      "response_ms": 76.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Qualitätsmanagement",
+      "expected": [
+        "QP 321"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 321",
+        "MT 21400",
+        "AL 24800"
+      ],
+      "result_count": 20,
+      "response_ms": 197.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Lean Production in der Automobilindustrie",
+      "expected": [
+        "QP 500"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 500",
+        "PF 264",
+        "QP 300"
+      ],
+      "result_count": 8,
+      "response_ms": 223.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie Firmen ihre Abläufe verbessern",
+      "expected": [
+        "QP 340"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 13,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0769,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 321",
+        "QP 320",
+        "QP 210"
+      ],
+      "result_count": 20,
+      "response_ms": 81.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Bank",
+      "expected": [
+        "QK 000"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 15,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0667,
+      "main_group_hit@5": true,
+      "top3": [
+        "QK 310",
+        "QK 340",
+        "QK 950"
+      ],
+      "result_count": 20,
+      "response_ms": 214.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Supply Chain",
+      "expected": [
+        "QP 530"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 530",
+        "QP 550",
+        "ZL 3930"
+      ],
+      "result_count": 20,
+      "response_ms": 92.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Hydraulik",
+      "expected": [
+        "UF 4550"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4650",
+        "ZI 6710",
+        "UF 4550"
+      ],
+      "result_count": 20,
+      "response_ms": 221.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schweißtechnik",
+      "expected": [
+        "ZM 8420"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 3268",
+        "ZM 7610",
+        "ZP 3285"
+      ],
+      "result_count": 20,
+      "response_ms": 229.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Zahnrad",
+      "expected": [
+        "ZL 4175"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4175",
+        "ZM 8328",
+        "BE 8673"
+      ],
+      "result_count": 20,
+      "response_ms": 227.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Strömungsmaschinen",
+      "expected": [
+        "ZL 5400"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5400",
+        "ZL 5475",
+        "ZL 5410"
+      ],
+      "result_count": 20,
+      "response_ms": 79.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Verschleiß an Zahnradgetrieben",
+      "expected": [
+        "ZL 4175"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 4130",
+        "ZL 4160",
+        "ZL 4150"
+      ],
+      "result_count": 20,
+      "response_ms": 227.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Additive Fertigung von Metallbauteilen",
+      "expected": [
+        "ZM 9045"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZK 8200",
+        "ZL 3235",
+        "ZM 8475"
+      ],
+      "result_count": 20,
+      "response_ms": 83.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+      "expected": [
+        "ZL 4300"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 6350",
+        "ZL 6160",
+        "ZL 6120"
+      ],
+      "result_count": 20,
+      "response_ms": 239.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kühlung von Verbrennungsmotoren",
+      "expected": [
+        "ZL 5500"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Maschinenbau",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5500",
+        "ZP 3550",
+        "ZL 5300"
+      ],
+      "result_count": 20,
+      "response_ms": 83.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie ein Motor im Auto funktioniert",
+      "expected": [
+        "ZL 5500"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZO 4230",
+        "ZL 5580",
+        "ZO 4280"
+      ],
+      "result_count": 20,
+      "response_ms": 220.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Teile mit dem 3D-Drucker herstellen",
+      "expected": [
+        "ZM 9045"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 7170",
+        "ZM 9045",
+        "ZL 3220"
+      ],
+      "result_count": 20,
+      "response_ms": 582.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Maschinen vibrieren",
+      "expected": [
+        "ZL 6130"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": 4,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.25,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 3050",
+        "UF 5200",
+        "ZO 7272"
+      ],
+      "result_count": 20,
+      "response_ms": 218.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Metallteile dauerhaft verbinden",
+      "expected": [
+        "ZM 8420"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Maschinenbau",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "UP 7560",
+        "ZM 4300",
+        "UQ 7250"
+      ],
+      "result_count": 20,
+      "response_ms": 87.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Elektromotor",
+      "expected": [
+        "ZN 8200"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8200",
+        "ZN 8260",
+        "ZN 8255"
+      ],
+      "result_count": 20,
+      "response_ms": 222.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Schaltungstechnik",
+      "expected": [
+        "ZN 5240"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 5240",
+        "ZN 2551",
+        "ZN 8480"
+      ],
+      "result_count": 20,
+      "response_ms": 91.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Akkumulator",
+      "expected": [
+        "ZP 4140"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4140",
+        "ZN 8730",
+        "ZO 5420"
+      ],
+      "result_count": 20,
+      "response_ms": 215.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Hochspannungstechnik",
+      "expected": [
+        "ZN 8400"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 8400",
+        "ZN 8480",
+        "ZN 8110"
+      ],
+      "result_count": 20,
+      "response_ms": 210.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wechselrichter für Photovoltaikanlagen",
+      "expected": [
+        "ZP 3730"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": 3,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333,
+      "main_group_hit@5": true,
+      "top3": [
+        "AR 26360",
+        "ZP 3731",
+        "ZP 3730"
+      ],
+      "result_count": 20,
+      "response_ms": 87.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "expected": [
+        "ZN 4120"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZN 4050",
+        "ZN 3240",
+        "UO 5200"
+      ],
+      "result_count": 20,
+      "response_ms": 208.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Steuerung von Drehstrommotoren",
+      "expected": [
+        "ZN 8280"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Elektrotechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 5580",
+        "ZL 5570",
+        "ZL 5560"
+      ],
+      "result_count": 20,
+      "response_ms": 95.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Lithium-Ionen-Batterien als Heimspeicher",
+      "expected": [
+        "ZP 4140"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 4130",
+        "ZN 8730",
+        "ZO 4480"
+      ],
+      "result_count": 20,
+      "response_ms": 216.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Fernwärmenetze in Städten",
+      "expected": [
+        "ZP 3285"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZP 3285",
+        "ZH 3063",
+        "UG 2500"
+      ],
+      "result_count": 20,
+      "response_ms": 218.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+      "expected": [
+        "ZL 5475"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Energietechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZP 3300",
+        "ZP 3580",
+        "ZP 3275"
+      ],
+      "result_count": 20,
+      "response_ms": 92.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Keramik",
+      "expected": [
+        "ZM 6100"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZM 6100",
+        "LG 4400",
+        "LG 4290"
+      ],
+      "result_count": 20,
+      "response_ms": 234.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Polymere",
+      "expected": [
+        "ZM 5000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 13,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0769,
+      "main_group_hit@5": false,
+      "top3": [
+        "UV 1070",
+        "UV 1050",
+        "UV 1100"
+      ],
+      "result_count": 20,
+      "response_ms": 90.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Legierung",
+      "expected": [
+        "ZM 4300"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Werkstoffe",
+      "rank": 2,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 7000",
+        "ZM 4300",
+        "ZM 4600"
+      ],
+      "result_count": 20,
+      "response_ms": 215.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Zugversuch an Stahlproben",
+      "expected": [
+        "ZM 3600"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZK 8200",
+        "ZI 4941",
+        "ZI 7200"
+      ],
+      "result_count": 20,
+      "response_ms": 226.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Leichte Materialien für Flugzeuge",
+      "expected": [
+        "ZL 3230"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZO 7210",
+        "ZO 7205",
+        "ZO 7340"
+      ],
+      "result_count": 20,
+      "response_ms": 96.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Glas bricht",
+      "expected": [
+        "ZM 6620"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Werkstoffe",
+      "rank": 5,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 8600",
+        "ZM 6540",
+        "ZM 6520"
+      ],
+      "result_count": 20,
+      "response_ms": 216.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Smart Materials",
+      "expected": [
+        "ZM 7000"
+      ],
+      "typ": "Englisch/Jargon",
+      "fachgebiet": "Werkstoffe",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "UQ 8200",
+        "ZM 7060",
+        "ZM 7650"
+      ],
+      "result_count": 20,
+      "response_ms": 85.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Programmiersprache",
+      "expected": [
+        "ST 240"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 240",
+        "ST 140",
+        "WC 7710"
+      ],
+      "result_count": 20,
+      "response_ms": 233.1,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "expected": [
+        "ST 153"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Informatik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 153",
+        "ST 257",
+        "ZQ 3130"
+      ],
+      "result_count": 20,
+      "response_ms": 95.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Virus",
+      "expected": [
+        "ST 276"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Informatik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "WN 9320",
+        "YD 8500",
+        "WF 4350"
+      ],
+      "result_count": 20,
+      "response_ms": 225.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Baustatik",
+      "expected": [
+        "ZI 3300"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 3300",
+        "AV 11000",
+        "GW 2030"
+      ],
+      "result_count": 20,
+      "response_ms": 94.3,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Baustoffe",
+      "expected": [
+        "ZI 4200"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 4200",
+        "ZI 4503",
+        "ZI 4510"
+      ],
+      "result_count": 20,
+      "response_ms": 172.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Tunnelbau",
+      "expected": [
+        "ZI 6500"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZI 6500",
+        "ZI 6540",
+        "ZI 6520"
+      ],
+      "result_count": 20,
+      "response_ms": 221.5,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Brandschutz im Hochbau",
+      "expected": [
+        "ZH 3920"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 3920",
+        "ZI 4090",
+        "ZB 72500"
+      ],
+      "result_count": 20,
+      "response_ms": 228.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Warum Häuser nicht einstürzen",
+      "expected": [
+        "ZI 3300"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZH 5000",
+        "ZH 5260",
+        "ZH 8950"
+      ],
+      "result_count": 20,
+      "response_ms": 97.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Feuchte Wände im Keller",
+      "expected": [
+        "ZI 6150"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Bauwesen",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZL 7300",
+        "ZL 5500",
+        "ZL 5450"
+      ],
+      "result_count": 20,
+      "response_ms": 237.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Decke",
+      "expected": [
+        "ZH 7300"
+      ],
+      "typ": "Mehrdeutig",
+      "fachgebiet": "Bauwesen",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZH 7300",
+        "LK 80160",
+        "ZH 8600"
+      ],
+      "result_count": 20,
+      "response_ms": 217.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Automatisierungstechnik",
+      "expected": [
+        "ZQ 6000"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 5,
+      "hit@1": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2,
+      "main_group_hit@5": true,
+      "top3": [
+        "ZQ 2870",
+        "ZQ 6150",
+        "ZQ 1000"
+      ],
+      "result_count": 20,
+      "response_ms": 102.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Robotik",
+      "expected": [
+        "ST 308"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 308",
+        "ZM 9050",
+        "CC 7270"
+      ],
+      "result_count": 20,
+      "response_ms": 218.8,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Temperaturmessung in Industrieöfen",
+      "expected": [
+        "ZP 3279"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZQ 3800",
+        "UH 5740",
+        "ZL 7400"
+      ],
+      "result_count": 20,
+      "response_ms": 231.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Roboter, die mit Menschen zusammenarbeiten",
+      "expected": [
+        "ST 308"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "ST 308",
+        "ZQ 6230",
+        "QP 225"
+      ],
+      "result_count": 19,
+      "response_ms": 244.9,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Wie eine Fabrik von selbst läuft",
+      "expected": [
+        "ZQ 6000"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Mess- und Regelungstechnik",
+      "rank": null,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0,
+      "main_group_hit@5": false,
+      "top3": [
+        "ZL 3170",
+        "ZL 3180",
+        "ZM 9000"
+      ],
+      "result_count": 20,
+      "response_ms": 84.6,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Kostenrechnung",
+      "expected": [
+        "QP 830"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 830",
+        "QP 810",
+        "QK 330"
+      ],
+      "result_count": 20,
+      "response_ms": 225.7,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Logistik",
+      "expected": [
+        "QH 463"
+      ],
+      "typ": "Fachbegriff",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 7,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": true,
+      "rr": 0.1429,
+      "main_group_hit@5": false,
+      "top3": [
+        "QP 550",
+        "MY 8800",
+        "ZI 3820"
+      ],
+      "result_count": 20,
+      "response_ms": 214.2,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Innovationsmanagement in Technologieunternehmen",
+      "expected": [
+        "QP 210"
+      ],
+      "typ": "Spezifisch/Kompositum",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 1,
+      "hit@1": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0,
+      "main_group_hit@5": true,
+      "top3": [
+        "QP 210",
+        "QP 200",
+        "ZG 9080"
+      ],
+      "result_count": 20,
+      "response_ms": 218.0,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    },
+    {
+      "query": "Mitarbeitende gut führen",
+      "expected": [
+        "QV 584"
+      ],
+      "typ": "Fachfremd umschrieben",
+      "fachgebiet": "Wirtschaft und Management",
+      "rank": 12,
+      "hit@1": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0833,
+      "main_group_hit@5": false,
+      "top3": [
+        "AK 40400",
+        "AL 47900",
+        "QP 450"
+      ],
+      "result_count": 20,
+      "response_ms": 74.4,
+      "expanded_terms": [],
+      "gnd_senses": [],
+      "gnd_terms": [],
+      "llm_suggestions": []
+    }
+  ],
+  "metrics_variants": {
+    "none": {
+      "hit@1": 0.3608,
+      "hit@5": 0.5567,
+      "hit@10": 0.5773,
+      "mrr": 0.4409,
+      "main_group_hit@5": 0.8041,
+      "mean_response_ms": 180.7,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "gnd": {
+      "hit@1": 0.3608,
+      "hit@5": 0.6082,
+      "hit@10": 0.6082,
+      "mrr": 0.4536,
+      "main_group_hit@5": 0.8454,
+      "mean_response_ms": 213.8,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "llm": {
+      "hit@1": 0.3608,
+      "hit@5": 0.5567,
+      "hit@10": 0.5773,
+      "mrr": 0.4409,
+      "main_group_hit@5": 0.8041,
+      "mean_response_ms": 184.0,
+      "zero_result_rate": 0.0,
+      "n": 97
+    },
+    "gnd_llm": {
+      "hit@1": 0.3608,
+      "hit@5": 0.6082,
+      "hit@10": 0.6082,
+      "mrr": 0.4536,
+      "main_group_hit@5": 0.8454,
+      "mean_response_ms": 223.0,
+      "zero_result_rate": 0.0,
+      "n": 97
+    }
+  },
+  "by_typ_variants": {
+    "none": {
+      "Englisch/Jargon": {
+        "hit@1": 0.375,
+        "hit@5": 0.625,
+        "hit@10": 0.625,
+        "mrr": 0.4792,
+        "main_group_hit@5": 0.875,
+        "mean_response_ms": 158.5,
+        "zero_result_rate": 0.0,
+        "n": 8
+      },
+      "Fachbegriff": {
+        "hit@1": 0.5429,
+        "hit@5": 0.7714,
+        "hit@10": 0.8,
+        "mrr": 0.637,
+        "main_group_hit@5": 0.8571,
+        "mean_response_ms": 175.2,
+        "zero_result_rate": 0.0,
+        "n": 35
+      },
+      "Fachfremd umschrieben": {
+        "hit@1": 0.1429,
+        "hit@5": 0.3333,
+        "hit@10": 0.3333,
+        "mrr": 0.2076,
+        "main_group_hit@5": 0.7619,
+        "mean_response_ms": 191.3,
+        "zero_result_rate": 0.0,
+        "n": 21
+      },
+      "Mehrdeutig": {
+        "hit@1": 0.2857,
+        "hit@5": 0.2857,
+        "hit@10": 0.4286,
+        "mrr": 0.3131,
+        "main_group_hit@5": 0.5714,
+        "mean_response_ms": 198.6,
+        "zero_result_rate": 0.0,
+        "n": 7
+      },
+      "Spezifisch/Kompositum": {
+        "hit@1": 0.3077,
+        "hit@5": 0.5,
+        "hit@10": 0.5,
+        "mrr": 0.3878,
+        "main_group_hit@5": 0.8077,
+        "mean_response_ms": 181.7,
+        "zero_result_rate": 0.0,
+        "n": 26
+      }
+    },
+    "gnd": {
+      "Englisch/Jargon": {
+        "hit@1": 0.5,
+        "hit@5": 0.625,
+        "hit@10": 0.625,
+        "mrr": 0.5417,
+        "main_group_hit@5": 0.875,
+        "mean_response_ms": 289.0,
+        "zero_result_rate": 0.0,
+        "n": 8
+      },
+      "Fachbegriff": {
+        "hit@1": 0.5143,
+        "hit@5": 0.8286,
+        "hit@10": 0.8286,
+        "mrr": 0.6358,
+        "main_group_hit@5": 0.9143,
+        "mean_response_ms": 264.2,
+        "zero_result_rate": 0.0,
+        "n": 35
+      },
+      "Fachfremd umschrieben": {
+        "hit@1": 0.1429,
+        "hit@5": 0.3333,
+        "hit@10": 0.3333,
+        "mrr": 0.2076,
+        "main_group_hit@5": 0.7619,
+        "mean_response_ms": 164.8,
+        "zero_result_rate": 0.0,
+        "n": 21
+      },
+      "Mehrdeutig": {
+        "hit@1": 0.2857,
+        "hit@5": 0.7143,
+        "hit@10": 0.7143,
+        "mrr": 0.4238,
+        "main_group_hit@5": 0.8571,
+        "mean_response_ms": 339.2,
+        "zero_result_rate": 0.0,
+        "n": 7
+      },
+      "Spezifisch/Kompositum": {
+        "hit@1": 0.3077,
+        "hit@5": 0.5,
+        "hit@10": 0.5,
+        "mrr": 0.3878,
+        "main_group_hit@5": 0.8077,
+        "mean_response_ms": 128.6,
+        "zero_result_rate": 0.0,
+        "n": 26
+      }
+    },
+    "llm": {
+      "Englisch/Jargon": {
+        "hit@1": 0.375,
+        "hit@5": 0.625,
+        "hit@10": 0.625,
+        "mrr": 0.4792,
+        "main_group_hit@5": 0.875,
+        "mean_response_ms": 166.6,
+        "zero_result_rate": 0.0,
+        "n": 8
+      },
+      "Fachbegriff": {
+        "hit@1": 0.5429,
+        "hit@5": 0.7714,
+        "hit@10": 0.8,
+        "mrr": 0.637,
+        "main_group_hit@5": 0.8571,
+        "mean_response_ms": 170.3,
+        "zero_result_rate": 0.0,
+        "n": 35
+      },
+      "Fachfremd umschrieben": {
+        "hit@1": 0.1429,
+        "hit@5": 0.3333,
+        "hit@10": 0.3333,
+        "mrr": 0.2076,
+        "main_group_hit@5": 0.7619,
+        "mean_response_ms": 201.0,
+        "zero_result_rate": 0.0,
+        "n": 21
+      },
+      "Mehrdeutig": {
+        "hit@1": 0.2857,
+        "hit@5": 0.2857,
+        "hit@10": 0.4286,
+        "mrr": 0.3131,
+        "main_group_hit@5": 0.5714,
+        "mean_response_ms": 158.1,
+        "zero_result_rate": 0.0,
+        "n": 7
+      },
+      "Spezifisch/Kompositum": {
+        "hit@1": 0.3077,
+        "hit@5": 0.5,
+        "hit@10": 0.5,
+        "mrr": 0.3878,
+        "main_group_hit@5": 0.8077,
+        "mean_response_ms": 200.9,
+        "zero_result_rate": 0.0,
+        "n": 26
+      }
+    },
+    "gnd_llm": {
+      "Englisch/Jargon": {
+        "hit@1": 0.5,
+        "hit@5": 0.625,
+        "hit@10": 0.625,
+        "mrr": 0.5417,
+        "main_group_hit@5": 0.875,
+        "mean_response_ms": 243.1,
+        "zero_result_rate": 0.0,
+        "n": 8
+      },
+      "Fachbegriff": {
+        "hit@1": 0.5143,
+        "hit@5": 0.8286,
+        "hit@10": 0.8286,
+        "mrr": 0.6358,
+        "main_group_hit@5": 0.9143,
+        "mean_response_ms": 280.5,
+        "zero_result_rate": 0.0,
+        "n": 35
+      },
+      "Fachfremd umschrieben": {
+        "hit@1": 0.1429,
+        "hit@5": 0.3333,
+        "hit@10": 0.3333,
+        "mrr": 0.2076,
+        "main_group_hit@5": 0.7619,
+        "mean_response_ms": 187.6,
+        "zero_result_rate": 0.0,
+        "n": 21
+      },
+      "Mehrdeutig": {
+        "hit@1": 0.2857,
+        "hit@5": 0.7143,
+        "hit@10": 0.7143,
+        "mrr": 0.4238,
+        "main_group_hit@5": 0.8571,
+        "mean_response_ms": 340.5,
+        "zero_result_rate": 0.0,
+        "n": 7
+      },
+      "Spezifisch/Kompositum": {
+        "hit@1": 0.3077,
+        "hit@5": 0.5,
+        "hit@10": 0.5,
+        "mrr": 0.3878,
+        "main_group_hit@5": 0.8077,
+        "mean_response_ms": 136.3,
+        "zero_result_rate": 0.0,
+        "n": 26
+      }
+    }
+  },
+  "llm": {
+    "enabled": false,
+    "model": "claude-haiku-5-5",
+    "sdk_version": "2.8.0",
+    "structured_output": true,
+    "api_key_present": false,
+    "api_calls": 0,
+    "api_errors": 0,
+    "cache_hits": 0,
+    "limit_reached": 0,
+    "queries_with_suggestions": 0,
+    "suggestions_total": 0,
+    "suggestions_verified": 0,
+    "verified_via_register": 0,
+    "verified_via_gnd": 0
+  },
+  "llm_effect": {
+    "llm_vs_none": [],
+    "gnd_llm_vs_gnd": []
+  },
+  "compare_file": "reports/eval-2026-11-27-67827ac.json",
+  "compare": {
+    "hit@1": {
+      "old": 0.2577,
+      "new": 0.3608,
+      "diff": 0.1031
+    },
+    "hit@5": {
+      "old": 0.4639,
+      "new": 0.6082,
+      "diff": 0.1443
+    },
+    "hit@10": {
+      "old": 0.5567,
+      "new": 0.6082,
+      "diff": 0.0515
+    },
+    "mrr": {
+      "old": 0.3461,
+      "new": 0.4536,
+      "diff": 0.1075
+    },
+    "main_group_hit@5": {
+      "old": 0.7216,
+      "new": 0.8454,
+      "diff": 0.1238
+    },
+    "mean_response_ms": {
+      "old": 228.0,
+      "new": 223.0,
+      "diff": -5.0
+    },
+    "zero_result_rate": {
+      "old": 0.0,
+      "new": 0.0,
+      "diff": 0.0
+    },
+    "n": {
+      "old": 97,
+      "new": 97,
+      "diff": 0
+    }
+  },
+  "compare_per_query": [
+    {
+      "query": "Getriebe",
+      "old_rank": 11,
+      "new_rank": 3,
+      "old_top3": [
+        "KA 1000",
+        "ZL 4150",
+        "ZL 4140"
+      ],
+      "new_top3": [
+        "ZL 4150",
+        "ZL 4140",
+        "ZL 4100"
+      ]
+    },
+    {
+      "query": "Wälzlager",
+      "old_rank": null,
+      "new_rank": 1,
+      "old_top3": [
+        "KA 1000",
+        "KE 1100",
+        "KC 3050"
+      ],
+      "new_top3": [
+        "ZL 4140",
+        "ZL 6130",
+        "ND 9350"
+      ]
+    },
+    {
+      "query": "Gleitlagerschmierung",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZL 3800",
+        "ZK 4250",
+        "ZK 6050"
+      ],
+      "new_top3": [
+        "ZL 3800",
+        "ZM 8336",
+        "ZM 8311"
+      ]
+    },
+    {
+      "query": "Wie Kräfte in Maschinen übertragen werden",
+      "old_rank": 15,
+      "new_rank": null,
+      "old_top3": [
+        "ZL 5000",
+        "ZL 7130",
+        "ZL 5400"
+      ],
+      "new_top3": [
+        "ZL 5150",
+        "ZL 4000",
+        "ZL 5000"
+      ]
+    },
+    {
+      "query": "Feder",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZL 4300",
+        "SF 2570",
+        "ZC 92400"
+      ],
+      "new_top3": [
+        "ZL 4300",
+        "ZL 4000",
+        "LK 85170"
+      ]
+    },
+    {
+      "query": "Mutter",
+      "old_rank": 8,
+      "new_rank": 3,
+      "old_top3": [
+        "MS 1960",
+        "DG 7000",
+        "DW 1759"
+      ],
+      "new_top3": [
+        "MS 1990",
+        "QV 221",
+        "ZL 4620"
+      ]
+    },
+    {
+      "query": "Transformator",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZN 8330",
+        "ZN 8180",
+        "ZN 4428"
+      ],
+      "new_top3": [
+        "ZN 8330",
+        "ZN 8200",
+        "ZN 8970"
+      ]
+    },
+    {
+      "query": "Halbleiter",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "KA 1000",
+        "ZY 5308",
+        "ZY 5408"
+      ],
+      "new_top3": [
+        "UP 3250",
+        "UP 3200",
+        "UP 3050"
+      ]
+    },
+    {
+      "query": "Leistungselektronik für Elektroautos",
+      "old_rank": 5,
+      "new_rank": 4,
+      "old_top3": [
+        "ZN 8970",
+        "ZN 8280",
+        "ZN 8200"
+      ],
+      "new_top3": [
+        "ZN 8970",
+        "ZO 4480",
+        "ZO 4250"
+      ]
+    },
+    {
+      "query": "Spannung",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "CP 3900",
+        "CP 3600",
+        "CP 3800"
+      ],
+      "new_top3": [
+        "UF 1800",
+        "TG 3500",
+        "UF 2000"
+      ]
+    },
+    {
+      "query": "Smart Grid",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZN 8550",
+        "ZG 9225",
+        "ZN 8540"
+      ],
+      "new_top3": [
+        "ZN 8500",
+        "ZG 9225",
+        "ZN 8550"
+      ]
+    },
+    {
+      "query": "Photovoltaik",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZP 3730",
+        "AR 26360",
+        "ZN 8190"
+      ],
+      "new_top3": [
+        "ZP 3730",
+        "ZN 8190",
+        "AR 26360"
+      ]
+    },
+    {
+      "query": "Wärmepumpe",
+      "old_rank": 6,
+      "new_rank": 2,
+      "old_top3": [
+        "ZP 3740",
+        "ZP 3282",
+        "ZP 3285"
+      ],
+      "new_top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ]
+    },
+    {
+      "query": "Wärmepumpenregelung",
+      "old_rank": 13,
+      "new_rank": 2,
+      "old_top3": [
+        "ZP 3282",
+        "ZP 3285",
+        "ZL 7500"
+      ],
+      "new_top3": [
+        "ZP 3740",
+        "ZI 8694",
+        "UX 2000"
+      ]
+    },
+    {
+      "query": "Rotorblätter von Windkraftanlagen",
+      "old_rank": 3,
+      "new_rank": 2,
+      "old_top3": [
+        "ZL 4130",
+        "ZL 5410",
+        "ZP 3712"
+      ],
+      "new_top3": [
+        "ZL 5410",
+        "ZP 3712",
+        "AR 26355"
+      ]
+    },
+    {
+      "query": "Strom aus Sonnenlicht",
+      "old_rank": 4,
+      "new_rank": null,
+      "old_top3": [
+        "AR 26360",
+        "ZP 3734",
+        "ZP 3725"
+      ],
+      "new_top3": [
+        "ZN 8985",
+        "ZH 7985",
+        "ZP 3725"
+      ]
+    },
+    {
+      "query": "Energie speichern für später",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZP 4100",
+        "ZP 3200",
+        "ZP 4450"
+      ],
+      "new_top3": [
+        "ZP 4100",
+        "ZP 4400",
+        "ZP 4450"
+      ]
+    },
+    {
+      "query": "Power-to-X",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZP 4200",
+        "ZN 8160",
+        "ZN 8170"
+      ],
+      "new_top3": [
+        "ZP 3240",
+        "ZP 3280",
+        "ZP 4100"
+      ]
+    },
+    {
+      "query": "Stahl",
+      "old_rank": null,
+      "new_rank": 19,
+      "old_top3": [
+        "ZI 4550",
+        "ZH 4500",
+        "ZI 7200"
+      ],
+      "new_top3": [
+        "ZI 4550",
+        "QR 522",
+        "ZM 4550"
+      ]
+    },
+    {
+      "query": "Faserverbundwerkstoffe",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZM 7040",
+        "UQ 8420",
+        "ZM 7070"
+      ],
+      "new_top3": [
+        "UQ 8420",
+        "ZM 7040",
+        "ZM 8400"
+      ]
+    },
+    {
+      "query": "Korrosionsschutz von Aluminium",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "UN 4042",
+        "ZI 4550",
+        "ZM 4610"
+      ],
+      "new_top3": [
+        "ZI 4550",
+        "ZM 4610",
+        "ZL 3235"
+      ]
+    },
+    {
+      "query": "Warum Metall rostet",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZK 7300",
+        "ZK 7400",
+        "ZK 7600"
+      ],
+      "new_top3": [
+        "UQ 7000",
+        "UQ 7360",
+        "UQ 7020"
+      ]
+    },
+    {
+      "query": "Kunststoff, der sich selbst repariert",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZM 5400",
+        "ZM 7650",
+        "ZM 7652"
+      ],
+      "new_top3": [
+        "ZM 7650",
+        "ZI 4700",
+        "ZM 5200"
+      ]
+    },
+    {
+      "query": "Ermüdung",
+      "old_rank": 8,
+      "new_rank": 4,
+      "old_top3": [
+        "CW 2000",
+        "AR 17700",
+        "UQ 7400"
+      ],
+      "new_top3": [
+        "CW 2000",
+        "ZM 3400",
+        "UQ 7400"
+      ]
+    },
+    {
+      "query": "Datenbank",
+      "old_rank": 1,
+      "new_rank": 4,
+      "old_top3": [
+        "ST 270",
+        "ST 271",
+        "ST 370"
+      ],
+      "new_top3": [
+        "AN 96900",
+        "AL 27200",
+        "ND 3550"
+      ]
+    },
+    {
+      "query": "Algorithmus",
+      "old_rank": 6,
+      "new_rank": 1,
+      "old_top3": [
+        "ZQ 3000",
+        "ZQ 2870",
+        "ZQ 2400"
+      ],
+      "new_top3": [
+        "ST 134",
+        "QH 500",
+        "QH 425"
+      ]
+    },
+    {
+      "query": "Neuronale Netze zur Bilderkennung",
+      "old_rank": null,
+      "new_rank": 2,
+      "old_top3": [
+        "ZQ 6280",
+        "YG 3702",
+        "YG 4202"
+      ],
+      "new_top3": [
+        "WC 7782",
+        "ST 301",
+        "ST 152"
+      ]
+    },
+    {
+      "query": "Datensicherheit in Unternehmensnetzwerken",
+      "old_rank": 3,
+      "new_rank": 1,
+      "old_top3": [
+        "ST 277",
+        "ZN 8580",
+        "ST 276"
+      ],
+      "new_top3": [
+        "ST 276",
+        "ZN 8580",
+        "ST 200"
+      ]
+    },
+    {
+      "query": "Computer lernt aus Beispielen",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "AL 40450",
+        "DP 2609",
+        "AL 34330"
+      ],
+      "new_top3": [
+        "AL 40450",
+        "AL 34330",
+        "SR 9000"
+      ]
+    },
+    {
+      "query": "Machine Learning",
+      "old_rank": 5,
+      "new_rank": 3,
+      "old_top3": [
+        "ST 300",
+        "QH 730",
+        "AL 40450"
+      ],
+      "new_top3": [
+        "ST 300",
+        "WC 7722",
+        "ST 301"
+      ]
+    },
+    {
+      "query": "Stahlbeton",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZI 4502",
+        "ZI 7130",
+        "ZH 4500"
+      ],
+      "new_top3": [
+        "ZI 4502",
+        "ZI 4503",
+        "ZI 7160"
+      ]
+    },
+    {
+      "query": "Brückenbau",
+      "old_rank": 4,
+      "new_rank": 3,
+      "old_top3": [
+        "ZI 6653",
+        "ZI 6650",
+        "ZI 6660"
+      ],
+      "new_top3": [
+        "ZI 6653",
+        "ZI 6650",
+        "ZI 6600"
+      ]
+    },
+    {
+      "query": "Mehrgeschossiger Holzbau",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZI 7400",
+        "ZC 81810",
+        "ZI 4938"
+      ],
+      "new_top3": [
+        "ZI 7400",
+        "ZM 8405",
+        "ZS 5040"
+      ]
+    },
+    {
+      "query": "Häuser, die kaum Energie verbrauchen",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZH 3061",
+        "ZH 3064",
+        "ZH 5950"
+      ],
+      "new_top3": [
+        "ZH 3061",
+        "ZH 5000",
+        "ZH 3064"
+      ]
+    },
+    {
+      "query": "Wie man Gebäude erdbebensicher macht",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZH 7990",
+        "ZH 6040",
+        "ZH 7050"
+      ],
+      "new_top3": [
+        "ZI 4900",
+        "ZH 7050",
+        "ZH 7080"
+      ]
+    },
+    {
+      "query": "BIM",
+      "old_rank": null,
+      "new_rank": 1,
+      "old_top3": [
+        "ZG 7000",
+        "ZG 7050",
+        "SE 122"
+      ],
+      "new_top3": [
+        "ZI 3100",
+        "ZG 9147",
+        "ST 308"
+      ]
+    },
+    {
+      "query": "Regelungstechnik",
+      "old_rank": 3,
+      "new_rank": 2,
+      "old_top3": [
+        "ZQ 5020",
+        "ZQ 5390",
+        "UX 9000"
+      ],
+      "new_top3": [
+        "ZQ 5020",
+        "UX 9000",
+        "QH 721"
+      ]
+    },
+    {
+      "query": "Sensor",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZQ 3120",
+        "VG 6880",
+        "VG 6850"
+      ],
+      "new_top3": [
+        "ZQ 3120",
+        "ZQ 5830",
+        "VG 6880"
+      ]
+    },
+    {
+      "query": "PID-Regler Auslegung",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "SE 261",
+        "HF 571",
+        "FH 65819"
+      ],
+      "new_top3": [
+        "HF 571",
+        "EE 1650",
+        "EE 1660"
+      ]
+    },
+    {
+      "query": "Messunsicherheit bestimmen",
+      "old_rank": 2,
+      "new_rank": null,
+      "old_top3": [
+        "QC 020",
+        "ZQ 3115",
+        "QH 400"
+      ],
+      "new_top3": [
+        "QC 020",
+        "QH 233",
+        "MT 23100"
+      ]
+    },
+    {
+      "query": "Maschine erkennt selbst, wenn sie bald kaputt geht",
+      "old_rank": 3,
+      "new_rank": 4,
+      "old_top3": [
+        "ZL 3700",
+        "ZL 7130",
+        "ZL 3600"
+      ],
+      "new_top3": [
+        "ZL 7130",
+        "ZL 3050",
+        "ZL 3400"
+      ]
+    },
+    {
+      "query": "Industrie 4.0",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZG 9225",
+        "QP 505",
+        "ZG 9220"
+      ],
+      "new_top3": [
+        "ZG 9225",
+        "QP 505",
+        "ZM 9070"
+      ]
+    },
+    {
+      "query": "Lean Production in der Automobilindustrie",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "QP 500",
+        "PF 264",
+        "ZO 4150"
+      ],
+      "new_top3": [
+        "QP 500",
+        "PF 264",
+        "QP 300"
+      ]
+    },
+    {
+      "query": "Wie Firmen ihre Abläufe verbessern",
+      "old_rank": null,
+      "new_rank": 13,
+      "old_top3": [
+        "QP 321",
+        "QH 420",
+        "QH 465"
+      ],
+      "new_top3": [
+        "QP 321",
+        "QP 320",
+        "QP 210"
+      ]
+    },
+    {
+      "query": "Bank",
+      "old_rank": 3,
+      "new_rank": 20,
+      "old_top3": [
+        "QK 310",
+        "QK 340",
+        "QK 000"
+      ],
+      "new_top3": [
+        "QK 310",
+        "QK 340",
+        "QK 950"
+      ]
+    },
+    {
+      "query": "Supply Chain",
+      "old_rank": 4,
+      "new_rank": 1,
+      "old_top3": [
+        "ZO 9410",
+        "QP 550",
+        "ZL 3930"
+      ],
+      "new_top3": [
+        "QP 530",
+        "QP 550",
+        "ZL 3930"
+      ]
+    },
+    {
+      "query": "Schweißtechnik",
+      "old_rank": null,
+      "new_rank": 3,
+      "old_top3": [
+        "ZM 8430",
+        "ZL 3268",
+        "ZM 7610"
+      ],
+      "new_top3": [
+        "ZM 8435",
+        "ZM 8430",
+        "ZM 8420"
+      ]
+    },
+    {
+      "query": "Zahnrad",
+      "old_rank": null,
+      "new_rank": 1,
+      "old_top3": [
+        "SF 9840",
+        "SF 6420",
+        "SF 8940"
+      ],
+      "new_top3": [
+        "ZL 4175",
+        "ZL 4160",
+        "ZL 4000"
+      ]
+    },
+    {
+      "query": "Strömungsmaschinen",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZL 5400",
+        "ZL 4530",
+        "ZL 7130"
+      ],
+      "new_top3": [
+        "ZL 5400",
+        "ZL 5475",
+        "ZL 5410"
+      ]
+    },
+    {
+      "query": "Verschleiß an Zahnradgetrieben",
+      "old_rank": 11,
+      "new_rank": null,
+      "old_top3": [
+        "ZL 4160",
+        "ZL 4150",
+        "ZL 3760"
+      ],
+      "new_top3": [
+        "ZL 4130",
+        "ZL 4160",
+        "ZL 4150"
+      ]
+    },
+    {
+      "query": "Additive Fertigung von Metallbauteilen",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZK 7300",
+        "ZK 7600",
+        "ZK 7500"
+      ],
+      "new_top3": [
+        "ZK 8200",
+        "ZL 3235",
+        "ZM 8475"
+      ]
+    },
+    {
+      "query": "Schwingungsdämpfung in Werkzeugmaschinen",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZL 6160",
+        "ZL 6350",
+        "ZL 7100"
+      ],
+      "new_top3": [
+        "ZL 6350",
+        "ZL 6160",
+        "ZL 6120"
+      ]
+    },
+    {
+      "query": "Kühlung von Verbrennungsmotoren",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZL 5500",
+        "ZL 5580",
+        "ZL 5550"
+      ],
+      "new_top3": [
+        "ZL 5500",
+        "ZP 3550",
+        "ZL 5300"
+      ]
+    },
+    {
+      "query": "Wie ein Motor im Auto funktioniert",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZO 4230",
+        "ZL 5550",
+        "ZO 4200"
+      ],
+      "new_top3": [
+        "ZO 4230",
+        "ZL 5580",
+        "ZO 4280"
+      ]
+    },
+    {
+      "query": "Teile mit dem 3D-Drucker herstellen",
+      "old_rank": 14,
+      "new_rank": 2,
+      "old_top3": [
+        "ZI 7170",
+        "ZM 8320",
+        "ZM 8326"
+      ],
+      "new_top3": [
+        "ZI 7170",
+        "ZM 9045",
+        "ZL 3220"
+      ]
+    },
+    {
+      "query": "Warum Maschinen vibrieren",
+      "old_rank": 7,
+      "new_rank": 4,
+      "old_top3": [
+        "UX 2250",
+        "ZL 3050",
+        "UF 5200"
+      ],
+      "new_top3": [
+        "ZL 3050",
+        "UF 5200",
+        "ZO 7272"
+      ]
+    },
+    {
+      "query": "Metallteile dauerhaft verbinden",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZM 4300",
+        "UQ 7000",
+        "UQ 7250"
+      ],
+      "new_top3": [
+        "UP 7560",
+        "ZM 4300",
+        "UQ 7250"
+      ]
+    },
+    {
+      "query": "Elektromotor",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZN 8200",
+        "ZN 8280",
+        "ZN 8285"
+      ],
+      "new_top3": [
+        "ZN 8200",
+        "ZN 8260",
+        "ZN 8280"
+      ]
+    },
+    {
+      "query": "Schaltungstechnik",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZN 5240",
+        "ZN 2551",
+        "ZN 4904"
+      ],
+      "new_top3": [
+        "ZN 5240",
+        "ST 190",
+        "ZN 2551"
+      ]
+    },
+    {
+      "query": "Akkumulator",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZP 4140",
+        "ZQ 3126",
+        "ZL 3760"
+      ],
+      "new_top3": [
+        "ZP 4140",
+        "ZN 8730",
+        "ZP 4120"
+      ]
+    },
+    {
+      "query": "Hochspannungstechnik",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZN 8400",
+        "ZN 8460",
+        "ZG 9400"
+      ],
+      "new_top3": [
+        "ZN 8400",
+        "ZN 8110",
+        "ZN 8480"
+      ]
+    },
+    {
+      "query": "Wechselrichter für Photovoltaikanlagen",
+      "old_rank": 2,
+      "new_rank": 3,
+      "old_top3": [
+        "AR 26360",
+        "ZP 3730",
+        "ZP 3731"
+      ],
+      "new_top3": [
+        "AR 26360",
+        "ZP 3731",
+        "ZP 3730"
+      ]
+    },
+    {
+      "query": "Elektromagnetische Verträglichkeit von Leiterplatten",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZN 4050",
+        "UP 5000",
+        "ZN 8508"
+      ],
+      "new_top3": [
+        "ZN 4050",
+        "ZN 3240",
+        "UO 5200"
+      ]
+    },
+    {
+      "query": "Steuerung von Drehstrommotoren",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZL 5570",
+        "ZL 5580",
+        "ZL 4130"
+      ],
+      "new_top3": [
+        "ZL 5580",
+        "ZL 5570",
+        "ZL 5560"
+      ]
+    },
+    {
+      "query": "Lithium-Ionen-Batterien als Heimspeicher",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "UN 4026",
+        "VK 7726",
+        "ZP 4130"
+      ],
+      "new_top3": [
+        "ZP 4130",
+        "ZN 8730",
+        "ZO 4480"
+      ]
+    },
+    {
+      "query": "Fernwärmenetze in Städten",
+      "old_rank": 7,
+      "new_rank": 1,
+      "old_top3": [
+        "AR 23740",
+        "ZK 8610",
+        "AR 27340"
+      ],
+      "new_top3": [
+        "ZP 3285",
+        "ZH 3063",
+        "UG 2500"
+      ]
+    },
+    {
+      "query": "Wirkungsgrad von Gasturbinenkraftwerken",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZP 3275",
+        "ZP 3580",
+        "ZP 4200"
+      ],
+      "new_top3": [
+        "ZP 3300",
+        "ZP 3580",
+        "ZP 3275"
+      ]
+    },
+    {
+      "query": "Keramik",
+      "old_rank": 2,
+      "new_rank": 2,
+      "old_top3": [
+        "LG 4400",
+        "ZM 6100",
+        "LG 4290"
+      ],
+      "new_top3": [
+        "ZM 6230",
+        "ZM 6100",
+        "ZM 7024"
+      ]
+    },
+    {
+      "query": "Polymere",
+      "old_rank": 7,
+      "new_rank": 12,
+      "old_top3": [
+        "UV 1100",
+        "UV 1070",
+        "UV 9550"
+      ],
+      "new_top3": [
+        "UV 1100",
+        "UV 1070",
+        "UV 1000"
+      ]
+    },
+    {
+      "query": "Legierung",
+      "old_rank": null,
+      "new_rank": 2,
+      "old_top3": [
+        "KA 1000",
+        "MN 1000",
+        "ZG 8300"
+      ],
+      "new_top3": [
+        "UQ 7000",
+        "ZM 4300",
+        "ZM 4600"
+      ]
+    },
+    {
+      "query": "Zugversuch an Stahlproben",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZI 6465",
+        "ZI 4941",
+        "ZK 8200"
+      ],
+      "new_top3": [
+        "ZK 8200",
+        "ZI 4941",
+        "ZI 7200"
+      ]
+    },
+    {
+      "query": "Leichte Materialien für Flugzeuge",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZO 7210",
+        "ZO 7340",
+        "ZS 8140"
+      ],
+      "new_top3": [
+        "ZO 7210",
+        "ZO 7205",
+        "ZO 7340"
+      ]
+    },
+    {
+      "query": "Warum Glas bricht",
+      "old_rank": 2,
+      "new_rank": 5,
+      "old_top3": [
+        "UQ 8600",
+        "ZM 6620",
+        "ZM 6640"
+      ],
+      "new_top3": [
+        "UQ 8600",
+        "ZM 6540",
+        "ZM 6520"
+      ]
+    },
+    {
+      "query": "Smart Materials",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZN 4192",
+        "ZM 8170",
+        "ZM 7650"
+      ],
+      "new_top3": [
+        "ZQ 7500",
+        "ZL 3225",
+        "ZM 7010"
+      ]
+    },
+    {
+      "query": "Programmiersprache",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ST 240",
+        "ST 140",
+        "ST 250"
+      ],
+      "new_top3": [
+        "ST 240",
+        "ST 140",
+        "WC 7710"
+      ]
+    },
+    {
+      "query": "Echtzeitbetriebssysteme für eingebettete Systeme",
+      "old_rank": 5,
+      "new_rank": 1,
+      "old_top3": [
+        "ST 234",
+        "ZQ 3030",
+        "ZQ 3130"
+      ],
+      "new_top3": [
+        "ST 153",
+        "ST 257",
+        "ZQ 3130"
+      ]
+    },
+    {
+      "query": "Virus",
+      "old_rank": null,
+      "new_rank": 3,
+      "old_top3": [
+        "YD 8500",
+        "WF 3500",
+        "WF 3700"
+      ],
+      "new_top3": [
+        "WF 3700",
+        "WF 3650",
+        "ST 276"
+      ]
+    },
+    {
+      "query": "Baustatik",
+      "old_rank": 2,
+      "new_rank": 1,
+      "old_top3": [
+        "KA 1000",
+        "ZI 3300",
+        "MN 1000"
+      ],
+      "new_top3": [
+        "ZI 3300",
+        "ZI 3330",
+        "UF 1200"
+      ]
+    },
+    {
+      "query": "Baustoffe",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZI 4200",
+        "ZI 4450",
+        "ZH 7140"
+      ],
+      "new_top3": [
+        "ZI 4200",
+        "ZI 4450",
+        "ZI 4700"
+      ]
+    },
+    {
+      "query": "Tunnelbau",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZI 6500",
+        "ZI 6540",
+        "ZI 6550"
+      ],
+      "new_top3": [
+        "ZI 6500",
+        "ZI 6540",
+        "ZI 6520"
+      ]
+    },
+    {
+      "query": "Brandschutz im Hochbau",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZH 3920",
+        "ZI 4090",
+        "ZQ 5884"
+      ],
+      "new_top3": [
+        "ZH 3920",
+        "ZI 4090",
+        "ZB 72500"
+      ]
+    },
+    {
+      "query": "Warum Häuser nicht einstürzen",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZH 5260",
+        "ZH 5950",
+        "ZI 4949"
+      ],
+      "new_top3": [
+        "ZH 5000",
+        "ZH 5260",
+        "ZH 8950"
+      ]
+    },
+    {
+      "query": "Feuchte Wände im Keller",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZH 7200",
+        "ZH 4650",
+        "ZH 8820"
+      ],
+      "new_top3": [
+        "ZL 7300",
+        "ZL 5500",
+        "ZL 5450"
+      ]
+    },
+    {
+      "query": "Decke",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ZH 7300",
+        "ZH 8660",
+        "LK 80160"
+      ],
+      "new_top3": [
+        "ZH 7300",
+        "LK 80160",
+        "LK 80200"
+      ]
+    },
+    {
+      "query": "Automatisierungstechnik",
+      "old_rank": 6,
+      "new_rank": null,
+      "old_top3": [
+        "ZQ 2870",
+        "ZL 6200",
+        "ZQ 6150"
+      ],
+      "new_top3": [
+        "QP 225",
+        "ZI 8860",
+        "MS 4850"
+      ]
+    },
+    {
+      "query": "Robotik",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "ST 308",
+        "ZM 9050",
+        "ZQ 6230"
+      ],
+      "new_top3": [
+        "ST 308",
+        "ZM 9050",
+        "CC 7270"
+      ]
+    },
+    {
+      "query": "Temperaturmessung in Industrieöfen",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZQ 3820",
+        "ZQ 3800",
+        "ZQ 3810"
+      ],
+      "new_top3": [
+        "ZQ 3800",
+        "UH 5740",
+        "ZL 7400"
+      ]
+    },
+    {
+      "query": "Roboter, die mit Menschen zusammenarbeiten",
+      "old_rank": 3,
+      "new_rank": 1,
+      "old_top3": [
+        "ZQ 6230",
+        "ZQ 6250",
+        "ST 308"
+      ],
+      "new_top3": [
+        "ST 308",
+        "ZQ 6230",
+        "QP 225"
+      ]
+    },
+    {
+      "query": "Wie eine Fabrik von selbst läuft",
+      "old_rank": null,
+      "new_rank": null,
+      "old_top3": [
+        "ZM 9000",
+        "ZL 7130",
+        "ZL 3170"
+      ],
+      "new_top3": [
+        "ZL 3170",
+        "ZL 3180",
+        "ZM 9000"
+      ]
+    },
+    {
+      "query": "Kostenrechnung",
+      "old_rank": 1,
+      "new_rank": 1,
+      "old_top3": [
+        "QP 830",
+        "QP 836",
+        "ZC 85440"
+      ],
+      "new_top3": [
+        "QP 830",
+        "QP 810",
+        "QK 330"
+      ]
+    },
+    {
+      "query": "Logistik",
+      "old_rank": 7,
+      "new_rank": 5,
+      "old_top3": [
+        "QP 550",
+        "MY 8800",
+        "ZO 9410"
+      ],
+      "new_top3": [
+        "QP 550",
+        "MY 8800",
+        "ZI 3820"
+      ]
+    },
+    {
+      "query": "Innovationsmanagement in Technologieunternehmen",
+      "old_rank": 3,
+      "new_rank": 1,
+      "old_top3": [
+        "QP 200",
+        "ZG 9210",
+        "QP 210"
+      ],
+      "new_top3": [
+        "QP 210",
+        "QP 200",
+        "ZG 9080"
+      ]
+    },
+    {
+      "query": "Mitarbeitende gut führen",
+      "old_rank": null,
+      "new_rank": 12,
+      "old_top3": [
+        "DT 1369",
+        "DS 1109",
+        "DP 2129"
+      ],
+      "new_top3": [
+        "AK 40400",
+        "AL 47900",
+        "QP 450"
+      ]
+    }
+  ]
+}

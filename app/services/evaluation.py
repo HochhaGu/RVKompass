@@ -432,9 +432,20 @@ def _scoring_section(report: dict) -> list[str]:
         "",
         f"- Formel: {settings.get('formula', '–')}",
         (
-            f"- Stufenschwellen: hoch ab {_fmt(settings.get('tier_high'))}, "
-            f"mittel ab {_fmt(settings.get('tier_medium'))} (Relevanzwerte, keine "
-            "Wahrscheinlichkeiten)"
+            "- Stufenschwellen: "
+            + (
+                f"sehr hoch ab {_fmt(settings.get('tier_very_high'))}, "
+                if settings.get("tier_very_high") is not None
+                else ""
+            )
+            + f"hoch ab {_fmt(settings.get('tier_high'))}, "
+            f"mittel ab {_fmt(settings.get('tier_medium'))}"
+            + (
+                f", schwach ab {_fmt(settings.get('tier_weak'))}"
+                if settings.get("tier_weak") is not None
+                else ""
+            )
+            + " (Relevanzwerte, keine Wahrscheinlichkeiten)"
         ),
     ]
     if settings.get("formula") != "legacy":

@@ -119,6 +119,116 @@ def metrics_for(
     return metrics
 
 
+# --- Diagnose der Ränge (P11) ------------------------------------------------------------------
+
+# Plätze, deren Score die Diagnose je Anfrage festhält (Grenzen Hit@5 und Hit@10)
+DIAGNOSE_POSITIONS = (5, 6, 10, 11)
+
+
+def has_norm_path(strengths: dict[str, float]) -> bool:
+    """Wahr, wenn ein Fundweg außer Vektor Evidenz hat (Register, GND, Volltext, LLM …)."""
+    return any(strengths.get(p, 0.0) > 0 for p in scoring.NON_VECTOR_PATHS)
+
+
+def rank_diagnostics(
+    qfs: Sequence[QueryFeatures], settings: scoring.ScoringSettings
+) -> dict:
+    """Prüft je Anfrage, wo die erste erwartete Stelle landet und warum (Prüfauftrag P11).
+
+    Rechnet den Rang auf demselben Weg wie scripts/evaluate.py (`score_candidates`, danach
+    Abschneiden auf MAX_RESULTS) und unabhängig davon über `FastScorer` (Grid-Weg). Je Anfrage:
+    Rang ungekürzt und gekürzt, Rang laut FastScorer, Zahl der Kandidaten (gesamt und mit
+    Fundweg außer Vektor), Scores auf den Plätzen 5, 6, 10, 11, Gleichstand an der Grenze 5/6,
+    Fundwege der ersten erwarteten Stelle.
+    """
+    fast_ranks = FastScorer(qfs).ranks(settings) if qfs else []
+    per_query = []
+    for qf, fast_rank in zip(qfs, fast_ranks, strict=True):
+        scored = score_candidates(qf.features, settings)
+        wanted = {evaluation.normalize_notation(e) for e in qf.entry.expected}
+        scores = [round(float(s), 9) for _, s, _ in scored]
+        full_rank = None
+        expected_feature = None
+        for position, (feature, _, _) in enumerate(scored, start=1):
+            if evaluation.normalize_notation(feature.notation) in wanted:
+                full_rank, expected_feature = position, feature
+                break
+        shown_rank = full_rank if full_rank and full_rank <= MAX_RESULTS else None
+        with_path = sum(1 for f in qf.features if has_norm_path(f.strengths))
+        expected_paths = (
+            sorted(
+                p
+                for p, v in expected_feature.strengths.items()
+                if v > 0 and p != "vector"
+            )
+            if expected_feature is not None
+            else []
+        )
+        per_query.append(
+            {
+                "query": qf.entry.query,
+                "typ": qf.entry.typ,
+                "rank": shown_rank,
+                "rank_uncut": full_rank,
+                "rank_fast": None if math.isinf(fast_rank) else int(fast_rank),
+                "candidates": len(scored),
+                "candidates_with_path": with_path,
+                "scores_at": {
+                    str(k): scores[k - 1] if len(scores) >= k else None
+                    for k in DIAGNOSE_POSITIONS
+                },
+                "tie_5_6": len(scores) >= 6 and scores[4] == scores[5],
+                "expected_score": scores[full_rank - 1] if full_rank else None,
+                "expected_paths": expected_paths,
+                "expected_vector_only": expected_feature is not None
+                and not expected_paths,
+            }
+        )
+    n = max(len(per_query), 1)
+    histogram: dict[str, int] = {str(k): 0 for k in range(1, MAX_RESULTS + 1)}
+    histogram["nach Platz 20 (abgeschnitten)"] = 0
+    histogram["nicht unter den Kandidaten"] = 0
+    for q in per_query:
+        if q["rank"] is not None:
+            histogram[str(q["rank"])] += 1
+        elif q["rank_uncut"] is not None:
+            histogram["nach Platz 20 (abgeschnitten)"] += 1
+        else:
+            histogram["nicht unter den Kandidaten"] += 1
+
+    def share(pred) -> float:
+        return round(sum(1 for q in per_query if pred(q)) / n, 4)
+
+    found = [q for q in per_query if q["rank_uncut"] is not None]
+    return {
+        "per_query": per_query,
+        "histogram": histogram,
+        "hit@5": share(lambda q: q["rank"] is not None and q["rank"] <= 5),
+        "hit@10": share(lambda q: q["rank"] is not None and q["rank"] <= 10),
+        "hit@5_fast": share(
+            lambda q: q["rank_fast"] is not None and q["rank_fast"] <= 5
+        ),
+        "hit@10_fast": share(
+            lambda q: q["rank_fast"] is not None and q["rank_fast"] <= 10
+        ),
+        "rank_6_to_10": sum(
+            1 for q in per_query if q["rank"] is not None and 6 <= q["rank"] <= 10
+        ),
+        "fast_matches_reference": all(
+            q["rank_fast"] == q["rank_uncut"] for q in per_query
+        ),
+        "ties_at_5_6": sum(1 for q in per_query if q["tie_5_6"]),
+        "expected_found": len(found),
+        "expected_with_norm_path": sum(
+            1 for q in found if not q["expected_vector_only"]
+        ),
+        "expected_vector_only": sum(1 for q in found if q["expected_vector_only"]),
+        "queries_with_10_path_candidates": sum(
+            1 for q in per_query if q["candidates_with_path"] >= 10
+        ),
+    }
+
+
 # --- Grid ------------------------------------------------------------------------------------
 
 
@@ -260,6 +370,7 @@ class FastScorer:
         return {
             "mrr": float(rr.sum() / n),
             "hit@10": float((ranks <= 10).sum() / n),
+            "hit@5": float((ranks <= 5).sum() / n),
             "hit@1": float((ranks <= 1).sum() / n),
         }
 
@@ -432,6 +543,149 @@ def derive_tier_thresholds(rows: Sequence[tuple[float, bool, bool]]) -> dict:
         "tier_medium": _floor4(q_medium),
         "method": "quantile",
     }
+
+
+# --- Fünf Stufen (P11) -------------------------------------------------------------------------
+
+# Gesetzte Annahme (nicht gemessen): Anteil passender Treffer (Hauptgruppe einer erwarteten
+# Notation), ab dem die Stufe beginnt – „sehr hoch“, „hoch“, „mittel“, „schwach“. Darunter
+# „gering“. Gemessen wird nur, wo die Grenzen dann liegen und ob sie auf der Testhälfte halten.
+FIVE_TIER_SHARES = (
+    ("tier_very_high", 0.8),
+    ("tier_high", 0.65),
+    ("tier_medium", 0.5),
+    ("tier_weak", 0.3),
+)
+# Rückfall je Grenze, wenn die Anteilsregel nicht erreichbar ist: Quintile der Scores
+FIVE_TIER_QUANTILES = {
+    "tier_very_high": 0.8,
+    "tier_high": 0.6,
+    "tier_medium": 0.4,
+    "tier_weak": 0.2,
+}
+# Stufenwörter von unten nach oben (wie presentation.RELEVANCE_WORDS)
+FIVE_TIER_WORDS = ("gering", "schwach", "mittel", "hoch", "sehr hoch")
+
+
+def derive_five_tiers(rows: Sequence[tuple[float, bool, bool]]) -> dict:
+    """Vier Schwellen der fünf Stufen aus (Score, passend, exakt) der Entwicklungshälfte.
+
+    Anteilsregel, je Grenze von oben nach unten: die kleinste Score-Grenze, ab der mindestens
+    der Anteil aus FIVE_TIER_SHARES passt, gesetzt nur zwischen verschiedenen Scores und streng
+    unter der vorigen Grenze; jede Stufe (Band zwischen zwei Grenzen) braucht mindestens
+    TIER_MIN_SUPPORT Treffer. Gilt nur, wenn alle vier Grenzen so erreichbar sind.
+
+    Sonst – damit keine Mischung entsteht, bei der einzelne Stufen fast leer bleiben – gelten
+    für alle vier Grenzen die Quintile der Scores (reine Rangordnung, nicht kalibriert).
+    `method` ist „share“ oder „quantile“; `share_rule` hält fest, welche Grenzen die
+    Anteilsregel erreicht hätte (für den Bericht).
+    """
+    if not rows:
+        raise ValueError("Keine Treffer für die Stufenschwellen")
+    all_scores = [float(r[0]) for r in rows]
+
+    def band_size(low: float, high: float | None) -> int:
+        return sum(1 for s in all_scores if s >= low and (high is None or s < high))
+
+    share_rule: dict[str, float | None] = {}
+    below: float | None = None
+    usable = True
+    for name, target in FIVE_TIER_SHARES:
+        # auch nach einer unerreichbaren Grenze weiter prüfen (nur für den Bericht)
+        found = _smallest_threshold(rows, target, below)
+        if found is not None and band_size(found, below) < TIER_MIN_SUPPORT:
+            found = None
+        share_rule[name] = None if found is None else _floor4(found)
+        if found is None:
+            usable = False
+        else:
+            below = found
+    if usable:
+        thresholds = {name: share_rule[name] for name, _ in FIVE_TIER_SHARES}
+        method = "share"
+    else:
+        method = "quantile"
+        distinct = sorted(set(all_scores))
+        thresholds = {}
+        below = None
+        for name, _ in FIVE_TIER_SHARES:
+            q = float(np.quantile(np.array(all_scores), FIVE_TIER_QUANTILES[name]))
+            # kleinster beobachteter Score ab dem Quantil, unter der vorigen Grenze
+            candidates = [
+                s for s in distinct if s >= q and (below is None or s < below)
+            ]
+            if not candidates:
+                raise ValueError("Zu wenige verschiedene Scores für fünf Stufen")
+            below = candidates[0]
+            thresholds[name] = _floor4(below)
+        values = [thresholds[name] for name, _ in FIVE_TIER_SHARES]
+        if len(set(values)) < len(values):
+            raise ValueError("Zu wenige verschiedene Scores für fünf Stufen")
+    return {
+        **thresholds,
+        "method": method,
+        "share_rule": share_rule,
+        "shares": dict(FIVE_TIER_SHARES),
+        "min_support": TIER_MIN_SUPPORT,
+    }
+
+
+def wilson_interval(
+    successes: int, n: int, z: float = 1.96
+) -> tuple[float, float] | None:
+    """95-%-Wilson-Intervall für einen Anteil; ohne Fälle None."""
+    if n <= 0:
+        return None
+    p = successes / n
+    denom = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / denom
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
+    return round(max(centre - half, 0.0), 4), round(min(centre + half, 1.0), 4)
+
+
+def five_tier_level(score: float, settings: scoring.ScoringSettings) -> int:
+    """Stufe 1–5 nach den vier Schwellen von `settings` (wie presentation.relevance_level)."""
+    bounds = scoring.five_tier_bounds(settings)
+    return 1 + sum(score >= b for b in bounds)
+
+
+def five_tier_shares(
+    rows: Sequence[tuple[float, bool, bool]], settings: scoring.ScoringSettings
+) -> dict:
+    """Je Stufe: Treffer, Anteil passend/exakt mit 95-%-Wilson-Intervall (nur Bericht).
+
+    Dazu `ordered` (Anteil passend fällt von Stufe zu Stufe nicht an) und `separated` je
+    benachbartem Stufenpaar (Intervalle überlappen nicht).
+    """
+    levels: dict[str, dict] = {}
+    for level, word in enumerate(FIVE_TIER_WORDS, start=1):
+        members = [r for r in rows if five_tier_level(r[0], settings) == level]
+        n = len(members)
+        good = sum(1 for r in members if r[1])
+        exact = sum(1 for r in members if r[2])
+        levels[word] = {
+            "n": n,
+            "main_group": good,
+            "exact": exact,
+            "share_main_group": round(good / n, 4) if n else None,
+            "share_exact": round(exact / n, 4) if n else None,
+            "ci_main_group": wilson_interval(good, n),
+            "ci_exact": wilson_interval(exact, n),
+        }
+    words = list(FIVE_TIER_WORDS)
+    ordered = True
+    separated = {}
+    for lower, upper in itertools.pairwise(words):
+        lo, up = levels[lower], levels[upper]
+        if lo["n"] and up["n"] and up["share_main_group"] < lo["share_main_group"]:
+            ordered = False
+        if lo["ci_main_group"] and up["ci_main_group"]:
+            separated[f"{lower}|{upper}"] = (
+                up["ci_main_group"][0] > lo["ci_main_group"][1]
+            )
+        else:
+            separated[f"{lower}|{upper}"] = False
+    return {"levels": levels, "ordered": ordered, "separated": separated}
 
 
 def tier_shares(
