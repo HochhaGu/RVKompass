@@ -311,3 +311,14 @@ def test_digest_sends_each_finished_phase_only_once():
     ]
     assert pending_digest(entries, set()) == entries
     assert pending_digest(entries, {digest_key(entries[0])}) == [entries[1]]
+
+
+def test_new_baseline_phase_passes_flag_and_sets_new_baseline(make_engine):
+    gates = FakeGates([ok_report(0.42)])
+    eng = make_engine(gates=gates)
+    eng.run(only="P12", forever=False)
+    assert gates.calls[-1]["neue_basis"] is True
+    st = eng.store.load()
+    assert (
+        st["baseline"]["phase"] == "P12" and st["baseline"]["metrics"]["hit@10"] == 0.42
+    )

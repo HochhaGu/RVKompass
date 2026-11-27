@@ -45,8 +45,12 @@ class DryGates:
                 f"      in {worktree} · PATH beginnt mit {self.real.env()['PATH'].split(':', 1)[0]}"
             )
             results.append(GateResult(name, True, "(Probelauf, nicht ausgeführt)"))
-        if evaluation:
-            old = (baseline or {}).get("metrics", {}).get("hit@10")
+        if evaluation and (baseline or {}).get("neue_basis"):
+            self.out(
+                "    würde neue Basismessung aufnehmen (Goldstandard geändert, kein Vergleich)"
+            )
+        elif evaluation:
+            old = ((baseline or {}).get("metrics") or {}).get("hit@10")
             self.out(
                 f"    würde Hit@10 vergleichen mit {old if old is not None else 'letztem Bericht'}"
                 f" (Toleranz {self.real.tolerance:.2f})"
